@@ -11,17 +11,24 @@ export interface User {
   // Debt types
   export interface Debt {
     id: string;
-    title: string;
+    title?: string;
     amount: number;
     description?: string;
     createdAt: Date;
-    updatedAt: Date;
+    updatedAt?: Date;
     paidAt?: Date;
-    isPaid: boolean;
-    createdBy: string;
-    owedBy: string;
-    owedTo: string;
+    isPaid?: boolean;
+    paid?: boolean;
+    createdBy?: string;
+    owedBy?: string;
+    owedTo?: string;
+    creditorId?: string;
+    debtorId?: string;
     category?: string;
+    type?: 'regular' | 'group';
+    amountPerPerson?: number;
+    creditor?: any;
+    debtor?: any;
   }
   
   // Group types

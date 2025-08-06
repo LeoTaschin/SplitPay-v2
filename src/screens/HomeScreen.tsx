@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -7,16 +7,20 @@ import {
   Platform,
   SafeAreaView,
   StatusBar,
+  Alert,
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
+import { signOut } from '../services/auth';
+import { getUserBalance } from '../services/debtService';
 
 // Importar Design System
-import { useDesignSystem } from '../design-system';
+import { useDesignSystem, Logo, LogoutButton } from '../design-system';
 
 // Importar telas
 import { DashboardScreen } from './DashboardScreen';
@@ -53,6 +57,130 @@ const MainTabs: React.FC<{
   );
 };
 
+// Componente de Balanço Compacto
+const BalanceSection: React.FC = () => {
+  const ds = useDesignSystem();
+  const { t } = useLanguage();
+  const { user, loading: authLoading } = useAuth();
+  const [balanceData, setBalanceData] = useState({
+    totalOwed: 0,
+    totalToReceive: 0,
+    netBalance: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    const fetchBalance = async () => {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        const balance = await getUserBalance(user.id);
+        
+        // Verificar se o componente ainda está montado
+        if (isMounted) {
+          setBalanceData(balance);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar balanço:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchBalance();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id]);
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
+  const getBalanceStatus = () => {
+    if (balanceData.netBalance > 0) {
+      return {
+        text: t('home.youAreOwed'),
+        color: '#10B981',
+        icon: 'trending-up',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+      };
+    } else if (balanceData.netBalance < 0) {
+      return {
+        text: t('home.youOwe'),
+        color: '#EF4444',
+        icon: 'trending-down',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+      };
+    } else {
+      return {
+        text: t('home.balanced'),
+        color: '#F59E0B',
+        icon: 'checkmark-circle',
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+      };
+    }
+  };
+
+  // Não mostrar nada enquanto a autenticação está carregando
+  if (authLoading) {
+    return null;
+  }
+
+  if (loading) {
+    return (
+      <View style={[styles.balanceContainer, { backgroundColor: ds.colors.surface }]}>
+        <View style={styles.balanceLoading}>
+          <View style={styles.loadingSpinner}>
+            <Ionicons name="refresh" size={16} color={ds.colors.text.secondary} />
+          </View>
+          <Text style={[styles.loadingText, { color: ds.colors.text.secondary }]}>
+            {t('common.loading')}...
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  const status = getBalanceStatus();
+
+  return (
+    <View style={[styles.balanceContainer, { backgroundColor: ds.colors.surface }]}>
+      <View style={styles.balanceCompactContent}>
+        {/* Primeira linha: Apenas o valor */}
+        <View style={styles.balanceCompactRow}>
+          <Text style={[styles.balanceCompactAmount, { color: status.color }]}>
+            {formatCurrency(Math.abs(balanceData.netBalance))}
+          </Text>
+        </View>
+        
+        {/* Segunda linha: Subtitle */}
+        <Text style={[styles.balanceCompactSubtitle, { color: ds.colors.text.secondary }]}>
+          {balanceData.netBalance > 0 
+            ? t('home.netBalancePositive')
+            : balanceData.netBalance < 0 
+            ? t('home.netBalanceNegative')
+            : t('home.netBalanceNeutral')
+          }
+        </Text>
+      </View>
+    </View>
+  );
+};
+
 // Componente da Toolbar Customizada
 const BottomToolbar: React.FC<{ 
   activeTab: string; 
@@ -62,11 +190,12 @@ const BottomToolbar: React.FC<{
   onTabChange
 }) => {
   const ds = useDesignSystem();
+  const { t } = useLanguage();
   const navigation = useNavigation<NavigationProp>();
 
   const menuItems = [
     {
-      name: 'Amigos',
+      name: t('navigation.friends'),
       icon: 'person',
       tab: 'friends',
       onPress: () => {
@@ -75,7 +204,7 @@ const BottomToolbar: React.FC<{
       },
     },
     {
-      name: 'Grupos',
+      name: t('navigation.groups'),
       icon: 'people',
       tab: 'groups',
       onPress: () => {
@@ -84,14 +213,14 @@ const BottomToolbar: React.FC<{
       },
     },
     {
-      name: 'Novo',
+      name: t('navigation.new'),
       icon: 'add-sharp',
       tab: 'new',
       isCenter: true,
       onPress: () => navigation.navigate('NewDebt'),
     },
     {
-      name: 'Atividade',
+      name: t('navigation.activity'),
       icon: 'pulse',
       tab: 'activity',
       onPress: () => {
@@ -100,7 +229,7 @@ const BottomToolbar: React.FC<{
       },
     },
     {
-      name: 'Perfil',
+      name: t('navigation.profile'),
       icon: 'person-circle',
       tab: 'profile',
       onPress: () => {
@@ -172,6 +301,7 @@ const BottomToolbar: React.FC<{
 // Componente principal da Home
 export const HomeScreen: React.FC = () => {
   const ds = useDesignSystem();
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('friends');
 
@@ -180,20 +310,29 @@ export const HomeScreen: React.FC = () => {
     setActiveTab(tab);
   }, []);
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      Alert.alert(t('common.error'), t('profile.logoutError'));
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: ds.colors.background }]}>
-      <StatusBar barStyle="dark-content" />
       
-      {/* Header com nome do usuário */}
-      <View style={[styles.header, { backgroundColor: ds.colors.surface }]}>
-        <View style={styles.headerContent}>
-          <Text style={[styles.welcomeText, { color: ds.colors.text.primary }]}>
-            Olá, {user?.displayName || user?.email?.split('@')[0] || 'Usuário'}!
-          </Text>
-          <Text style={[styles.subtitleText, { color: ds.colors.text.secondary }]}>
-            Bem-vindo ao SplitPay
-          </Text>
+      {/* Header Integrado com Logo, Balanço e SignOut */}
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <Logo size={50} />
+          <LogoutButton 
+            onLogout={handleSignOut}
+            size={24}
+          />
         </View>
+        
+        {/* Balanço Integrado */}
+        <BalanceSection />
       </View>
 
       {/* Conteúdo principal */}
@@ -221,20 +360,39 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
   },
-  headerContent: {
-    flexDirection: 'column',
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
+
+
+  balanceContainer: {
+    marginBottom: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.08)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  subtitleText: {
-    fontSize: 14,
-    opacity: 0.8,
+  balanceLoading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+  },
+  loadingText: {
+    fontSize: 16,
+    marginLeft: 8,
   },
   content: {
     flex: 1,
@@ -326,5 +484,35 @@ const styles = StyleSheet.create({
   },
   androidShadow: {
     elevation: 5,
+  },
+  // New styles for BalanceSection
+  balanceCompactContent: {
+    alignItems: 'flex-start',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+  },
+  balanceCompactRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  balanceCompactAmount: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    letterSpacing: -0.5,
+  },
+  balanceCompactSubtitle: {
+    fontSize: 12,
+    opacity: 0.8,
+    textAlign: 'left',
+  },
+  loadingSpinner: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.1)',
   },
 }); 

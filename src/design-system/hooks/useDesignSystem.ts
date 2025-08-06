@@ -12,10 +12,9 @@ import { borderRadiusTokens, type BorderRadiusToken } from '../tokens/border-rad
 import { getShadow, type ShadowToken } from '../tokens/shadows';
 
 export const useDesignSystem = () => {
-  const { theme } = useTheme();
+  const { theme, isDark } = useTheme();
   
-  // Determinar se é tema escuro ou claro
-  const isDark = theme.colors.background === darkColorTokens.background;
+  // Usar o estado isDark do contexto diretamente
   const colorTokens = isDark ? darkColorTokens : lightColorTokens;
   
   return {

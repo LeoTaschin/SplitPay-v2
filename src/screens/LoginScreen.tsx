@@ -20,7 +20,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { auth } from '../config/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { LanguageSelector } from '../design-system';
+import { LanguageSelector, Logo } from '../design-system';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -68,11 +68,8 @@ export const LoginScreen: React.FC = () => {
       await saveCredentials(email, password);
       console.log('Credenciais salvas com sucesso');
       
-      // Pequena pausa para garantir que a autenticação está completa
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Navegação imediata - o Firebase já garante que a autenticação está completa
       
-      // Depois fazemos a navegação
-      navigation.replace('Main');
       
     } catch (error: any) {
       console.log('Erro completo:', error);
@@ -148,7 +145,7 @@ export const LoginScreen: React.FC = () => {
             {/* Header com Logo e Language Selector */}
             <View style={styles.header}>
               <View style={styles.logoContainer}>
-                <Text style={[theme.typography.h1 as any, { color: theme.colors.primary }]}>SplitPay</Text>
+                <Logo size={80} />
               </View>
               
               {/* Language Selector */}
@@ -165,7 +162,7 @@ export const LoginScreen: React.FC = () => {
 
             <View style={styles.mainContent}>
               <Text style={[theme.typography.h3 as any, { color: theme.colors.text, marginBottom: SPACING }]}>
-                {t('auth.welcomeBack')}
+                {t('auth.welcome')}
               </Text>
 
               <View style={styles.formContainer}>
@@ -274,7 +271,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: height * 0.01,
-    minHeight: height * 0.15,
+    minHeight: height * 0.1,
   },
   logoContainer: {
     flex: 1,

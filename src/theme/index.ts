@@ -104,8 +104,8 @@ export const lightTheme: Theme = {
   colors: {
     primary: colors.primary[500], // Verde principal do SplitPay
     secondary: colors.secondary[500], // Azul secundário do SplitPay
-    background: '#FFFFFF', // Branco do SplitPay
-    surface: '#F5F5F5', // Surface do SplitPay
+    background: '#F5F5F5', // Branco do SplitPay
+    surface: '#FFFFFF', // Surface do SplitPay
     text: '#000000', // Texto principal do SplitPay
     textSecondary: '#616161', // Texto secundário do SplitPay
     border: '#E5E5E5', // Borda do SplitPay

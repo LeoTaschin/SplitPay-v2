@@ -220,8 +220,12 @@ export const markDebtAsPaid = async (debtId: string): Promise<ApiResponse<void>>
       const creditorDoc = await transaction.get(creditorRef);
       const creditorData = creditorDoc.data();
 
+      if (!creditorData) {
+        throw new Error('Dados do credor não encontrados');
+      }
+
       transaction.update(creditorRef, {
-        totalToReceive: creditorData.totalToReceive - amount,
+        totalToReceive: (creditorData.totalToReceive || 0) - amount,
       });
 
       // Atualizar o devedor
@@ -229,8 +233,12 @@ export const markDebtAsPaid = async (debtId: string): Promise<ApiResponse<void>>
       const debtorDoc = await transaction.get(debtorRef);
       const debtorData = debtorDoc.data();
 
+      if (!debtorData) {
+        throw new Error('Dados do devedor não encontrados');
+      }
+
       transaction.update(debtorRef, {
-        totalToPay: debtorData.totalToPay - amount,
+        totalToPay: (debtorData.totalToPay || 0) - amount,
       });
     });
 
@@ -281,6 +289,46 @@ export const updateUserTotals = async (userId: string): Promise<{ totalToReceive
     return { totalToReceive, totalToPay };
   } catch (error) {
     console.error('debtService: Erro ao atualizar totais:', error);
+    throw error;
+  }
+}; 
+
+// Buscar balanço do usuário
+export const getUserBalance = async (userId: string): Promise<{
+  totalOwed: number;
+  totalToReceive: number;
+  netBalance: number;
+}> => {
+  try {
+    console.log('debtService: Buscando balanço para usuário', userId);
+    
+    // Buscar documento do usuário
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+      console.error('debtService: Usuário não encontrado');
+      throw new Error('Usuário não encontrado');
+    }
+    
+    const userData = userDoc.data();
+    const totalToReceive = userData.totalToReceive || 0;
+    const totalToPay = userData.totalToPay || 0;
+    const netBalance = totalToReceive - totalToPay;
+    
+    console.log('debtService: Balanço encontrado', {
+      totalToReceive,
+      totalToPay,
+      netBalance
+    });
+    
+    return {
+      totalOwed: totalToPay,
+      totalToReceive,
+      netBalance
+    };
+  } catch (error) {
+    console.error('debtService: Erro ao buscar balanço:', error);
     throw error;
   }
 }; 

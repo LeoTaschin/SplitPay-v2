@@ -220,8 +220,8 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                   style={[
                     styles.languageOption,
                     {
-                      backgroundColor: language === lang.code ? ds.colors.primary + '20' : 'transparent',
-                      borderColor: language === lang.code ? ds.colors.primary : 'transparent',
+                      backgroundColor: language === lang.code ? ds.colors.primary + '10' : 'transparent',
+                      borderColor: language === lang.code ? ds.colors.primary + '30' : 'transparent',
                     },
                   ]}
                   onPress={() => handleLanguageChange(lang.code)}
@@ -230,7 +230,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                     {lang.flag}
                   </Text>
                   <View style={styles.languageInfo}>
-                    <Text style={[styles.languageName, { color: ds.colors.text.primary }]}>
+                    <Text style={[styles.languageName, { color: ds.colors.text.secondary }]}>
                       {lang.name}
                     </Text>
                     {showNativeName && (
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.15)',
   },
   modalTitle: {
     fontSize: 18,

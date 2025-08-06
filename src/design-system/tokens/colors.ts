@@ -108,8 +108,8 @@ export const lightColorTokens = {
   accent: colorPalette.accent[500], // Verde accent do SplitPay
   
   // Cores de fundo
-  background: '#FFFFFF', // Branco do SplitPay
-  surface: '#F5F5F5', // Surface do SplitPay
+  background: '#F5F5F5', // Branco do SplitPay
+  surface: '#FFFFFF', // Surface do SplitPay
   surfaceVariant: colorPalette.gray[100],
   
   // Cores de texto
