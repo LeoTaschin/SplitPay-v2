@@ -110,7 +110,57 @@
     "sizeMedium": "Mediano",
     "sizeSmall": "Pequeño",
     "sizeCompact": "Compacto",
-    "sizeResponsive": "Responsivo"
+    "sizeResponsive": "Responsivo",
+    "cardSelector": {
+      "title": "Agregar Información",
+      "categories": {
+        "financial": "Financiero",
+        "social": "Social",
+        "analytics": "Analítico"
+      },
+      "cards": {
+        "unpaidDebts": {
+          "title": "Deudas No Pagadas",
+          "description": "Cantidad de deudas pendientes"
+        },
+        "totalUnpaid": {
+          "title": "Total No Pagado",
+          "description": "Valor total de las deudas pendientes"
+        },
+        "monthlyAverage": {
+          "title": "Promedio Mensual",
+          "description": "Promedio de gastos por mes"
+        },
+        "biggestDebt": {
+          "title": "Deuda Más Grande",
+          "description": "Valor de la deuda pendiente más grande"
+        },
+        "friendWithMostDebt": {
+          "title": "Amigo con Más Deuda",
+          "description": "Quien debe más dinero"
+        },
+        "mostActiveFriend": {
+          "title": "Amigo Más Activo",
+          "description": "Quien hace más transacciones"
+        },
+        "groupActivity": {
+          "title": "Actividad en Grupos",
+          "description": "Transacciones activas en grupos"
+        },
+        "oldestUnpaidDebt": {
+          "title": "Deuda Más Antigua",
+          "description": "Deuda pendiente por más tiempo"
+        },
+        "paymentTrend": {
+          "title": "Tendencia de Pago",
+          "description": "Velocidad promedio de pago"
+        },
+        "debtDistribution": {
+          "title": "Distribución de Deudas",
+          "description": "Cómo están distribuidas tus deudas"
+        }
+      }
+    }
   },
   "profile": {
     "title": "Perfil",

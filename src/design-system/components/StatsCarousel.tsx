@@ -118,7 +118,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
+    paddingLeft: 0,
+    paddingRight: 0,
     gap: 16,
   },
   cardContainer: {

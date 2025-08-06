@@ -108,7 +108,57 @@
     "sizeMedium": "Moyen",
     "sizeSmall": "Petit",
     "sizeCompact": "Compact",
-    "sizeResponsive": "Responsive"
+    "sizeResponsive": "Responsive",
+    "cardSelector": {
+      "title": "Ajouter des Informations",
+      "categories": {
+        "financial": "Financier",
+        "social": "Social",
+        "analytics": "Analytique"
+      },
+      "cards": {
+        "unpaidDebts": {
+          "title": "Dettes Non Payées",
+          "description": "Nombre de dettes en attente"
+        },
+        "totalUnpaid": {
+          "title": "Total Non Payé",
+          "description": "Montant total des dettes en attente"
+        },
+        "monthlyAverage": {
+          "title": "Moyenne Mensuelle",
+          "description": "Moyenne des dépenses mensuelles"
+        },
+        "biggestDebt": {
+          "title": "Plus Grande Dette",
+          "description": "Valeur de la plus grande dette en attente"
+        },
+        "friendWithMostDebt": {
+          "title": "Ami avec Plus de Dette",
+          "description": "Qui doit le plus d'argent"
+        },
+        "mostActiveFriend": {
+          "title": "Ami le Plus Actif",
+          "description": "Qui fait le plus de transactions"
+        },
+        "groupActivity": {
+          "title": "Activité de Groupe",
+          "description": "Transactions actives dans les groupes"
+        },
+        "oldestUnpaidDebt": {
+          "title": "Dette la Plus Ancienne",
+          "description": "Dette en attente depuis le plus longtemps"
+        },
+        "paymentTrend": {
+          "title": "Tendance de Paiement",
+          "description": "Vitesse moyenne de paiement"
+        },
+        "debtDistribution": {
+          "title": "Distribution des Dettes",
+          "description": "Comment vos dettes sont distribuées"
+        }
+      }
+    }
   },
   "profile": {
     "title": "Profil",

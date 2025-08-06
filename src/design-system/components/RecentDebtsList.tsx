@@ -76,7 +76,10 @@ export const RecentDebtsList: React.FC<RecentDebtsListProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: 24,
+    paddingBottom: 24,
   },
   header: {
     flexDirection: 'row',

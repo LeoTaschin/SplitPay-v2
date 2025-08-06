@@ -332,7 +332,6 @@ export const HomeScreen: React.FC = () => {
         </View>
         
         {/* Balanço Integrado */}
-        <BalanceSection />
       </View>
 
       {/* Conteúdo principal */}

@@ -122,7 +122,57 @@
     "sizeResponsive": "Responsive",
     "slot": "slot",
     "slots": "slots",
-    "available": "available"
+    "available": "available",
+    "cardSelector": {
+      "title": "Add Information",
+      "categories": {
+        "financial": "Financial",
+        "social": "Social",
+        "analytics": "Analytics"
+      },
+      "cards": {
+        "unpaidDebts": {
+          "title": "Unpaid Debts",
+          "description": "Number of pending debts"
+        },
+        "totalUnpaid": {
+          "title": "Total Unpaid",
+          "description": "Total amount of pending debts"
+        },
+        "monthlyAverage": {
+          "title": "Monthly Average",
+          "description": "Average monthly spending"
+        },
+        "biggestDebt": {
+          "title": "Biggest Debt",
+          "description": "Value of the largest pending debt"
+        },
+        "friendWithMostDebt": {
+          "title": "Friend with Most Debt",
+          "description": "Who owes the most money"
+        },
+        "mostActiveFriend": {
+          "title": "Most Active Friend",
+          "description": "Who makes the most transactions"
+        },
+        "groupActivity": {
+          "title": "Group Activity",
+          "description": "Active group transactions"
+        },
+        "oldestUnpaidDebt": {
+          "title": "Oldest Unpaid Debt",
+          "description": "Debt pending for the longest time"
+        },
+        "paymentTrend": {
+          "title": "Payment Trend",
+          "description": "Average payment speed"
+        },
+        "debtDistribution": {
+          "title": "Debt Distribution",
+          "description": "How your debts are distributed"
+        }
+      }
+    }
   },
   "profile": {
     "title": "Profile",

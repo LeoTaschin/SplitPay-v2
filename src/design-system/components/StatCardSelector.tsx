@@ -48,9 +48,9 @@ export const StatCardSelector: React.FC<StatCardSelectorProps> = ({
   });
 
   const categories = [
-    { id: 'financial', name: 'Financeiro', icon: 'cash-outline' },
-    { id: 'social', name: 'Social', icon: 'people-outline' },
-    { id: 'analytics', name: 'Analítico', icon: 'analytics-outline' },
+    { id: 'financial', name: t('dashboard.cardSelector.categories.financial'), icon: 'cash-outline' },
+    { id: 'social', name: t('dashboard.cardSelector.categories.social'), icon: 'people-outline' },
+    { id: 'analytics', name: t('dashboard.cardSelector.categories.analytics'), icon: 'analytics-outline' },
   ];
 
   const groupedCards = categories.map(category => ({
@@ -79,7 +79,7 @@ export const StatCardSelector: React.FC<StatCardSelectorProps> = ({
           {/* Header */}
           <View style={styles.header}>
             <Text style={[styles.title, { color: ds.colors.text.primary }]}>
-              {t('dashboard.addInformation')}
+              {t('dashboard.cardSelector.title')}
             </Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Ionicons

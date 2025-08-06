@@ -8,7 +8,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
+import { useLanguage } from '../../context/LanguageContext';
 import { Avatar } from './Avatar';
+import { Timestamp } from 'firebase/firestore';
 
 interface RecentDebtItemProps {
   personName: string;
@@ -16,7 +18,7 @@ interface RecentDebtItemProps {
   description: string;
   amount: number;
   isCreditor: boolean;
-  date: string;
+  date: string | Date | Timestamp;
   isGroup?: boolean;
   style?: ViewStyle;
   personNameStyle?: TextStyle;
@@ -44,12 +46,85 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
   groupTextStyle,
 }) => {
   const ds = useDesignSystem();
+  const { t } = useLanguage();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
+  };
+
+  const formatDate = (dateInput: string | Date | Timestamp) => {
+    console.log('RecentDebtItem - dateInput:', dateInput, 'type:', typeof dateInput);
+    
+    let date: Date;
+    
+    // Se for Firestore Timestamp
+    if (dateInput instanceof Timestamp) {
+      date = dateInput.toDate();
+      console.log('RecentDebtItem - É um Firestore Timestamp:', date);
+    }
+    // Se já for um objeto Date
+    else if (dateInput instanceof Date) {
+      date = dateInput;
+      console.log('RecentDebtItem - É um Date:', date);
+    } else {
+      // Se for string, tentar converter
+      date = new Date(dateInput);
+      console.log('RecentDebtItem - Convertido de string:', date);
+      
+      // Se for timestamp do Firebase (seconds)
+      if (typeof dateInput === 'string' && !isNaN(Number(dateInput))) {
+        const timestamp = Number(dateInput);
+        console.log('RecentDebtItem - Timestamp detectado:', timestamp);
+        // Se for em segundos (Firebase), converter para milissegundos
+        if (timestamp < 1000000000000) {
+          date = new Date(timestamp * 1000);
+          console.log('RecentDebtItem - Convertido de segundos:', date);
+        } else {
+          date = new Date(timestamp);
+          console.log('RecentDebtItem - Convertido de milissegundos:', date);
+        }
+      }
+    }
+    
+    // Verificar se a data é válida
+    if (isNaN(date.getTime())) {
+      console.log('RecentDebtItem - Data inválida');
+      return 'Data inválida';
+    }
+    
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Se for hoje
+    if (diffDays === 0) {
+      return t('date.today');
+    }
+    
+    // Se for ontem
+    if (diffDays === 1) {
+      return t('date.yesterday');
+    }
+    
+    // Se for esta semana
+    if (diffDays <= 7) {
+      return date.toLocaleDateString(t('common.language') === 'en' ? 'en-US' : 'pt-BR', { weekday: 'long' });
+    }
+    
+    // Se for este mês
+    if (date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) {
+      return date.toLocaleDateString(t('common.language') === 'en' ? 'en-US' : 'pt-BR', { day: 'numeric', month: 'long' });
+    }
+    
+    // Caso contrário, mostrar data completa
+    return date.toLocaleDateString(t('common.language') === 'en' ? 'en-US' : 'pt-BR', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    });
   };
 
   const getStatusIcon = () => {
@@ -78,7 +153,7 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
           <View style={[styles.statusIndicator, { backgroundColor: getStatusColor() + '20' }]}>
             <Ionicons 
               name={getStatusIcon() as any} 
-              size={16} 
+              size={24} 
               color={getStatusColor()} 
             />
           </View>
@@ -112,7 +187,7 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
         <View style={styles.dateContainer}>
           <Ionicons name="calendar-outline" size={14} color={ds.colors.text.secondary} />
           <Text style={[styles.date, { color: ds.colors.text.secondary }, dateStyle]}>
-            {date}
+            {formatDate(date)}
           </Text>
         </View>
         
@@ -157,8 +232,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   info: {
     flex: 1,

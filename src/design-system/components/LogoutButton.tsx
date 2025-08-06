@@ -43,7 +43,7 @@ export const LogoutButton: React.FC<LogoutButtonProps> = ({
   return (
     <>
       <TouchableOpacity 
-        style={[styles.button, { backgroundColor: ds.colors.surface }, style]}
+        style={[styles.button, { backgroundColor: 'transparent' }, style]}
         onPress={handleLogoutPress}
       >
         <Ionicons 

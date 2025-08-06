@@ -53,7 +53,8 @@ export const GridInfo: React.FC<GridInfoProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 24,
+    paddingLeft: 0,
+    paddingRight: 0,
     paddingVertical: 8,
   },
   infoRow: {

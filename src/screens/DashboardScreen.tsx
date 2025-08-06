@@ -347,32 +347,32 @@ export const DashboardScreen: React.FC = () => {
       // Financeiro
       {
         id: 'unpaidDebts',
-        title: 'Dívidas Não Pagas',
-        description: 'Quantidade de dívidas pendentes',
+        title: t('dashboard.cardSelector.cards.unpaidDebts.title'),
+        description: t('dashboard.cardSelector.cards.unpaidDebts.description'),
         icon: 'alert-circle',
         color: '#EF4444',
         category: 'financial'
       },
       {
         id: 'totalUnpaid',
-        title: 'Total Não Pago',
-        description: 'Valor total das dívidas pendentes',
+        title: t('dashboard.cardSelector.cards.totalUnpaid.title'),
+        description: t('dashboard.cardSelector.cards.totalUnpaid.description'),
         icon: 'cash-outline',
         color: '#F59E0B',
         category: 'financial'
       },
       {
         id: 'monthlyAverage',
-        title: 'Média Mensal',
-        description: 'Média de gastos por mês',
+        title: t('dashboard.cardSelector.cards.monthlyAverage.title'),
+        description: t('dashboard.cardSelector.cards.monthlyAverage.description'),
         icon: 'trending-up',
         color: '#10B981',
         category: 'financial'
       },
       {
         id: 'biggestDebt',
-        title: 'Maior Dívida',
-        description: 'Valor da maior dívida pendente',
+        title: t('dashboard.cardSelector.cards.biggestDebt.title'),
+        description: t('dashboard.cardSelector.cards.biggestDebt.description'),
         icon: 'diamond',
         color: '#8B5CF6',
         category: 'financial'
@@ -380,24 +380,24 @@ export const DashboardScreen: React.FC = () => {
       // Social
       {
         id: 'friendWithMostDebt',
-        title: 'Amigo com Mais Dívida',
-        description: 'Quem deve mais dinheiro',
+        title: t('dashboard.cardSelector.cards.friendWithMostDebt.title'),
+        description: t('dashboard.cardSelector.cards.friendWithMostDebt.description'),
         icon: 'person',
         color: '#10B981',
         category: 'social'
       },
       {
         id: 'mostActiveFriend',
-        title: 'Amigo Mais Ativo',
-        description: 'Quem mais faz transações',
+        title: t('dashboard.cardSelector.cards.mostActiveFriend.title'),
+        description: t('dashboard.cardSelector.cards.mostActiveFriend.description'),
         icon: 'people',
         color: '#3B82F6',
         category: 'social'
       },
       {
         id: 'groupActivity',
-        title: 'Atividade em Grupos',
-        description: 'Transações em grupos ativos',
+        title: t('dashboard.cardSelector.cards.groupActivity.title'),
+        description: t('dashboard.cardSelector.cards.groupActivity.description'),
         icon: 'people-circle',
         color: '#EC4899',
         category: 'social'
@@ -405,24 +405,24 @@ export const DashboardScreen: React.FC = () => {
       // Analítico
       {
         id: 'oldestUnpaidDebt',
-        title: 'Dívida Mais Antiga',
-        description: 'Dívida pendente há mais tempo',
+        title: t('dashboard.cardSelector.cards.oldestUnpaidDebt.title'),
+        description: t('dashboard.cardSelector.cards.oldestUnpaidDebt.description'),
         icon: 'time-outline',
         color: '#8B5CF6',
         category: 'analytics'
       },
       {
         id: 'paymentTrend',
-        title: 'Tendência de Pagamento',
-        description: 'Velocidade média de pagamento',
+        title: t('dashboard.cardSelector.cards.paymentTrend.title'),
+        description: t('dashboard.cardSelector.cards.paymentTrend.description'),
         icon: 'analytics',
         color: '#06B6D4',
         category: 'analytics'
       },
       {
         id: 'debtDistribution',
-        title: 'Distribuição de Dívidas',
-        description: 'Como suas dívidas estão distribuídas',
+        title: t('dashboard.cardSelector.cards.debtDistribution.title'),
+        description: t('dashboard.cardSelector.cards.debtDistribution.description'),
         icon: 'pie-chart',
         color: '#F97316',
         category: 'analytics'
@@ -633,6 +633,7 @@ export const DashboardScreen: React.FC = () => {
         }}
       >
         {recentDebts.map((debt) => {
+          console.log('DashboardScreen - debt.createdAt:', debt.createdAt, 'type:', typeof debt.createdAt);
           const isCreditor = debt.creditorId === user?.id;
           const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
           const otherPerson = isCreditor ? debt.debtor : debt.creditor;
@@ -645,7 +646,7 @@ export const DashboardScreen: React.FC = () => {
               description={debt.description || t('dashboard.noDescription')}
               amount={amount}
               isCreditor={isCreditor}
-              date={new Date(debt.createdAt).toLocaleDateString('pt-BR')}
+              date={debt.createdAt}
               isGroup={debt.type === 'group'}
             />
           );
@@ -660,8 +661,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingLeft: 24,
-    paddingRight: 24,
+    paddingRight: 0,
     paddingBottom: 24,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -679,7 +679,7 @@ const styles = StyleSheet.create({
   },
   cardsContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 24,
+    paddingRight: 24,
     gap: 16,
   },
   card: {
@@ -704,7 +704,7 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
+    paddingRight: 24,
     marginBottom: 16,
   },
   statCard: {
@@ -758,7 +758,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
+    paddingRight: 24,
     marginBottom: 24,
     gap: 12,
   },

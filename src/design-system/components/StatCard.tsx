@@ -71,7 +71,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         flex: 1,
         gap: 8 // Espaçamento entre elementos
       },
-      valueFontSize: 16, // Fonte maior para destaque
+      valueFontSize: 14, // Fonte maior para destaque
       titleFontSize: 10, // Fonte adequada
       subtitleFontSize: 14, // Fonte legível
       removeButton: { 
@@ -167,13 +167,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 2,
+    textAlign: 'center',
   },
   title: {
     fontSize: 10,
     fontWeight: '500',
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 8,
     opacity: 0.7,
+    textAlign: 'center',
   },
 }); 
