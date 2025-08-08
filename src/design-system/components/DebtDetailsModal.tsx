@@ -24,7 +24,7 @@ interface DebtDetailsModalProps {
     description?: string;
     amount: number;
     createdAt: string | Date | Timestamp;
-    type?: 'regular' | 'group';
+    type?: 'personal' | 'group';
     creditor?: {
       id: string;
       name?: string;

@@ -40,6 +40,8 @@ interface DashboardStats {
   friendWithMostDebtPhoto: string;
   oldestUnpaidDebt: string;
   oldestUnpaidDebtDays: number;
+  oldestUnpaidDebtUserName: string;
+  oldestUnpaidDebtDate: string;
   // Novos campos
   monthlyAverage: number;
   biggestDebt: number;
@@ -91,6 +93,8 @@ export const DashboardScreen: React.FC = () => {
     friendWithMostDebtPhoto: '',
     oldestUnpaidDebt: '',
     oldestUnpaidDebtDays: 0,
+    oldestUnpaidDebtUserName: '',
+    oldestUnpaidDebtDate: '',
     // Novos campos
     monthlyAverage: 0,
     biggestDebt: 0,
@@ -228,6 +232,31 @@ export const DashboardScreen: React.FC = () => {
       ? Math.floor((Date.now() - new Date(oldestUnpaidDebt.createdAt).getTime()) / (1000 * 60 * 60 * 24))
       : 0;
 
+    // Determinar nome do usuário da dívida mais antiga
+    let oldestUnpaidDebtUserName = '';
+    let oldestUnpaidDebtDate = '';
+    
+    if (oldestUnpaidDebt) {
+      // Se o usuário atual é o credor, mostrar nome do devedor
+      if (oldestUnpaidDebt.creditorId === user?.id) {
+        oldestUnpaidDebtUserName = oldestUnpaidDebt.debtor?.username || oldestUnpaidDebt.debtor?.name || 'Usuário';
+      } else {
+        // Se o usuário atual é o devedor, mostrar nome do credor
+        oldestUnpaidDebtUserName = oldestUnpaidDebt.creditor?.username || oldestUnpaidDebt.creditor?.name || 'Usuário';
+      }
+      
+      // Formatar data de criação
+      const debtDate = oldestUnpaidDebt.createdAt instanceof Date 
+        ? oldestUnpaidDebt.createdAt 
+        : (oldestUnpaidDebt.createdAt as any).toDate();
+      
+      oldestUnpaidDebtDate = debtDate.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    }
+
     return {
       unpaidDebts: unpaidDebtsCount,
       totalUnpaidAmount,
@@ -236,6 +265,8 @@ export const DashboardScreen: React.FC = () => {
       friendWithMostDebtPhoto: friendWithMostDebt?.[1]?.photoURL || '',
       oldestUnpaidDebt: oldestUnpaidDebt?.description || '',
       oldestUnpaidDebtDays,
+      oldestUnpaidDebtUserName,
+      oldestUnpaidDebtDate,
       // Novos campos - serão preenchidos separadamente
       monthlyAverage: 0,
       biggestDebt: 0,
@@ -247,7 +278,8 @@ export const DashboardScreen: React.FC = () => {
       groupActiveTransactions: 0,
       paymentTrendDays: 0,
       personalDebtPercentage: 0,
-      groupDebtPercentage: 0
+      groupDebtPercentage: 0,
+      friendsWithOpenDebts: 0
     };
   };
 
@@ -588,10 +620,8 @@ export const DashboardScreen: React.FC = () => {
       {
         id: 'oldestUnpaidDebt',
         title: t('dashboard.oldestUnpaidDebt'),
-        value: dashboardStats.oldestUnpaidDebtDays > 0 
-          ? `${dashboardStats.oldestUnpaidDebtDays} ${t('dashboard.days')}`
-          : t('dashboard.noOldDebts'),
-        subtitle: dashboardStats.oldestUnpaidDebt || t('dashboard.noDescription'),
+        value: dashboardStats.oldestUnpaidDebtUserName || t('dashboard.noOldDebts'),
+        subtitle: dashboardStats.oldestUnpaidDebtDate || t('dashboard.noDescription'),
         icon: 'time-outline',
         color: '#8B5CF6'
       },
@@ -738,7 +768,7 @@ export const DashboardScreen: React.FC = () => {
               isCreditor={isCreditor}
               date={debt.createdAt}
               isGroup={debt.type === 'group'}
-              onPress={() => handleDebtPress(debt)}
+              onPress={() => handleDebtPress(debt as any)}
             />
           );
         })}
