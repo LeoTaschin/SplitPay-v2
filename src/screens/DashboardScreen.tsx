@@ -195,6 +195,9 @@ export const DashboardScreen: React.FC = () => {
     const allUnpaidDebts = [...creditorDebts, ...debtorDebts].filter(debt => !debt.paid);
     const unpaidDebtsCount = allUnpaidDebts.length;
     
+    // Todas as dívidas para encontrar a mais antiga
+    const allDebts = [...creditorDebts, ...debtorDebts];
+    
     // Valor total não pago
     const totalUnpaidAmount = allUnpaidDebts.reduce((sum, debt) => {
       const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
@@ -224,12 +227,19 @@ export const DashboardScreen: React.FC = () => {
     const friendWithMostDebt = Object.entries(debtByFriend)
       .sort(([, a], [, b]) => b.total - a.total)[0];
 
-    // Dívida mais antiga não paga
-    const oldestUnpaidDebt = allUnpaidDebts
-      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0];
+    // Dívida mais antiga não paga (ordenar do mais antigo para o mais recente)
+    const sortedUnpaidDebts = allUnpaidDebts
+      .sort((a, b) => {
+        const dateA = a.createdAt instanceof Date ? a.createdAt : (a.createdAt as any).toDate();
+        const dateB = b.createdAt instanceof Date ? b.createdAt : (b.createdAt as any).toDate();
+        return dateA.getTime() - dateB.getTime();
+      });
+    const oldestUnpaidDebt = sortedUnpaidDebts[0];
+    
+
 
     const oldestUnpaidDebtDays = oldestUnpaidDebt 
-      ? Math.floor((Date.now() - new Date(oldestUnpaidDebt.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+      ? Math.floor((Date.now() - (oldestUnpaidDebt.createdAt instanceof Date ? oldestUnpaidDebt.createdAt : (oldestUnpaidDebt.createdAt as any).toDate()).getTime()) / (1000 * 60 * 60 * 24))
       : 0;
 
     // Determinar nome do usuário da dívida mais antiga
