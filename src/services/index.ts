@@ -8,4 +8,7 @@ export * from './debtService';
 export * from './userService';
 
 // Serviços de analytics
-export * from './analyticsService'; 
+export * from './analyticsService';
+
+// Serviços de migração
+export * from './migrationService'; 

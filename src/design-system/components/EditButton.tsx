@@ -24,7 +24,11 @@ export const EditButton: React.FC<EditButtonProps> = ({
     <TouchableOpacity
       style={[
         styles.container,
-        { backgroundColor: isEditing ? ds.colors.primary : ds.colors.surface },
+        { 
+          backgroundColor: isEditing 
+            ? `${ds.colors.surface}`
+            : ds.colors.surface 
+        },
         style,
       ]}
       onPress={onToggle}
@@ -32,7 +36,7 @@ export const EditButton: React.FC<EditButtonProps> = ({
       <Ionicons
         name={isEditing ? 'checkmark' : 'create-outline'}
         size={20}
-        color={isEditing ? ds.colors.text.inverse : ds.colors.text.secondary}
+        color={isEditing ? ds.colors.primary : ds.colors.text.secondary}
       />
     </TouchableOpacity>
   );

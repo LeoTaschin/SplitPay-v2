@@ -8,6 +8,7 @@ import {
   getDocs,
   query,
   where,
+  orderBy,
   serverTimestamp,
   runTransaction,
 } from 'firebase/firestore';
@@ -21,6 +22,8 @@ interface DebtData {
   description?: string;
   createdAt: Date;
   paid: boolean;
+  paidAt?: Date;
+  paidBy?: string;
   creditor: any;
   debtor: any;
 }
@@ -101,51 +104,131 @@ export async function createDebt(
     });
 
     console.log('debtService: Dívida criada com sucesso', result);
-    return { success: true, data: { debtId: result.debtId } };
-
+    return result;
   } catch (error) {
     console.error('debtService: Erro ao criar dívida:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    };
   }
 }
+
+// Função auxiliar para ordenar dívidas por data
+const sortDebtsByDate = (debts: Debt[]): Debt[] => {
+  const getDebtTimestamp = (debt: Debt) => {
+    const createdAt = debt.createdAt;
+    
+    if (createdAt instanceof Date) {
+      return createdAt.getTime();
+    }
+    
+    if (typeof createdAt === 'string') {
+      const date = new Date(createdAt);
+      return isNaN(date.getTime()) ? 0 : date.getTime();
+    }
+    
+    // Se for Firestore Timestamp
+    if (createdAt && typeof createdAt === 'object' && 'toDate' in createdAt) {
+      return createdAt.toDate().getTime();
+    }
+    
+    // Se for timestamp numérico
+    if (typeof createdAt === 'number') {
+      return createdAt;
+    }
+    
+    return 0;
+  };
+  
+  return debts.sort((a, b) => {
+    const timestampA = getDebtTimestamp(a);
+    const timestampB = getDebtTimestamp(b);
+    return timestampB - timestampA; // Mais recente primeiro
+  });
+};
 
 // Buscar dívidas onde o usuário é credor
 export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
   try {
     console.log('debtService: Buscando dívidas como credor para', userId);
-    const q = query(
-      collection(db, 'debts'),
-      where('creditorId', '==', userId),
-      where('paid', '==', false)
-    );
+    
+    // Tentar com ordenação no Firebase primeiro
+    try {
+      const q = query(
+        collection(db, 'debts'),
+        where('creditorId', '==', userId),
+        where('paid', '==', false),
+        orderBy('createdAt', 'desc')
+      );
 
-    const groupQ = query(
-      collection(db, 'debts'),
-      where('receiverId', '==', userId),
-      where('type', '==', 'group'),
-      where('paid', '==', false)
-    );
+      const groupQ = query(
+        collection(db, 'debts'),
+        where('receiverId', '==', userId),
+        where('type', '==', 'group'),
+        where('paid', '==', false),
+        orderBy('createdAt', 'desc')
+      );
 
-    const [querySnapshot, groupQuerySnapshot] = await Promise.all([
-      getDocs(q),
-      getDocs(groupQ)
-    ]);
+      const [querySnapshot, groupQuerySnapshot] = await Promise.all([
+        getDocs(q),
+        getDocs(groupQ)
+      ]);
 
-    const regularDebts = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+      const regularDebts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
-    const groupDebts = groupQuerySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      debtorId: doc.data().payerId,
-      creditorId: doc.data().receiverId
-    }));
+      const groupDebts = groupQuerySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        debtorId: doc.data().payerId,
+        creditorId: doc.data().receiverId
+      }));
 
-    const allDebts = [...regularDebts, ...groupDebts];
-    console.log('debtService: Encontradas', allDebts.length, 'dívidas como credor');
-    return allDebts as Debt[];
+      const allDebts = [...regularDebts, ...groupDebts];
+      console.log('debtService: Encontradas', allDebts.length, 'dívidas como credor (com ordenação Firebase)');
+      return allDebts as Debt[];
+    } catch (error) {
+      console.log('debtService: Erro com ordenação Firebase, tentando sem ordenação:', error);
+      
+      // Fallback: buscar sem ordenação e ordenar localmente
+      const q = query(
+        collection(db, 'debts'),
+        where('creditorId', '==', userId),
+        where('paid', '==', false)
+      );
+
+      const groupQ = query(
+        collection(db, 'debts'),
+        where('receiverId', '==', userId),
+        where('type', '==', 'group'),
+        where('paid', '==', false)
+      );
+
+      const [querySnapshot, groupQuerySnapshot] = await Promise.all([
+        getDocs(q),
+        getDocs(groupQ)
+      ]);
+
+      const regularDebts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      const groupDebts = groupQuerySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        debtorId: doc.data().payerId,
+        creditorId: doc.data().receiverId
+      }));
+
+      const allDebts = [...regularDebts, ...groupDebts];
+      const sortedDebts = sortDebtsByDate(allDebts);
+      console.log('debtService: Encontradas', sortedDebts.length, 'dívidas como credor (ordenadas localmente)');
+      return sortedDebts as Debt[];
+    }
   } catch (error) {
     console.error('debtService: Erro ao buscar dívidas como credor:', error);
     throw error;
@@ -156,39 +239,83 @@ export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
 export const getDebtsAsDebtor = async (userId: string): Promise<Debt[]> => {
   try {
     console.log('debtService: Buscando dívidas como devedor para', userId);
-    const q = query(
-      collection(db, 'debts'),
-      where('debtorId', '==', userId),
-      where('paid', '==', false)
-    );
+    
+    // Tentar com ordenação no Firebase primeiro
+    try {
+      const q = query(
+        collection(db, 'debts'),
+        where('debtorId', '==', userId),
+        where('paid', '==', false),
+        orderBy('createdAt', 'desc')
+      );
 
-    const groupQ = query(
-      collection(db, 'debts'),
-      where('payerId', '==', userId),
-      where('type', '==', 'group'),
-      where('paid', '==', false)
-    );
+      const groupQ = query(
+        collection(db, 'debts'),
+        where('payerId', '==', userId),
+        where('type', '==', 'group'),
+        where('paid', '==', false),
+        orderBy('createdAt', 'desc')
+      );
 
-    const [querySnapshot, groupQuerySnapshot] = await Promise.all([
-      getDocs(q),
-      getDocs(groupQ)
-    ]);
+      const [querySnapshot, groupQuerySnapshot] = await Promise.all([
+        getDocs(q),
+        getDocs(groupQ)
+      ]);
 
-    const regularDebts = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+      const regularDebts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
-    const groupDebts = groupQuerySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      debtorId: doc.data().payerId,
-      creditorId: doc.data().receiverId
-    }));
+      const groupDebts = groupQuerySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        debtorId: doc.data().payerId,
+        creditorId: doc.data().receiverId
+      }));
 
-    const allDebts = [...regularDebts, ...groupDebts];
-    console.log('debtService: Encontradas', allDebts.length, 'dívidas como devedor');
-    return allDebts as Debt[];
+      const allDebts = [...regularDebts, ...groupDebts];
+      console.log('debtService: Encontradas', allDebts.length, 'dívidas como devedor (com ordenação Firebase)');
+      return allDebts as Debt[];
+    } catch (error) {
+      console.log('debtService: Erro com ordenação Firebase, tentando sem ordenação:', error);
+      
+      // Fallback: buscar sem ordenação e ordenar localmente
+      const q = query(
+        collection(db, 'debts'),
+        where('debtorId', '==', userId),
+        where('paid', '==', false)
+      );
+
+      const groupQ = query(
+        collection(db, 'debts'),
+        where('payerId', '==', userId),
+        where('type', '==', 'group'),
+        where('paid', '==', false)
+      );
+
+      const [querySnapshot, groupQuerySnapshot] = await Promise.all([
+        getDocs(q),
+        getDocs(groupQ)
+      ]);
+
+      const regularDebts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      const groupDebts = groupQuerySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        debtorId: doc.data().payerId,
+        creditorId: doc.data().receiverId
+      }));
+
+      const allDebts = [...regularDebts, ...groupDebts];
+      const sortedDebts = sortDebtsByDate(allDebts);
+      console.log('debtService: Encontradas', sortedDebts.length, 'dívidas como devedor (ordenadas localmente)');
+      return sortedDebts as Debt[];
+    }
   } catch (error) {
     console.error('debtService: Erro ao buscar dívidas como devedor:', error);
     throw error;
@@ -212,86 +339,80 @@ export const markDebtAsPaid = async (debtId: string): Promise<ApiResponse<void>>
       // Atualizar a dívida
       transaction.update(debtRef, {
         paid: true,
-        updatedAt: serverTimestamp(),
+        paidAt: new Date(),
+        paidBy: currentUserId
       });
 
-      // Atualizar o credor
+      // Atualizar os totais dos usuários
       const creditorRef = doc(db, 'users', creditorId);
-      const creditorDoc = await transaction.get(creditorRef);
-      const creditorData = creditorDoc.data();
-
-      if (!creditorData) {
-        throw new Error('Dados do credor não encontrados');
-      }
-
-      transaction.update(creditorRef, {
-        totalToReceive: (creditorData.totalToReceive || 0) - amount,
-      });
-
-      // Atualizar o devedor
       const debtorRef = doc(db, 'users', debtorId);
-      const debtorDoc = await transaction.get(debtorRef);
-      const debtorData = debtorDoc.data();
 
-      if (!debtorData) {
-        throw new Error('Dados do devedor não encontrados');
+      const [creditorDoc, debtorDoc] = await Promise.all([
+        transaction.get(creditorRef),
+        transaction.get(debtorRef)
+      ]);
+
+      if (creditorDoc.exists()) {
+        const creditorData = creditorDoc.data();
+        transaction.update(creditorRef, {
+          totalToReceive: Math.max(0, (creditorData.totalToReceive || 0) - Number(amount))
+        });
       }
 
-      transaction.update(debtorRef, {
-        totalToPay: (debtorData.totalToPay || 0) - amount,
-      });
+      if (debtorDoc.exists()) {
+        const debtorData = debtorDoc.data();
+        transaction.update(debtorRef, {
+          totalToPay: Math.max(0, (debtorData.totalToPay || 0) - Number(amount))
+        });
+      }
     });
 
+    console.log('debtService: Dívida marcada como paga com sucesso');
     return { success: true };
   } catch (error) {
     console.error('debtService: Erro ao marcar dívida como paga:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    };
   }
 };
 
-// Atualizar os totais do usuário
+// Atualizar totais do usuário
 export const updateUserTotals = async (userId: string): Promise<{ totalToReceive: number; totalToPay: number }> => {
   try {
     console.log('debtService: Atualizando totais para usuário', userId);
     
-    // Buscar todas as dívidas não pagas do usuário
     const [creditorDebts, debtorDebts] = await Promise.all([
       getDebtsAsCreditor(userId),
       getDebtsAsDebtor(userId)
     ]);
 
-    // Calcular totais
     const totalToReceive = creditorDebts.reduce((sum, debt) => {
-      // Para dívidas de grupo, usar o amountPerPerson
-      if (debt.type === 'group') {
-        return sum + (debt.amountPerPerson || 0);
-      }
-      return sum + (debt.amount || 0);
+      const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
+      return sum + amount;
     }, 0);
 
     const totalToPay = debtorDebts.reduce((sum, debt) => {
-      // Para dívidas de grupo, usar o amountPerPerson
-      if (debt.type === 'group') {
-        return sum + (debt.amountPerPerson || 0);
-      }
-      return sum + (debt.amount || 0);
+      const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
+      return sum + amount;
     }, 0);
 
-    // Atualizar documento do usuário
+    // Atualizar no Firestore
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
       totalToReceive,
       totalToPay,
-      lastUpdated: serverTimestamp()
+      updatedAt: new Date()
     });
 
-    console.log('debtService: Totais atualizados com sucesso');
+    console.log('debtService: Totais atualizados', { totalToReceive, totalToPay });
     return { totalToReceive, totalToPay };
   } catch (error) {
     console.error('debtService: Erro ao atualizar totais:', error);
     throw error;
   }
-}; 
+};
 
 // Buscar balanço do usuário
 export const getUserBalance = async (userId: string): Promise<{
@@ -302,33 +423,137 @@ export const getUserBalance = async (userId: string): Promise<{
   try {
     console.log('debtService: Buscando balanço para usuário', userId);
     
-    // Buscar documento do usuário
+    const [creditorDebts, debtorDebts] = await Promise.all([
+      getDebtsAsCreditor(userId),
+      getDebtsAsDebtor(userId)
+    ]);
+
+    const totalToReceive = creditorDebts.reduce((sum, debt) => {
+      const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
+      return sum + amount;
+    }, 0);
+
+    const totalOwed = debtorDebts.reduce((sum, debt) => {
+      const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
+      return sum + amount;
+    }, 0);
+
+    const netBalance = totalToReceive - totalOwed;
+
+    console.log('debtService: Balanço calculado', { totalOwed, totalToReceive, netBalance });
+    return { totalOwed, totalToReceive, netBalance };
+  } catch (error) {
+    console.error('debtService: Erro ao buscar balanço:', error);
+    throw error;
+  }
+};
+
+// Buscar número de amigos com dívidas em aberto
+export const getFriendsWithOpenDebts = async (userId: string): Promise<{
+  count: number;
+  friends: Array<{
+    id: string;
+    name: string;
+    photoURL?: string;
+    balance: number;
+  }>;
+}> => {
+  try {
+    console.log('debtService: Buscando amigos com dívidas em aberto para', userId);
+    
+    // Buscar todos os amigos do usuário
     const userRef = doc(db, 'users', userId);
     const userDoc = await getDoc(userRef);
     
     if (!userDoc.exists()) {
       console.error('debtService: Usuário não encontrado');
-      throw new Error('Usuário não encontrado');
+      return { count: 0, friends: [] };
     }
     
     const userData = userDoc.data();
-    const totalToReceive = userData.totalToReceive || 0;
-    const totalToPay = userData.totalToPay || 0;
-    const netBalance = totalToReceive - totalToPay;
+    const friendsList = userData.friends || [];
     
-    console.log('debtService: Balanço encontrado', {
-      totalToReceive,
-      totalToPay,
-      netBalance
-    });
+    if (friendsList.length === 0) {
+      console.log('debtService: Usuário não tem amigos');
+      return { count: 0, friends: [] };
+    }
     
+    // Buscar dados dos amigos
+    const usersRef = collection(db, 'users');
+    const friendsQuery = query(usersRef, where('uid', 'in', friendsList));
+    const friendsSnapshot = await getDocs(friendsQuery);
+    
+    const friendsData = friendsSnapshot.docs.map(doc => ({
+      id: doc.data().uid,
+      name: doc.data().username || 'Usuário',
+      photoURL: doc.data().photoURL,
+      email: doc.data().email
+    }));
+    
+    // Para cada amigo, calcular o saldo de dívidas
+    const friendsWithBalances = await Promise.all(
+      friendsData.map(async (friend) => {
+        try {
+          // Buscar dívidas onde o usuário atual é credor e o amigo é devedor
+          const creditorQuery = query(
+            collection(db, 'debts'),
+            where('creditorId', '==', userId),
+            where('debtorId', '==', friend.id),
+            where('paid', '==', false)
+          );
+          
+          // Buscar dívidas onde o usuário atual é devedor e o amigo é credor
+          const debtorQuery = query(
+            collection(db, 'debts'),
+            where('creditorId', '==', friend.id),
+            where('debtorId', '==', userId),
+            where('paid', '==', false)
+          );
+          
+          const [creditorSnapshot, debtorSnapshot] = await Promise.all([
+            getDocs(creditorQuery),
+            getDocs(debtorQuery)
+          ]);
+          
+          // Calcular saldo (o que você deve receber - o que você deve pagar)
+          const totalToReceive = creditorSnapshot.docs.reduce((sum, doc) => {
+            const debt = doc.data();
+            const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
+            return sum + amount;
+          }, 0);
+          
+          const totalToPay = debtorSnapshot.docs.reduce((sum, doc) => {
+            const debt = doc.data();
+            const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
+            return sum + amount;
+          }, 0);
+          
+          const balance = totalToReceive - totalToPay;
+          
+          return {
+            ...friend,
+            balance
+          };
+        } catch (error) {
+          console.error(`debtService: Erro ao calcular saldo para amigo ${friend.id}:`, error);
+          return {
+            ...friend,
+            balance: 0
+          };
+        }
+      })
+    );
+    
+    // Filtrar apenas amigos com saldo diferente de zero
+    const friendsWithOpenDebts = friendsWithBalances.filter(friend => friend.balance !== 0);
+    
+    console.log('debtService: Amigos com dívidas em aberto encontrados:', friendsWithOpenDebts.length);
     return {
-      totalOwed: totalToPay,
-      totalToReceive,
-      netBalance
+      count: friendsWithOpenDebts.length,
+      friends: friendsWithOpenDebts
     };
   } catch (error) {
-    console.error('debtService: Erro ao buscar balanço:', error);
-    throw error;
+    console.error('debtService: Erro ao buscar amigos com dívidas em aberto:', error);
+    return { count: 0, friends: [] };
   }
 }; 

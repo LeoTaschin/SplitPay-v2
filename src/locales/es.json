@@ -22,7 +22,11 @@
     "notDefined": "No definido",
     "notAvailable": "No disponible",
     "comingSoon": "Funcionalidad en desarrollo",
-    "groups": "grupos"
+    "groups": "grupos",
+    "viewAll": "Ver Todas",
+    "showLess": "Ver Menos",
+    "recent": "Recientes",
+    "latest": "Más Reciente"
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -78,8 +82,7 @@
     "noDescription": "Sin descripción",
     "group": "Grupo",
     "loadError": "Error al cargar datos del panel de control",
-    "unpaidDebts": "Deudas No Pagadas",
-    "unpaidDebtsSubtext": "Total de deudas pendientes",
+
     "totalUnpaid": "Total No Pagado",
     "totalUnpaidSubtext": "Valor total en deudas",
     "friendWithMostDebt": "Amigo con Más Deuda",
@@ -98,6 +101,10 @@
     "groupActivitySubtext": "transacciones activas",
     "paymentTrend": "Tendencia de Pago",
     "paymentTrendSubtext": "Tiempo promedio de pago",
+    "friendsWithOpenDebts": "Amigos con Deudas",
+    "friend": "amigo",
+    "friends": "amigos",
+    "withOpenDebts": "con deudas abiertas",
     "debtDistribution": "Distribución de Deudas",
     "debtDistributionSubtext": "personal",
     "addInformation": "Agregar Información",
@@ -119,10 +126,7 @@
         "analytics": "Analítico"
       },
       "cards": {
-        "unpaidDebts": {
-          "title": "Deudas No Pagadas",
-          "description": "Cantidad de deudas pendientes"
-        },
+
         "totalUnpaid": {
           "title": "Total No Pagado",
           "description": "Valor total de las deudas pendientes"
@@ -134,6 +138,10 @@
         "biggestDebt": {
           "title": "Deuda Más Grande",
           "description": "Valor de la deuda pendiente más grande"
+        },
+        "friendsWithOpenDebts": {
+          "title": "Amigos con Deudas",
+          "description": "Número de amigos con transacciones abiertas"
         },
         "friendWithMostDebt": {
           "title": "Amigo con Más Deuda",
@@ -222,7 +230,40 @@
     "noDebts": "No se encontraron deudas",
     "totalOwed": "Total Adedudado",
     "totalOwedToYou": "Total Adedudado a Ti",
-    "settled": "Liquidado"
+    "settled": "Liquidado",
+    "details": {
+      "title": "Detalles de la Deuda",
+      "subtitle": "Información completa de la transacción",
+      "status": {
+        "pending": "Pendiente",
+        "paid": "Pagado",
+        "overdue": "Atrasado"
+      },
+      "sections": {
+        "description": "Descripción",
+        "involved": "Involucrados",
+        "transactionDetails": "Detalles de la Transacción",
+        "paymentHistory": "Historial de Pagos"
+      },
+      "fields": {
+        "creationDate": "Fecha de Creación",
+        "paymentDate": "Fecha de Pago",
+        "totalAmount": "Cantidad Total",
+        "amountPerPerson": "Cantidad por Persona",
+        "status": "Estado",
+        "creditor": "Acreedor",
+        "debtor": "Deudor",
+        "type": "Tipo",
+        "typeIndividual": "Individual",
+        "typeGroup": "Grupo"
+      },
+      "actions": {
+        "markAsPaid": "Marcar como Pagado",
+        "editDebt": "Editar Deuda",
+        "deleteDebt": "Eliminar Deuda",
+        "shareDebt": "Compartir Deuda"
+      }
+    }
   },
   "activity": {
     "title": "Actividad",

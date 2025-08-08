@@ -17,6 +17,7 @@ export interface User {
     createdAt: Date;
     updatedAt?: Date;
     paidAt?: Date;
+    paidBy?: string;
     isPaid?: boolean;
     paid?: boolean;
     createdBy?: string;
@@ -25,8 +26,9 @@ export interface User {
     creditorId?: string;
     debtorId?: string;
     category?: string;
-    type?: 'regular' | 'group';
+    type?: 'personal' | 'group';
     amountPerPerson?: number;
+    groupId?: string;
     creditor?: any;
     debtor?: any;
   }

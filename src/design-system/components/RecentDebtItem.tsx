@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
@@ -27,6 +28,7 @@ interface RecentDebtItemProps {
   dateStyle?: TextStyle;
   groupBadgeStyle?: ViewStyle;
   groupTextStyle?: TextStyle;
+  onPress?: () => void;
 }
 
 export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
@@ -44,6 +46,7 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
   dateStyle,
   groupBadgeStyle,
   groupTextStyle,
+  onPress,
 }) => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
@@ -56,42 +59,33 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
   };
 
   const formatDate = (dateInput: string | Date | Timestamp) => {
-    console.log('RecentDebtItem - dateInput:', dateInput, 'type:', typeof dateInput);
-    
     let date: Date;
     
     // Se for Firestore Timestamp
     if (dateInput instanceof Timestamp) {
       date = dateInput.toDate();
-      console.log('RecentDebtItem - É um Firestore Timestamp:', date);
     }
     // Se já for um objeto Date
     else if (dateInput instanceof Date) {
       date = dateInput;
-      console.log('RecentDebtItem - É um Date:', date);
     } else {
       // Se for string, tentar converter
       date = new Date(dateInput);
-      console.log('RecentDebtItem - Convertido de string:', date);
       
       // Se for timestamp do Firebase (seconds)
       if (typeof dateInput === 'string' && !isNaN(Number(dateInput))) {
         const timestamp = Number(dateInput);
-        console.log('RecentDebtItem - Timestamp detectado:', timestamp);
         // Se for em segundos (Firebase), converter para milissegundos
         if (timestamp < 1000000000000) {
           date = new Date(timestamp * 1000);
-          console.log('RecentDebtItem - Convertido de segundos:', date);
         } else {
           date = new Date(timestamp);
-          console.log('RecentDebtItem - Convertido de milissegundos:', date);
         }
       }
     }
     
     // Verificar se a data é válida
     if (isNaN(date.getTime())) {
-      console.log('RecentDebtItem - Data inválida');
       return 'Data inválida';
     }
     
@@ -135,12 +129,14 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
     return isCreditor ? '#10B981' : '#EF4444';
   };
 
-  const getStatusText = () => {
-    return isCreditor ? 'A Receber' : 'A Pagar';
-  };
+
 
   return (
-    <View style={[styles.container, { backgroundColor: ds.colors.surface }, style]}>
+    <TouchableOpacity 
+      style={[styles.container, { backgroundColor: ds.colors.surface }, style]}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       {/* Header com Avatar e Status */}
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
@@ -169,16 +165,20 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
         </View>
         
         <View style={styles.amountContainer}>
-          <Text style={[
-            styles.amount, 
-            { color: getStatusColor() },
-            amountStyle
-          ]}>
-            {isCreditor ? '+' : '-'} {formatCurrency(amount)}
-          </Text>
-          <Text style={[styles.statusText, { color: getStatusColor() }]}>
-            {getStatusText()}
-          </Text>
+          <View style={[styles.amountBadge, { backgroundColor: getStatusColor() + '15' }]}>
+            <Ionicons 
+              name={isCreditor ? 'arrow-up' : 'arrow-down'} 
+              size={16} 
+              color={getStatusColor()} 
+            />
+            <Text style={[
+              styles.amount, 
+              { color: getStatusColor() },
+              amountStyle
+            ]}>
+              {formatCurrency(amount)}
+            </Text>
+          </View>
         </View>
       </View>
       
@@ -200,7 +200,7 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
           </View>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -251,14 +251,17 @@ const styles = StyleSheet.create({
   amountContainer: {
     alignItems: 'flex-end',
   },
-  amount: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 2,
+  amountBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 4,
   },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '500',
+  amount: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   footer: {
     flexDirection: 'row',

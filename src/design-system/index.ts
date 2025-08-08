@@ -31,6 +31,7 @@ export * from './components/EmptyStatCard';
 export * from './components/StatCardSelector';
 export * from './components/GridInfo';
 export * from './components/StatsCarousel';
+export * from './components/DebtDetailsModal';
 
 // Hooks do Design System
 export * from './hooks/useDesignSystem';

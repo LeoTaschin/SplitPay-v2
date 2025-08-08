@@ -22,7 +22,11 @@
     "notDefined": "Non défini",
     "notAvailable": "Non disponible",
     "comingSoon": "Fonctionnalité en développement",
-    "groups": "groupes"
+    "groups": "groupes",
+    "viewAll": "Voir Tout",
+    "showLess": "Voir Moins",
+    "recent": "Récent",
+    "latest": "Plus Récent"
   },
   "auth": {
     "login": "Se connecter",
@@ -78,8 +82,7 @@
     "noDescription": "Aucune description",
     "group": "Groupe",
     "loadError": "Erreur lors du chargement des données du tableau de bord",
-    "unpaidDebts": "Dettes Non Payées",
-    "unpaidDebtsSubtext": "Total des dettes en attente",
+
     "totalUnpaid": "Total Non Payé",
     "totalUnpaidSubtext": "Montant total en dettes",
     "friendWithMostDebt": "Ami avec Plus de Dette",
@@ -98,6 +101,10 @@
     "groupActivitySubtext": "transactions actives",
     "paymentTrend": "Tendance de Paiement",
     "paymentTrendSubtext": "Temps moyen de paiement",
+    "friendsWithOpenDebts": "Amis avec Dettes",
+    "friend": "ami",
+    "friends": "amis",
+    "withOpenDebts": "avec des dettes ouvertes",
     "debtDistribution": "Distribution des Dettes",
     "debtDistributionSubtext": "personnel",
     "addInformation": "Ajouter des Informations",
@@ -117,10 +124,7 @@
         "analytics": "Analytique"
       },
       "cards": {
-        "unpaidDebts": {
-          "title": "Dettes Non Payées",
-          "description": "Nombre de dettes en attente"
-        },
+
         "totalUnpaid": {
           "title": "Total Non Payé",
           "description": "Montant total des dettes en attente"
@@ -132,6 +136,10 @@
         "biggestDebt": {
           "title": "Plus Grande Dette",
           "description": "Valeur de la plus grande dette en attente"
+        },
+        "friendsWithOpenDebts": {
+          "title": "Amis avec Dettes",
+          "description": "Nombre d'amis avec des transactions ouvertes"
         },
         "friendWithMostDebt": {
           "title": "Ami avec Plus de Dette",
@@ -220,7 +228,40 @@
     "noDebts": "Aucune dette trouvée",
     "totalOwed": "Total dû",
     "totalOwedToYou": "Total dû à vous",
-    "settled": "Régler"
+    "settled": "Régler",
+    "details": {
+      "title": "Détails de la Dette",
+      "subtitle": "Informations complètes de la transaction",
+      "status": {
+        "pending": "En attente",
+        "paid": "Payé",
+        "overdue": "En retard"
+      },
+      "sections": {
+        "description": "Description",
+        "involved": "Impliqués",
+        "transactionDetails": "Détails de la Transaction",
+        "paymentHistory": "Historique des Paiements"
+      },
+      "fields": {
+        "creationDate": "Date de Création",
+        "paymentDate": "Date de Paiement",
+        "totalAmount": "Montant Total",
+        "amountPerPerson": "Montant par Personne",
+        "status": "Statut",
+        "creditor": "Créancier",
+        "debtor": "Débiteur",
+        "type": "Type",
+        "typeIndividual": "Individuel",
+        "typeGroup": "Groupe"
+      },
+      "actions": {
+        "markAsPaid": "Marquer comme Payé",
+        "editDebt": "Modifier la Dette",
+        "deleteDebt": "Supprimer la Dette",
+        "shareDebt": "Partager la Dette"
+      }
+    }
   },
   "activity": {
     "title": "Activité",

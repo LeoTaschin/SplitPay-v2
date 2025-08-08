@@ -12,9 +12,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
-import { useDesignSystem, Avatar, Loading, StatCard, StatsGrid, RecentDebtItem, RecentDebtsList, EditButton, EmptyStatCard, StatCardSelector, GridInfo, StatsCarousel } from '../design-system';
+import { useDesignSystem, Avatar, Loading, StatCard, StatsGrid, RecentDebtItem, RecentDebtsList, EditButton, EmptyStatCard, StatCardSelector, GridInfo, StatsCarousel, DebtDetailsModal } from '../design-system';
 import { Dimensions } from 'react-native';
-import { getUserBalance, getDebtsAsCreditor, getDebtsAsDebtor } from '../services/debtService';
+import { getUserBalance, getDebtsAsCreditor, getDebtsAsDebtor, getFriendsWithOpenDebts } from '../services/debtService';
 import { 
   getMonthlyAverage, 
   getBiggestDebt, 
@@ -52,6 +52,7 @@ interface DashboardStats {
   paymentTrendDays: number;
   personalDebtPercentage: number;
   groupDebtPercentage: number;
+  friendsWithOpenDebts: number;
 }
 
 interface StatCardConfig {
@@ -98,6 +99,7 @@ export const DashboardScreen: React.FC = () => {
     mostActiveFriendTransactions: 0,
     mostActiveFriendPhoto: '',
     groupCount: 0,
+    friendsWithOpenDebts: 0,
     groupActiveTransactions: 0,
     paymentTrendDays: 0,
     personalDebtPercentage: 0,
@@ -120,6 +122,9 @@ export const DashboardScreen: React.FC = () => {
     'oldestUnpaidDebt': 3
   });
   const [showCardSelector, setShowCardSelector] = useState(false);
+  const [selectedDebt, setSelectedDebt] = useState<Debt | null>(null);
+  const [showDebtDetails, setShowDebtDetails] = useState(false);
+  const [showAllDebts, setShowAllDebts] = useState(false);
 
   // Chave para salvar as predefinições
   const DASHBOARD_CARDS_KEY = `dashboard_cards_${user?.id || 'default'}`;
@@ -142,15 +147,30 @@ export const DashboardScreen: React.FC = () => {
       
       if (savedCards) {
         const parsedCards = JSON.parse(savedCards);
-        setVisibleStatCards(parsedCards);
+        // Substituir 'unpaidDebts' por 'friendsWithOpenDebts' se existir
+        const updatedCards = parsedCards.map((card: string) => 
+          card === 'unpaidDebts' ? 'friendsWithOpenDebts' : card
+        );
+        setVisibleStatCards(updatedCards);
+      } else {
+        // Cards padrão com o novo card
+        setVisibleStatCards(['friendsWithOpenDebts', 'totalUnpaid', 'monthlyAverage']);
       }
       
       if (savedOrder) {
         const parsedOrder = JSON.parse(savedOrder);
-        setCardOrder(parsedOrder);
+        // Atualizar a ordem também
+        const updatedOrder: { [key: string]: number } = {};
+        Object.keys(parsedOrder).forEach(key => {
+          const newKey = key === 'unpaidDebts' ? 'friendsWithOpenDebts' : key;
+          updatedOrder[newKey] = parsedOrder[key];
+        });
+        setCardOrder(updatedOrder);
       }
     } catch (error) {
       console.error('Erro ao carregar cards salvos:', error);
+      // Fallback para cards padrão com o novo card
+      setVisibleStatCards(['friendsWithOpenDebts', 'totalUnpaid', 'monthlyAverage']);
     }
   };
 
@@ -238,10 +258,11 @@ export const DashboardScreen: React.FC = () => {
       setLoading(true);
       
       // Buscar dados básicos
-      const [balance, creditorDebts, debtorDebts] = await Promise.all([
+      const [balance, creditorDebts, debtorDebts, friendsWithOpenDebts] = await Promise.all([
         getUserBalance(user.id),
         getDebtsAsCreditor(user.id),
-        getDebtsAsDebtor(user.id)
+        getDebtsAsDebtor(user.id),
+        getFriendsWithOpenDebts(user.id)
       ]);
 
       setBalanceData(balance);
@@ -279,16 +300,58 @@ export const DashboardScreen: React.FC = () => {
         groupActiveTransactions: groupActivity.activeTransactions,
         paymentTrendDays: paymentTrend.averageDays,
         personalDebtPercentage: debtDistribution.personalPercentage,
-        groupDebtPercentage: debtDistribution.groupPercentage
+        groupDebtPercentage: debtDistribution.groupPercentage,
+        friendsWithOpenDebts: friendsWithOpenDebts.count
       };
 
       setDashboardStats(completeStats);
       
       // Combinar e ordenar dívidas recentes
       const allDebts = [...creditorDebts, ...debtorDebts];
+      
+      // Função para converter data para timestamp
+      const getDebtTimestamp = (debt: Debt) => {
+        const createdAt = debt.createdAt;
+        
+        if (createdAt instanceof Date) {
+          return createdAt.getTime();
+        }
+        
+        if (typeof createdAt === 'string') {
+          const date = new Date(createdAt);
+          return isNaN(date.getTime()) ? 0 : date.getTime();
+        }
+        
+        // Se for Firestore Timestamp
+        if (createdAt && typeof createdAt === 'object' && 'toDate' in createdAt) {
+          const timestamp = createdAt as any;
+          return timestamp.toDate().getTime();
+        }
+        
+        // Se for timestamp numérico
+        if (typeof createdAt === 'number') {
+          return createdAt;
+        }
+        
+        return 0;
+      };
+      
+      // Ordenar por data de criação (mais recente primeiro)
       const sortedDebts = allDebts
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 5); // Últimas 5 dívidas
+        .sort((a, b) => {
+          const timestampA = getDebtTimestamp(a);
+          const timestampB = getDebtTimestamp(b);
+          return timestampB - timestampA; // Mais recente primeiro
+        });
+      
+      console.log('Dívidas ordenadas por data:', sortedDebts.map(debt => ({
+        id: debt.id,
+        description: debt.description,
+        createdAt: debt.createdAt,
+        timestamp: getDebtTimestamp(debt)
+      })));
+      
+
       
       setRecentDebts(sortedDebts);
     } catch (error) {
@@ -332,6 +395,20 @@ export const DashboardScreen: React.FC = () => {
     setShowCardSelector(false);
   };
 
+  const handleDebtPress = (debt: Debt) => {
+    setSelectedDebt(debt);
+    setShowDebtDetails(true);
+  };
+
+  const handleCloseDebtDetails = () => {
+    setShowDebtDetails(false);
+    setSelectedDebt(null);
+  };
+
+  const handleToggleShowAllDebts = () => {
+    setShowAllDebts(!showAllDebts);
+  };
+
   const getGridCardWidth = () => {
     const screenWidth = Dimensions.get('window').width;
     const paddingHorizontal = 24;
@@ -345,14 +422,6 @@ export const DashboardScreen: React.FC = () => {
   const getAvailableCards = (): StatCardOption[] => {
     const allCards: StatCardOption[] = [
       // Financeiro
-      {
-        id: 'unpaidDebts',
-        title: t('dashboard.cardSelector.cards.unpaidDebts.title'),
-        description: t('dashboard.cardSelector.cards.unpaidDebts.description'),
-        icon: 'alert-circle',
-        color: '#EF4444',
-        category: 'financial'
-      },
       {
         id: 'totalUnpaid',
         title: t('dashboard.cardSelector.cards.totalUnpaid.title'),
@@ -378,6 +447,14 @@ export const DashboardScreen: React.FC = () => {
         category: 'financial'
       },
       // Social
+      {
+        id: 'friendsWithOpenDebts',
+        title: t('dashboard.cardSelector.cards.friendsWithOpenDebts.title'),
+        description: t('dashboard.cardSelector.cards.friendsWithOpenDebts.description'),
+        icon: 'people',
+        color: '#EF4444',
+        category: 'social'
+      },
       {
         id: 'friendWithMostDebt',
         title: t('dashboard.cardSelector.cards.friendWithMostDebt.title'),
@@ -435,11 +512,11 @@ export const DashboardScreen: React.FC = () => {
   const getStatCards = (): StatCardConfig[] => {
     const allCards: StatCardConfig[] = [
       {
-        id: 'unpaidDebts',
-        title: t('dashboard.unpaidDebts'),
-        value: dashboardStats.unpaidDebts.toString(),
-        subtitle: `${dashboardStats.unpaidDebts} ${dashboardStats.unpaidDebts === 1 ? t('dashboard.debt') : t('dashboard.debts')}`,
-        icon: 'alert-circle',
+        id: 'friendsWithOpenDebts',
+        title: t('dashboard.friendsWithOpenDebts'),
+        value: dashboardStats.friendsWithOpenDebts.toString(),
+        subtitle: `${dashboardStats.friendsWithOpenDebts} ${dashboardStats.friendsWithOpenDebts === 1 ? t('dashboard.friend') : t('dashboard.friends')} ${t('dashboard.withOpenDebts')}`,
+        icon: 'people',
         color: '#EF4444'
       },
       {
@@ -573,6 +650,7 @@ export const DashboardScreen: React.FC = () => {
   return (
     <ScrollView 
       style={[styles.container, { backgroundColor: ds.colors.background }]}
+      contentContainerStyle={styles.contentContainer}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -622,18 +700,30 @@ export const DashboardScreen: React.FC = () => {
         availableCards={getAvailableCards()}
       />
 
+      {/* Debt Details Modal */}
+      {selectedDebt && (
+        <DebtDetailsModal
+          visible={showDebtDetails}
+          onClose={handleCloseDebtDetails}
+          debt={selectedDebt}
+          currentUserId={user?.id}
+        />
+      )}
+
       {/* Recent Debts */}
-      <RecentDebtsList
-        title={t('dashboard.recentDebts')}
-        onViewAll={() => console.log('Ver todas as dívidas')}
-        emptyState={{
-          icon: 'document-outline',
-          title: t('dashboard.noRecentDebts'),
-          subtitle: t('dashboard.noRecentDebtsSubtext'),
-        }}
-      >
+      <View style={getStatCards().length === 0 ? styles.fullHeightContainer : undefined}>
+        <RecentDebtsList
+          title={t('dashboard.recentDebts')}
+          showAll={showAllDebts}
+          onToggleShowAll={handleToggleShowAllDebts}
+          style={getStatCards().length === 0 ? styles.fullHeightList : undefined}
+          emptyState={{
+            icon: 'document-outline',
+            title: t('dashboard.noRecentDebts'),
+            subtitle: t('dashboard.noRecentDebtsSubtext'),
+          }}
+        >
         {recentDebts.map((debt) => {
-          console.log('DashboardScreen - debt.createdAt:', debt.createdAt, 'type:', typeof debt.createdAt);
           const isCreditor = debt.creditorId === user?.id;
           const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
           const otherPerson = isCreditor ? debt.debtor : debt.creditor;
@@ -648,10 +738,12 @@ export const DashboardScreen: React.FC = () => {
               isCreditor={isCreditor}
               date={debt.createdAt}
               isGroup={debt.type === 'group'}
+              onPress={() => handleDebtPress(debt)}
             />
           );
         })}
-      </RecentDebtsList>
+        </RecentDebtsList>
+      </View>
     </ScrollView>
   );
 };
@@ -659,6 +751,15 @@ export const DashboardScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: 100, // Espaço para o toolbar
+  },
+  fullHeightContainer: {
+    flex: 1, // Ocupa todo o espaço disponível
+  },
+  fullHeightList: {
+    flex: 1, // Lista ocupa toda a altura disponível
   },
   header: {
     paddingRight: 0,

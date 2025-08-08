@@ -165,8 +165,17 @@ export const getMostActiveFriend = async (userId: string): Promise<MostActiveFri
       ...debtorSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
     ] as Debt[];
 
-    // Contar transações por amigo
-    const friendActivity: Record<string, { count: number; totalAmount: number; name: string; photoURL?: string }> = {};
+    // Contar transações por amigo (incluindo peso por atividade recente)
+    const friendActivity: Record<string, { 
+      count: number; 
+      totalAmount: number; 
+      name: string; 
+      photoURL?: string;
+      recentActivity: number; // Atividade recente (últimos 30 dias)
+    }> = {};
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     allDebts.forEach(debt => {
       const friendId = debt.creditorId === userId ? debt.debtorId : debt.creditorId;
@@ -180,11 +189,20 @@ export const getMostActiveFriend = async (userId: string): Promise<MostActiveFri
             count: 0,
             totalAmount: 0,
             name: friendName || 'Usuário',
-            photoURL: friendPhoto
+            photoURL: friendPhoto,
+            recentActivity: 0
           };
         }
+        
+        // Contar transação
         friendActivity[friendId].count += 1;
         friendActivity[friendId].totalAmount += amount;
+        
+        // Verificar se é atividade recente
+        const debtDate = debt.createdAt instanceof Date ? debt.createdAt : debt.createdAt.toDate();
+        if (debtDate > thirtyDaysAgo) {
+          friendActivity[friendId].recentActivity += 1;
+        }
       }
     });
 
@@ -192,9 +210,15 @@ export const getMostActiveFriend = async (userId: string): Promise<MostActiveFri
       return { name: 'Nenhum amigo', transactionCount: 0, photoURL: '', totalAmount: 0 };
     }
 
-    // Encontrar o amigo com mais transações
+    // Encontrar o amigo mais ativo (priorizando atividade recente)
     const mostActiveFriend = Object.entries(friendActivity)
-      .sort(([, a], [, b]) => b.count - a.count)[0];
+      .sort(([, a], [, b]) => {
+        // Primeiro por atividade recente, depois por total de transações
+        if (a.recentActivity !== b.recentActivity) {
+          return b.recentActivity - a.recentActivity;
+        }
+        return b.count - a.count;
+      })[0];
 
     return {
       name: mostActiveFriend[1].name,
@@ -226,9 +250,17 @@ export const getGroupActivity = async (userId: string): Promise<GroupActivityDat
       debt.creditorId === userId || debt.debtorId === userId
     );
 
-    // Contar grupos únicos
-    const groupIds = new Set(userGroupDebts.map(debt => debt.groupId).filter(Boolean));
-    const groupCount = groupIds.size;
+    // Contar grupos únicos (usando description como identificador de grupo)
+    const uniqueGroups = new Set();
+    userGroupDebts.forEach(debt => {
+      if (debt.description && debt.description.includes('Grupo:')) {
+        const groupName = debt.description.split('Grupo:')[1]?.trim();
+        if (groupName) {
+          uniqueGroups.add(groupName);
+        }
+      }
+    });
+    const groupCount = uniqueGroups.size;
 
     // Contar transações ativas
     const activeTransactions = userGroupDebts.length;

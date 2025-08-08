@@ -22,7 +22,11 @@
     "notDefined": "Not defined",
     "notAvailable": "Not available",
     "comingSoon": "Feature in development",
-    "groups": "groups"
+    "groups": "groups",
+    "viewAll": "View All",
+    "showLess": "Show Less",
+    "recent": "Recent",
+    "latest": "Latest"
   },
   "auth": {
     "login": "Login",
@@ -78,8 +82,7 @@
     "noDescription": "No description",
     "group": "Group",
     "loadError": "Error loading dashboard data",
-    "unpaidDebts": "Unpaid Debts",
-    "unpaidDebtsSubtext": "Total pending debts",
+
     "totalUnpaid": "Total Unpaid",
     "totalUnpaidSubtext": "Total amount in debts",
     "friendWithMostDebt": "Friend with Most Debt",
@@ -107,6 +110,10 @@
     "groupActivitySubtext": "active transactions",
     "paymentTrend": "Payment Trend",
     "paymentTrendSubtext": "Average payment time",
+    "friendsWithOpenDebts": "Friends with Debts",
+    "friend": "friend",
+    "friends": "friends",
+    "withOpenDebts": "with open debts",
     "debtDistribution": "Debt Distribution",
     "debtDistributionSubtext": "personal",
     "addInformation": "Add Information",
@@ -131,10 +138,7 @@
         "analytics": "Analytics"
       },
       "cards": {
-        "unpaidDebts": {
-          "title": "Unpaid Debts",
-          "description": "Number of pending debts"
-        },
+
         "totalUnpaid": {
           "title": "Total Unpaid",
           "description": "Total amount of pending debts"
@@ -146,6 +150,10 @@
         "biggestDebt": {
           "title": "Biggest Debt",
           "description": "Value of the largest pending debt"
+        },
+        "friendsWithOpenDebts": {
+          "title": "Friends with Debts",
+          "description": "Number of friends with open transactions"
         },
         "friendWithMostDebt": {
           "title": "Friend with Most Debt",
@@ -234,7 +242,40 @@
     "noDebts": "No debts found",
     "totalOwed": "Total Owed",
     "totalOwedToYou": "Total Owed to You",
-    "settled": "Settled"
+    "settled": "Settled",
+    "details": {
+      "title": "Debt Details",
+      "subtitle": "Complete transaction information",
+      "status": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "overdue": "Overdue"
+      },
+      "sections": {
+        "description": "Description",
+        "involved": "Involved",
+        "transactionDetails": "Transaction Details",
+        "paymentHistory": "Payment History"
+      },
+      "fields": {
+        "creationDate": "Creation Date",
+        "paymentDate": "Payment Date",
+        "totalAmount": "Total Amount",
+        "amountPerPerson": "Amount per Person",
+        "status": "Status",
+        "creditor": "Creditor",
+        "debtor": "Debtor",
+        "type": "Type",
+        "typeIndividual": "Individual",
+        "typeGroup": "Group"
+      },
+      "actions": {
+        "markAsPaid": "Mark as Paid",
+        "editDebt": "Edit Debt",
+        "deleteDebt": "Delete Debt",
+        "shareDebt": "Share Debt"
+      }
+    }
   },
   "activity": {
     "title": "Activity",
