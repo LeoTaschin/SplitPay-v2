@@ -61,16 +61,32 @@ import {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+      // Duração mínima pequena para permitir o fade-in sem atrasar muito
+      const splashMinDurationMs = 700;
+      const startedAt = Date.now();
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
       const unsubscribe = onAuthStateChanged((firebaseUser) => {
         if (firebaseUser) {
           setUser(convertFirebaseUser(firebaseUser));
         } else {
           setUser(null);
         }
-        setLoading(false);
+
+        const elapsed = Date.now() - startedAt;
+        const remaining = Math.max(0, splashMinDurationMs - elapsed);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        timeoutId = setTimeout(() => setLoading(false), remaining);
       });
 
-      return () => unsubscribe();
+      return () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        unsubscribe();
+      };
     }, []);
 
     const saveCredentials = async (email: string, password: string) => {

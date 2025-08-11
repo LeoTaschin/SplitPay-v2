@@ -99,8 +99,8 @@
     "mostActiveFriendSubtext": "transacciones",
     "groupActivity": "Actividad en Grupos",
     "groupActivitySubtext": "transacciones activas",
-    "paymentTrend": "Tendencia de Pago",
-    "paymentTrendSubtext": "Tiempo promedio de pago",
+    "paymentTrend": "Mayor Valor a Recibir",
+    "paymentTrendSubtext": "Valor pendiente más alto",
     "friendsWithOpenDebts": "Amigos con Deudas",
     "friend": "amigo",
     "friends": "amigos",
@@ -160,8 +160,8 @@
           "description": "Deuda pendiente por más tiempo"
         },
         "paymentTrend": {
-          "title": "Tendencia de Pago",
-          "description": "Velocidad promedio de pago"
+          "title": "Mayor Valor a Recibir",
+          "description": "Mayor valor pendiente a recibir"
         },
         "debtDistribution": {
           "title": "Distribución de Deudas",
@@ -197,7 +197,14 @@
     "accept": "Aceptar",
     "decline": "Rechazar",
     "removeFriend": "Eliminar Amigo",
-    "removeConfirm": "¿Estás seguro de que quieres eliminar este amigo?"
+    "removeConfirm": "¿Estás seguro de que quieres eliminar este amigo?",
+    "loadError": "Error al cargar lista de amigos",
+    "friend": "amigo",
+    "friends": "amigos",
+    "balanced": "Cuentas al día",
+    "owesYou": "te debe",
+    "youOwe": "le debes",
+    "swipeToSettle": "Desliza para liquidar"
   },
   "groups": {
     "title": "Grupos",

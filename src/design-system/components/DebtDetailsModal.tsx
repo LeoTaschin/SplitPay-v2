@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Dimensions,
   Animated,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
 import { useLanguage } from '../../context/LanguageContext';
@@ -42,6 +43,21 @@ interface DebtDetailsModalProps {
     amountPerPerson?: number;
     paid?: boolean;
     paidAt?: string | Date | Timestamp;
+    // Campos para dívidas em grupo
+    receiverId?: string;
+    payerId?: string;
+    receiver?: {
+      id: string;
+      name?: string;
+      username?: string;
+      photoURL?: string;
+    };
+    payer?: {
+      id: string;
+      name?: string;
+      username?: string;
+      photoURL?: string;
+    };
   };
   currentUserId?: string;
 }
@@ -54,12 +70,30 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
 }) => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
+  const SLIDE_DURATION = 300;
+  const FADE_DURATION = 300;
+  const EXIT_DURATION = Math.max(Math.floor(SLIDE_DURATION * 0.8), Math.floor(FADE_DURATION * 0.8));
+
   const { slideAnim, fadeAnim } = useSlideAnimation({
     visible,
     slideDistance: 600,
-    slideDuration: 300,
-    fadeDuration: 300,
+    slideDuration: SLIDE_DURATION,
+    fadeDuration: FADE_DURATION,
   });
+
+  // Manter o Modal montado até concluir a animação de saída
+  const [modalVisible, setModalVisible] = useState(visible);
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    if (visible) {
+      setModalVisible(true);
+    } else {
+      timeoutId = setTimeout(() => setModalVisible(false), EXIT_DURATION);
+    }
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [visible, EXIT_DURATION]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -101,8 +135,21 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
     });
   };
 
-  const isCreditor = debt.creditorId === currentUserId;
-  const otherPerson = isCreditor ? debt.debtor : debt.creditor;
+  // Para dívidas em grupo, usar receiverId/payerId
+  const isCreditor = debt.type === 'group' 
+    ? debt.receiverId === currentUserId 
+    : debt.creditorId === currentUserId;
+  
+  // Determinar a pessoa correta baseada no tipo de dívida
+  let otherPerson;
+  if (debt.type === 'group') {
+    // Para dívidas em grupo, usar payerId/receiverId
+    otherPerson = isCreditor ? debt.payer : debt.receiver;
+  } else {
+    // Para dívidas pessoais, usar debtor/creditor
+    otherPerson = isCreditor ? debt.debtor : debt.creditor;
+  }
+  
   const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
 
   const getStatusColor = () => {
@@ -119,17 +166,19 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
 
   return (
     <Modal
-      visible={visible}
+      visible={modalVisible}
       transparent
       animationType="none"
       onRequestClose={onClose}
     >
       <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
-        <TouchableOpacity 
-          style={styles.overlayTouch} 
-          onPress={onClose}
-          activeOpacity={1}
-        />
+        <BlurView intensity={30} tint={ds.isDark ? 'dark' : 'light'} style={styles.blur}>
+          <TouchableOpacity 
+            style={styles.overlayTouch} 
+            onPress={onClose}
+            activeOpacity={1}
+          />
+        </BlurView>
         <Animated.View 
           style={[
             styles.container, 
@@ -198,16 +247,22 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
               <View style={styles.peopleContainer}>
                 <View style={styles.personCard}>
                   <Avatar
-                    source={debt.creditor?.photoURL}
-                    name={debt.creditor?.username || debt.creditor?.name || 'Usuário'}
+                    source={debt.type === 'group' ? debt.receiver?.photoURL : debt.creditor?.photoURL}
+                    name={debt.type === 'group' 
+                      ? (debt.receiver?.username || debt.receiver?.name || 'Usuário')
+                      : (debt.creditor?.username || debt.creditor?.name || 'Usuário')
+                    }
                     size="large"
                     variant="circle"
                   />
                   <Text style={[styles.personName, { color: ds.colors.text.primary }]}>
-                    {debt.creditor?.username || debt.creditor?.name || 'Usuário'}
+                    {debt.type === 'group' 
+                      ? (debt.receiver?.username || debt.receiver?.name || 'Usuário')
+                      : (debt.creditor?.username || debt.creditor?.name || 'Usuário')
+                    }
                   </Text>
                   <Text style={[styles.personRole, { color: '#10B981' }]}>
-                    {t('debts.details.fields.creditor')}
+                    {debt.type === 'group' ? 'Recebeu' : t('debts.details.fields.creditor')}
                   </Text>
                 </View>
 
@@ -217,16 +272,22 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
 
                 <View style={styles.personCard}>
                   <Avatar
-                    source={debt.debtor?.photoURL}
-                    name={debt.debtor?.username || debt.debtor?.name || 'Usuário'}
+                    source={debt.type === 'group' ? debt.payer?.photoURL : debt.debtor?.photoURL}
+                    name={debt.type === 'group' 
+                      ? (debt.payer?.username || debt.payer?.name || 'Usuário')
+                      : (debt.debtor?.username || debt.debtor?.name || 'Usuário')
+                    }
                     size="large"
                     variant="circle"
                   />
                   <Text style={[styles.personName, { color: ds.colors.text.primary }]}>
-                    {debt.debtor?.username || debt.debtor?.name || 'Usuário'}
+                    {debt.type === 'group' 
+                      ? (debt.payer?.username || debt.payer?.name || 'Usuário')
+                      : (debt.debtor?.username || debt.debtor?.name || 'Usuário')
+                    }
                   </Text>
                   <Text style={[styles.personRole, { color: '#EF4444' }]}>
-                    {t('debts.details.fields.debtor')}
+                    {debt.type === 'group' ? 'Pagou' : t('debts.details.fields.debtor')}
                   </Text>
                 </View>
               </View>
@@ -320,8 +381,10 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
+  },
+  blur: {
+    ...StyleSheet.absoluteFillObject,
   },
   overlayTouch: {
     flex: 1,

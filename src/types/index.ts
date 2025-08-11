@@ -31,6 +31,11 @@ export interface User {
     groupId?: string;
     creditor?: any;
     debtor?: any;
+    // Campos para dívidas em grupo
+    receiverId?: string;
+    payerId?: string;
+    receiver?: any;
+    payer?: any;
   }
   
   // Group types

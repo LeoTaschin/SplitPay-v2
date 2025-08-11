@@ -20,7 +20,7 @@ import {
   getBiggestDebt, 
   getMostActiveFriend, 
   getGroupActivity, 
-  getPaymentTrend, 
+  getHighestAmountToReceive, 
   getDebtDistribution 
 } from '../services/analyticsService';
 import { Debt } from '../types';
@@ -51,7 +51,7 @@ interface DashboardStats {
   mostActiveFriendPhoto: string;
   groupCount: number;
   groupActiveTransactions: number;
-  paymentTrendDays: number;
+  highestAmountToReceive: number;
   personalDebtPercentage: number;
   groupDebtPercentage: number;
   friendsWithOpenDebts: number;
@@ -105,7 +105,7 @@ export const DashboardScreen: React.FC = () => {
     groupCount: 0,
     friendsWithOpenDebts: 0,
     groupActiveTransactions: 0,
-    paymentTrendDays: 0,
+    highestAmountToReceive: 0,
     personalDebtPercentage: 0,
     groupDebtPercentage: 0
   });
@@ -286,7 +286,7 @@ export const DashboardScreen: React.FC = () => {
       mostActiveFriendPhoto: '',
       groupCount: 0,
       groupActiveTransactions: 0,
-      paymentTrendDays: 0,
+      highestAmountToReceive: 0,
       personalDebtPercentage: 0,
       groupDebtPercentage: 0,
       friendsWithOpenDebts: 0
@@ -318,14 +318,14 @@ export const DashboardScreen: React.FC = () => {
         biggestDebt,
         mostActiveFriend,
         groupActivity,
-        paymentTrend,
+        highestAmountToReceive,
         debtDistribution
       ] = await Promise.all([
         getMonthlyAverage(user.id),
         getBiggestDebt(user.id),
         getMostActiveFriend(user.id),
         getGroupActivity(user.id),
-        getPaymentTrend(user.id),
+        getHighestAmountToReceive(user.id),
         getDebtDistribution(user.id)
       ]);
 
@@ -340,7 +340,7 @@ export const DashboardScreen: React.FC = () => {
         mostActiveFriendPhoto: mostActiveFriend.photoURL || '',
         groupCount: groupActivity.groupCount,
         groupActiveTransactions: groupActivity.activeTransactions,
-        paymentTrendDays: paymentTrend.averageDays,
+        highestAmountToReceive: highestAmountToReceive.amount,
         personalDebtPercentage: debtDistribution.personalPercentage,
         groupDebtPercentage: debtDistribution.groupPercentage,
         friendsWithOpenDebts: friendsWithOpenDebts.count
@@ -386,12 +386,8 @@ export const DashboardScreen: React.FC = () => {
           return timestampB - timestampA; // Mais recente primeiro
         });
       
-      console.log('Dívidas ordenadas por data:', sortedDebts.map(debt => ({
-        id: debt.id,
-        description: debt.description,
-        createdAt: debt.createdAt,
-        timestamp: getDebtTimestamp(debt)
-      })));
+      // Log resumido das dívidas carregadas
+      console.log(`Dashboard: Carregadas ${sortedDebts.length} dívidas recentes`);
       
 
       
@@ -638,11 +634,11 @@ export const DashboardScreen: React.FC = () => {
       {
         id: 'paymentTrend',
         title: t('dashboard.paymentTrend'),
-        value: dashboardStats.paymentTrendDays > 0 
-          ? `${dashboardStats.paymentTrendDays} ${t('dashboard.days')}`
+        value: dashboardStats.highestAmountToReceive > 0 
+          ? formatCurrency(dashboardStats.highestAmountToReceive)
           : t('dashboard.noData'),
         subtitle: t('dashboard.paymentTrendSubtext'),
-        icon: 'analytics',
+        icon: 'cash-outline',
         color: '#06B6D4'
       },
       {
@@ -764,9 +760,22 @@ export const DashboardScreen: React.FC = () => {
           }}
         >
         {recentDebts.map((debt) => {
-          const isCreditor = debt.creditorId === user?.id;
+          // Para dívidas em grupo, usar receiverId/payerId
+          const isCreditor = debt.type === 'group' 
+            ? debt.receiverId === user?.id 
+            : debt.creditorId === user?.id;
+          
           const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
-          const otherPerson = isCreditor ? debt.debtor : debt.creditor;
+          
+          // Determinar a pessoa correta baseada no tipo de dívida
+          let otherPerson;
+          if (debt.type === 'group') {
+            // Para dívidas em grupo, usar payerId/receiverId
+            otherPerson = isCreditor ? debt.payer : debt.receiver;
+          } else {
+            // Para dívidas pessoais, usar debtor/creditor
+            otherPerson = isCreditor ? debt.debtor : debt.creditor;
+          }
           
           return (
             <RecentDebtItem

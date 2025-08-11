@@ -93,7 +93,7 @@ export const RecentDebtsList: React.FC<RecentDebtsListProps> = ({
               {/* View All Button */}
               <TouchableOpacity 
                 style={[styles.viewAllButton, { backgroundColor: ds.colors.surface }]}
-                onPress={onToggleShowAll || (() => console.log('Ver todas as dívidas'))}
+                onPress={onToggleShowAll || (() => {})}
               >
                 <Ionicons 
                   name={showAll ? 'chevron-up' : 'chevron-down'} 

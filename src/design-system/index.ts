@@ -25,6 +25,7 @@ export * from './components/StatCard';
 export * from './components/StatsGrid';
 export * from './components/DebtItem';
 export * from './components/RecentDebtItem';
+export * from './components/FriendItem';
 export * from './components/RecentDebtsList';
 export * from './components/EditButton';
 export * from './components/EmptyStatCard';

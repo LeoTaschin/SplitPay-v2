@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../hooks/useAuth';
@@ -15,10 +15,15 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const AppNavigator: React.FC = () => {
   const { user, loading } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
+  const [isReadyToHideSplash, setIsReadyToHideSplash] = useState(false);
 
-  if (loading) {
-    return <SplashScreen />;
-  }
+  // Quando o carregamento terminar, inicia o fade-out
+  useEffect(() => {
+    if (!loading) {
+      setIsReadyToHideSplash(true);
+    }
+  }, [loading]);
 
   return (
     <NavigationContainer>
@@ -39,6 +44,13 @@ export const AppNavigator: React.FC = () => {
           </>
         )}
       </Stack.Navigator>
+
+      {showSplash && (
+        <SplashScreen
+          isReady={isReadyToHideSplash}
+          onFadeOutComplete={() => setShowSplash(false)}
+        />
+      )}
     </NavigationContainer>
   );
 }; 

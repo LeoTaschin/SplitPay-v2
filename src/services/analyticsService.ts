@@ -34,9 +34,10 @@ interface GroupActivityData {
   totalGroupAmount: number;
 }
 
-interface PaymentTrendData {
-  averageDays: number;
-  totalPaidDebts: number;
+interface HighestAmountToReceiveData {
+  amount: number;
+  description?: string;
+  creditorName?: string;
 }
 
 interface DebtDistributionData {
@@ -282,40 +283,41 @@ export const getGroupActivity = async (userId: string): Promise<GroupActivityDat
   }
 };
 
-// Calcular tendência de pagamento (tempo médio para pagar)
-export const getPaymentTrend = async (userId: string): Promise<PaymentTrendData> => {
+// Calcular maior valor a receber
+export const getHighestAmountToReceive = async (userId: string): Promise<HighestAmountToReceiveData> => {
   try {
-    // Buscar dívidas pagas
-    const paidQ = query(
+    // Buscar dívidas não pagas onde o usuário é credor
+    const unpaidQ = query(
       collection(db, 'debts'),
-      where('paid', '==', true),
+      where('paid', '==', false),
       where('creditorId', '==', userId)
     );
 
-    const snapshot = await getDocs(paidQ);
-    const paidDebts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Debt[];
+    const snapshot = await getDocs(unpaidQ);
+    const unpaidDebts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Debt[];
 
-    if (paidDebts.length === 0) {
-      return { averageDays: 0, totalPaidDebts: 0 };
+    if (unpaidDebts.length === 0) {
+      return { amount: 0, description: '', creditorName: '' };
     }
 
-    // Calcular tempo médio de pagamento
-    const totalDays = paidDebts.reduce((sum, debt) => {
-      const createdAt = debt.createdAt.toDate();
-      const paidAt = debt.paidAt?.toDate() || new Date();
-      const days = Math.floor((paidAt.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-      return sum + days;
-    }, 0);
+    // Encontrar a dívida com maior valor
+    const highestDebt = unpaidDebts.reduce((highest, debt) => {
+      const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
+      const highestAmount = highest.type === 'group' ? (highest.amountPerPerson || 0) : (highest.amount || 0);
+      
+      return amount > highestAmount ? debt : highest;
+    });
 
-    const averageDays = totalDays / paidDebts.length;
+    const amount = highestDebt.type === 'group' ? (highestDebt.amountPerPerson || 0) : (highestDebt.amount || 0);
 
     return {
-      averageDays: Math.round(averageDays * 10) / 10, // Arredondar para 1 casa decimal
-      totalPaidDebts: paidDebts.length
+      amount,
+      description: highestDebt.description || '',
+      creditorName: highestDebt.debtor?.username || highestDebt.debtor?.name || 'Usuário'
     };
   } catch (error) {
-    console.error('Erro ao calcular tendência de pagamento:', error);
-    return { averageDays: 0, totalPaidDebts: 0 };
+    console.error('Erro ao calcular maior valor a receber:', error);
+    return { amount: 0, description: '', creditorName: '' };
   }
 };
 

@@ -156,7 +156,11 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
         </View>
         
         <View style={styles.info}>
-          <Text style={[styles.personName, { color: ds.colors.text.primary }, personNameStyle]}>
+          <Text 
+            style={[styles.personName, { color: ds.colors.text.primary }, personNameStyle]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
             {personName}
           </Text>
           <Text style={[styles.description, { color: ds.colors.text.secondary }, descriptionStyle]}>
@@ -241,7 +245,7 @@ const styles = StyleSheet.create({
   },
   personName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     marginBottom: 4,
   },
   description: {

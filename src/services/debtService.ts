@@ -42,7 +42,7 @@ export async function createDebt(
   amount: number, 
   description?: string
 ): Promise<ApiResponse<{ debtId: string }>> {
-  console.log('debtService: Iniciando criação de dívida', { creditorId, debtorId, amount, description });
+      console.log('debtService: Criando nova dívida...');
 
   try {
     // Verificar se os documentos dos usuários existem
@@ -103,7 +103,7 @@ export async function createDebt(
       return { success: true, debtId: debtRef.id };
     });
 
-    console.log('debtService: Dívida criada com sucesso', result);
+    console.log('debtService: Dívida criada com sucesso');
     return result;
   } catch (error) {
     console.error('debtService: Erro ao criar dívida:', error);
@@ -151,7 +151,7 @@ const sortDebtsByDate = (debts: Debt[]): Debt[] => {
 // Buscar dívidas onde o usuário é credor
 export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
   try {
-    console.log('debtService: Buscando dívidas como credor para', userId);
+    console.log('debtService: Buscando dívidas como credor...');
     
     // Tentar com ordenação no Firebase primeiro
     try {
@@ -188,10 +188,10 @@ export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
       }));
 
       const allDebts = [...regularDebts, ...groupDebts];
-      console.log('debtService: Encontradas', allDebts.length, 'dívidas como credor (com ordenação Firebase)');
+      console.log(`debtService: ${allDebts.length} dívidas como credor encontradas`);
       return allDebts as Debt[];
     } catch (error) {
-      console.log('debtService: Erro com ordenação Firebase, tentando sem ordenação:', error);
+      console.log('debtService: Fallback para ordenação local');
       
       // Fallback: buscar sem ordenação e ordenar localmente
       const q = query(
@@ -226,7 +226,7 @@ export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
 
       const allDebts = [...regularDebts, ...groupDebts];
       const sortedDebts = sortDebtsByDate(allDebts);
-      console.log('debtService: Encontradas', sortedDebts.length, 'dívidas como credor (ordenadas localmente)');
+      console.log(`debtService: ${sortedDebts.length} dívidas como credor (ordenadas localmente)`);
       return sortedDebts as Debt[];
     }
   } catch (error) {
@@ -238,7 +238,7 @@ export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
 // Buscar dívidas onde o usuário é devedor
 export const getDebtsAsDebtor = async (userId: string): Promise<Debt[]> => {
   try {
-    console.log('debtService: Buscando dívidas como devedor para', userId);
+    console.log('debtService: Buscando dívidas como devedor...');
     
     // Tentar com ordenação no Firebase primeiro
     try {
@@ -275,10 +275,10 @@ export const getDebtsAsDebtor = async (userId: string): Promise<Debt[]> => {
       }));
 
       const allDebts = [...regularDebts, ...groupDebts];
-      console.log('debtService: Encontradas', allDebts.length, 'dívidas como devedor (com ordenação Firebase)');
+      console.log(`debtService: ${allDebts.length} dívidas como devedor encontradas`);
       return allDebts as Debt[];
     } catch (error) {
-      console.log('debtService: Erro com ordenação Firebase, tentando sem ordenação:', error);
+      console.log('debtService: Fallback para ordenação local');
       
       // Fallback: buscar sem ordenação e ordenar localmente
       const q = query(
@@ -313,7 +313,7 @@ export const getDebtsAsDebtor = async (userId: string): Promise<Debt[]> => {
 
       const allDebts = [...regularDebts, ...groupDebts];
       const sortedDebts = sortDebtsByDate(allDebts);
-      console.log('debtService: Encontradas', sortedDebts.length, 'dívidas como devedor (ordenadas localmente)');
+      console.log(`debtService: ${sortedDebts.length} dívidas como devedor (ordenadas localmente)`);
       return sortedDebts as Debt[];
     }
   } catch (error) {
@@ -367,7 +367,7 @@ export const markDebtAsPaid = async (debtId: string): Promise<ApiResponse<void>>
       }
     });
 
-    console.log('debtService: Dívida marcada como paga com sucesso');
+    console.log('debtService: Dívida marcada como paga');
     return { success: true };
   } catch (error) {
     console.error('debtService: Erro ao marcar dívida como paga:', error);
@@ -381,7 +381,7 @@ export const markDebtAsPaid = async (debtId: string): Promise<ApiResponse<void>>
 // Atualizar totais do usuário
 export const updateUserTotals = async (userId: string): Promise<{ totalToReceive: number; totalToPay: number }> => {
   try {
-    console.log('debtService: Atualizando totais para usuário', userId);
+    console.log('debtService: Atualizando totais...');
     
     const [creditorDebts, debtorDebts] = await Promise.all([
       getDebtsAsCreditor(userId),
@@ -406,7 +406,7 @@ export const updateUserTotals = async (userId: string): Promise<{ totalToReceive
       updatedAt: new Date()
     });
 
-    console.log('debtService: Totais atualizados', { totalToReceive, totalToPay });
+    console.log(`debtService: Totais atualizados - Receber: R$ ${totalToReceive.toFixed(2)}, Pagar: R$ ${totalToPay.toFixed(2)}`);
     return { totalToReceive, totalToPay };
   } catch (error) {
     console.error('debtService: Erro ao atualizar totais:', error);
@@ -421,7 +421,7 @@ export const getUserBalance = async (userId: string): Promise<{
   netBalance: number;
 }> => {
   try {
-    console.log('debtService: Buscando balanço para usuário', userId);
+    console.log('debtService: Calculando balanço...');
     
     const [creditorDebts, debtorDebts] = await Promise.all([
       getDebtsAsCreditor(userId),
@@ -440,7 +440,7 @@ export const getUserBalance = async (userId: string): Promise<{
 
     const netBalance = totalToReceive - totalOwed;
 
-    console.log('debtService: Balanço calculado', { totalOwed, totalToReceive, netBalance });
+    console.log(`debtService: Balanço calculado - Devo: R$ ${totalOwed.toFixed(2)}, Devo receber: R$ ${totalToReceive.toFixed(2)}`);
     return { totalOwed, totalToReceive, netBalance };
   } catch (error) {
     console.error('debtService: Erro ao buscar balanço:', error);
@@ -459,7 +459,7 @@ export const getFriendsWithOpenDebts = async (userId: string): Promise<{
   }>;
 }> => {
   try {
-    console.log('debtService: Buscando amigos com dívidas em aberto para', userId);
+    console.log('debtService: Buscando amigos com dívidas...');
     
     // Buscar todos os amigos do usuário
     const userRef = doc(db, 'users', userId);
@@ -474,7 +474,7 @@ export const getFriendsWithOpenDebts = async (userId: string): Promise<{
     const friendsList = userData.friends || [];
     
     if (friendsList.length === 0) {
-      console.log('debtService: Usuário não tem amigos');
+      console.log('debtService: Nenhum amigo encontrado');
       return { count: 0, friends: [] };
     }
     
@@ -547,7 +547,7 @@ export const getFriendsWithOpenDebts = async (userId: string): Promise<{
     // Filtrar apenas amigos com saldo diferente de zero
     const friendsWithOpenDebts = friendsWithBalances.filter(friend => friend.balance !== 0);
     
-    console.log('debtService: Amigos com dívidas em aberto encontrados:', friendsWithOpenDebts.length);
+    console.log(`debtService: ${friendsWithOpenDebts.length} amigos com dívidas`);
     return {
       count: friendsWithOpenDebts.length,
       friends: friendsWithOpenDebts

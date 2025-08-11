@@ -157,7 +157,7 @@ export const getUserFriends = async (userId: string): Promise<Friend[]> => {
       };
     });
 
-    console.log('userService - getUserFriends - Amigos encontrados:', friends.length);
+    console.log(`userService: ${friends.length} amigos carregados`);
     return friends;
   } catch (error) {
     console.error('userService - getUserFriends - Erro:', error);

@@ -99,8 +99,8 @@
     "mostActiveFriendSubtext": "transactions",
     "groupActivity": "Activité de Groupe",
     "groupActivitySubtext": "transactions actives",
-    "paymentTrend": "Tendance de Paiement",
-    "paymentTrendSubtext": "Temps moyen de paiement",
+    "paymentTrend": "Plus Haut Montant à Recevoir",
+    "paymentTrendSubtext": "Plus haut montant en attente",
     "friendsWithOpenDebts": "Amis avec Dettes",
     "friend": "ami",
     "friends": "amis",
@@ -158,8 +158,8 @@
           "description": "Dette en attente depuis le plus longtemps"
         },
         "paymentTrend": {
-          "title": "Tendance de Paiement",
-          "description": "Vitesse moyenne de paiement"
+          "title": "Plus Haut Montant à Recevoir",
+          "description": "Plus haut montant en attente à recevoir"
         },
         "debtDistribution": {
           "title": "Distribution des Dettes",
@@ -195,7 +195,14 @@
     "accept": "Accepter",
     "decline": "Refuser",
     "removeFriend": "Supprimer l'ami",
-    "removeConfirm": "Êtes-vous sûr de vouloir supprimer cet ami ?"
+    "removeConfirm": "Êtes-vous sûr de vouloir supprimer cet ami ?",
+    "loadError": "Erreur lors du chargement de la liste d'amis",
+    "friend": "ami",
+    "friends": "amis",
+    "balanced": "Comptes à jour",
+    "owesYou": "vous doit",
+    "youOwe": "vous devez",
+    "swipeToSettle": "Glissez pour régler"
   },
   "groups": {
     "title": "Groupes",
