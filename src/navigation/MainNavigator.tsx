@@ -1,5 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useTheme } from '../context/ThemeContext';
 import { RootStackParamList } from '../types';
 
 // Importar telas
@@ -13,18 +14,46 @@ import { EditProfileScreen } from '../screens/EditProfileScreen';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const MainNavigator: React.FC = () => {
+  const { isDark } = useTheme();
+
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        // Forçar re-renderização quando o tema mudar
+        animation: 'slide_from_right',
       }}
     >
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="NewDebt" component={NewDebtScreen} />
-      <Stack.Screen name="DebtDetails" component={DebtDetailsScreen} />
-      <Stack.Screen name="GroupDetail" component={GroupDetailScreen} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen 
+        name="Home" 
+        component={HomeScreen}
+        key={`home-${isDark}`} // Forçar re-renderização
+      />
+      <Stack.Screen 
+        name="NewDebt" 
+        component={NewDebtScreen}
+        key={`new-debt-${isDark}`}
+      />
+      <Stack.Screen 
+        name="DebtDetails" 
+        component={DebtDetailsScreen}
+        key={`debt-details-${isDark}`}
+      />
+      <Stack.Screen 
+        name="GroupDetail" 
+        component={GroupDetailScreen}
+        key={`group-detail-${isDark}`}
+      />
+      <Stack.Screen 
+        name="Settings" 
+        component={SettingsScreen}
+        key={`settings-${isDark}`}
+      />
+      <Stack.Screen 
+        name="EditProfile" 
+        component={EditProfileScreen}
+        key={`edit-profile-${isDark}`}
+      />
     </Stack.Navigator>
   );
 }; 

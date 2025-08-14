@@ -13,7 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
-import { useDesignSystem, Loading, FriendItem } from '../design-system';
+import { useDesignSystem, Loading, FriendItem, BalanceCard, Card, FriendSearchModal } from '../design-system';
+import { getPendingFriendRequests } from '../services/friendService';
 import { getUserFriends } from '../services/userService';
 import { getFriendsWithOpenDebts } from '../services/debtService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,6 +27,8 @@ interface FriendWithBalance {
   balance: number;
 }
 
+
+
 export const FriendsScreen: React.FC = () => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
@@ -34,6 +37,10 @@ export const FriendsScreen: React.FC = () => {
   const [friends, setFriends] = useState<FriendWithBalance[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [hasPendingRequests, setHasPendingRequests] = useState(false);
+  
+  // Modal state
+  const [isAddFriendModalVisible, setIsAddFriendModalVisible] = useState(false);
 
   const fetchFriends = async () => {
     if (!user?.id) return;
@@ -46,6 +53,7 @@ export const FriendsScreen: React.FC = () => {
       
       // Buscar todos os amigos (incluindo os sem dívidas)
       const allFriends = await getUserFriends(user.id);
+      console.log('🔍 Friends: Amigos carregados do userService:', allFriends.length);
       
       // Combinar os dados
       const friendsWithBalances: FriendWithBalance[] = allFriends.map(friend => {
@@ -56,7 +64,7 @@ export const FriendsScreen: React.FC = () => {
           id: friend.id,
           username: friend.username,
           email: friend.email,
-          photoURL: friend.photoURL,
+          photoURL: friend.photoURL || undefined,
           balance: balance
         };
       });
@@ -64,10 +72,21 @@ export const FriendsScreen: React.FC = () => {
       // Ordenar por saldo (maior dívida primeiro)
       const sortedFriends = friendsWithBalances.sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance));
       
+      console.log('🔍 Friends: Amigos finais após combinação:', sortedFriends.length);
+      
       // Log resumido dos amigos
       const withDebts = sortedFriends.filter(f => f.balance !== 0).length;
       const total = sortedFriends.length;
       console.log(`Friends: ${total} amigos carregados (${withDebts} com dívidas)`);
+      
+      // Debug: Log detalhado dos amigos
+      console.log('🔍 Friends: Detailed friend data:');
+      sortedFriends.forEach((friend, index) => {
+        console.log(`  ${index + 1}. ${friend.username}:`);
+        console.log(`     - ID: ${friend.id}`);
+        console.log(`     - Email: ${friend.email}`);
+        console.log(`     - Balance: ${friend.balance}`);
+      });
       
       setFriends(sortedFriends);
     } catch (error) {
@@ -75,6 +94,16 @@ export const FriendsScreen: React.FC = () => {
       Alert.alert(t('common.error'), t('friends.loadError'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkPendingRequests = async () => {
+    try {
+      const requests = await getPendingFriendRequests();
+      console.log('🔍 Friends: Verificando solicitações pendentes:', requests.length);
+      setHasPendingRequests(requests.length > 0);
+    } catch (error) {
+      console.error('Friends: Erro ao verificar solicitações pendentes:', error);
     }
   };
 
@@ -126,29 +155,103 @@ export const FriendsScreen: React.FC = () => {
       });
   };
 
+  const handleAddFriendPress = () => {
+    setIsAddFriendModalVisible(true);
+  };
+
+  const handleCloseModal = async () => {
+    setIsAddFriendModalVisible(false);
+    // Recarregar dados quando o modal for fechado
+    await fetchFriends();
+    await checkPendingRequests();
+  };
+
+  const handleSearchUsers = async (query: string) => {
+    // This function is no longer needed as we're using the real Firebase search
+    // The FriendSearchModal now uses searchUsers directly
+    return [];
+  };
+
+  const handleAddFriend = async (selectedUser: any) => {
+    try {
+      console.log('Adicionando amigo:', selectedUser);
+      
+      // Se o selectedUser tem photoURL, significa que foi aceito uma solicitação
+      if (selectedUser.photoURL !== undefined) {
+        // Amigo foi aceito, recarregar lista
+        await fetchFriends();
+        await checkPendingRequests();
+        
+        Alert.alert(
+          'Amigo Adicionado',
+          `${selectedUser.username} foi adicionado à sua lista de amigos!`,
+          [{ text: 'OK' }]
+        );
+      } else {
+        // Nova solicitação enviada
+        Alert.alert(
+          'Solicitação Enviada',
+          `Solicitação de amizade enviada para ${selectedUser.username}`,
+          [{ text: 'OK', onPress: handleCloseModal }]
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao adicionar amigo:', error);
+      Alert.alert('Erro', 'Não foi possível adicionar o amigo');
+    }
+  };
+
   useEffect(() => {
     if (user?.id) {
       fetchFriends();
+      checkPendingRequests();
     }
   }, [user?.id]);
 
+  // Calcular balanço geral
+  const calculateOverallBalance = () => {
+    const totalBalance = friends.reduce((sum, friend) => sum + friend.balance, 0);
+    const positiveBalance = friends.reduce((sum, friend) => sum + Math.max(0, friend.balance), 0);
+    const negativeBalance = friends.reduce((sum, friend) => sum + Math.min(0, friend.balance), 0);
+    
+    return {
+      total: totalBalance,
+      positive: positiveBalance,
+      negative: Math.abs(negativeBalance),
+      isPositive: totalBalance >= 0
+    };
+  };
+
+  const overallBalance = calculateOverallBalance();
+
   if (loading) {
     return (
-          <SafeAreaView style={[styles.container, { backgroundColor: ds.colors.background }]}>
-      <View style={styles.loadingContainer}>
-        <Loading 
-          variant="spinner"
-          size="large"
-        />
-      </View>
-    </SafeAreaView>
+      <SafeAreaView style={[styles.container, { backgroundColor: ds.colors.background }]}>
+        <View style={styles.loadingContainer}>
+          <Loading 
+            variant="spinner"
+            size="large"
+          />
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: ds.colors.background }]}>
+      {/* Balanço Geral */}
+      {friends.length > 0 && (
+        <View style={styles.balanceContainer}>
+          <BalanceCard 
+            balance={overallBalance.total}
+            title="Balanço Geral"
+            style={styles.balanceCard}
+          />
+        </View>
+      )}
+
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: ds.colors.surface }]}>
+      <View style={styles.header}>
         <View style={styles.headerContent}>
           <Text style={[styles.title, { color: ds.colors.text.primary }]}>
             {t('friends.title')}
@@ -160,8 +263,16 @@ export const FriendsScreen: React.FC = () => {
             }
           </Text>
         </View>
-        <TouchableOpacity style={styles.addButton}>
-          <Ionicons name="add" size={24} color={ds.colors.primary} />
+        <TouchableOpacity 
+          style={styles.addButton}
+          onPress={handleAddFriendPress}
+        >
+          <View style={styles.addButtonContainer}>
+            <Ionicons name="add" size={24} color={ds.colors.primary} />
+            {hasPendingRequests && (
+              <View style={[styles.pendingBadge, { backgroundColor: ds.colors.primary + '90' }]} />
+            )}
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -204,6 +315,7 @@ export const FriendsScreen: React.FC = () => {
             </Text>
             <TouchableOpacity 
               style={[styles.addFriendButton, { backgroundColor: ds.colors.primary }]}
+              onPress={handleAddFriendPress}
             >
               <Ionicons name="person-add" size={20} color="white" />
               <Text style={styles.addFriendButtonText}>
@@ -213,6 +325,16 @@ export const FriendsScreen: React.FC = () => {
           </View>
         )}
       </ScrollView>
+
+      {/* Add Friend Modal */}
+      <FriendSearchModal
+        visible={isAddFriendModalVisible}
+        onClose={handleCloseModal}
+        onAddFriend={handleAddFriend}
+        existingFriends={friends.map(friend => friend.id)}
+        onSearchUsers={handleSearchUsers}
+        hasPendingRequests={hasPendingRequests}
+      />
     </SafeAreaView>
   );
 };
@@ -254,6 +376,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.05)',
   },
+  addButtonContainer: {
+    position: 'relative',
+  },
+  pendingBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  balanceContainer: {
+    paddingHorizontal: 0,
+    paddingTop: 0,
+    paddingBottom: 8,
+  },
+  balanceCard: {
+    marginBottom: 0,
+  },
   content: {
     flex: 1,
   },
@@ -261,7 +404,9 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   friendsList: {
-    gap: 12,
+    gap: 0,
+    paddingHorizontal: 0,
+    paddingBottom: 30,
   },
   friendItem: {
     marginBottom: 0,

@@ -13,6 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
 import { useLanguage } from '../../context/LanguageContext';
 import { Avatar } from './Avatar';
+import { OnlineIndicator } from './OnlineIndicator';
+import { usePresence } from '../../hooks/usePresence';
 
 interface FriendItemProps {
   friend: {
@@ -43,8 +45,12 @@ export const FriendItem: React.FC<FriendItemProps> = ({
 }) => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
+  const { presence, getStatusText } = usePresence(friend.id);
   const translateX = useRef(new Animated.Value(0)).current;
   const swipeThreshold = -120; // Distância mínima para ativar o swipe (menos sensível)
+
+  // Debug logs
+  console.log('👤 FriendItem: Rendering friend', friend.username, 'ID:', friend.id, 'with presence:', presence);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -57,9 +63,9 @@ export const FriendItem: React.FC<FriendItemProps> = ({
     if (friend.balance === 0) {
       return {
         icon: 'checkmark-circle',
-        color: '#10B981',
+        color: ds.colors.text.primary,
         text: t('friends.balanced'),
-        amountColor: '#10B981'
+        amountColor: ds.colors.text.primary
       };
     } else if (friend.balance > 0) {
       return {
@@ -162,7 +168,7 @@ export const FriendItem: React.FC<FriendItemProps> = ({
             onLongPress={onLongPress}
             activeOpacity={0.7}
           >
-      {/* Header com Avatar e Status */}
+      {/* Header com Avatar */}
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
           <Avatar
@@ -171,13 +177,11 @@ export const FriendItem: React.FC<FriendItemProps> = ({
             size="medium"
             variant="circle"
           />
-          <View style={[styles.statusIndicator, { backgroundColor: status.color + '20' }]}>
-            <Ionicons 
-              name={status.icon as any} 
-              size={24} 
-              color={status.color} 
-            />
-          </View>
+          <OnlineIndicator 
+            presence={presence}
+            size="medium"
+            showBorder={true}
+          />
         </View>
         
         <View style={styles.info}>
@@ -198,12 +202,14 @@ export const FriendItem: React.FC<FriendItemProps> = ({
         </View>
         
         <View style={styles.balanceContainer}>
-          <View style={[styles.balanceBadge, { backgroundColor: status.color + '15' }]}>
-            <Ionicons 
-              name={friend.balance > 0 ? 'arrow-up' : friend.balance < 0 ? 'arrow-down' : 'checkmark'} 
-              size={16} 
-              color={status.color} 
-            />
+          <View style={[
+            styles.balanceBadge, 
+            { 
+              backgroundColor: friend.balance === 0 
+                ? ds.colors.surface 
+                : status.color + '15' 
+            }
+          ]}>
             <Text style={[
               styles.balance, 
               { color: status.amountColor }
@@ -214,16 +220,8 @@ export const FriendItem: React.FC<FriendItemProps> = ({
         </View>
       </View>
       
-      {/* Footer com Status */}
+      {/* Footer com Status da Dívida */}
       <View style={styles.footer}>
-        <View style={styles.statusContainer}>
-          <Ionicons name="information-circle-outline" size={14} color={ds.colors.text.secondary} />
-          <Text style={[styles.statusText, { color: ds.colors.text.secondary }]}>
-            {status.text}
-          </Text>
-        </View>
-        
-        {/* Status do amigo */}
         <View style={styles.statusContainer}>
           <Ionicons name="information-circle-outline" size={14} color={ds.colors.text.secondary} />
           <Text style={[styles.statusText, { color: ds.colors.text.secondary }]}>
@@ -285,7 +283,8 @@ const styles = StyleSheet.create({
   },
   container: {
     borderRadius: 16,
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -305,18 +304,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginRight: 12,
   },
-  statusIndicator: {
-    position: 'absolute',
-    bottom: -2,
-    right: -2,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
   info: {
     flex: 1,
     marginRight: 12,
@@ -334,12 +321,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   balanceBadge: {
-    flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    gap: 4,
   },
   balance: {
     fontSize: 16,

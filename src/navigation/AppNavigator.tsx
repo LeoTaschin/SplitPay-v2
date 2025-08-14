@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../context/ThemeContext';
 import { RootStackParamList } from '../types';
 
 // Importar telas (serão criadas depois)
@@ -15,6 +16,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const AppNavigator: React.FC = () => {
   const { user, loading } = useAuth();
+  const { isDark } = useTheme();
   const [showSplash, setShowSplash] = useState(true);
   const [isReadyToHideSplash, setIsReadyToHideSplash] = useState(false);
 
@@ -26,7 +28,7 @@ export const AppNavigator: React.FC = () => {
   }, [loading]);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={isDark ? DarkTheme : DefaultTheme}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,

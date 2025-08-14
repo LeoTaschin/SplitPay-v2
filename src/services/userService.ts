@@ -141,6 +141,8 @@ export const getUserFriends = async (userId: string): Promise<Friend[]> => {
       return [];
     }
 
+    console.log('userService - getUserFriends - Buscando dados dos amigos...');
+
     // Buscar os dados de todos os amigos
     const usersRef = collection(db, 'users');
     const friendsQuery = query(usersRef, where('uid', 'in', friendsList));
@@ -158,6 +160,7 @@ export const getUserFriends = async (userId: string): Promise<Friend[]> => {
     });
 
     console.log(`userService: ${friends.length} amigos carregados`);
+    console.log('userService - getUserFriends - Dados dos amigos:', friends.map(f => ({ id: f.id, username: f.username })));
     return friends;
   } catch (error) {
     console.error('userService - getUserFriends - Erro:', error);

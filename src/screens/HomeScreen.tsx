@@ -303,6 +303,7 @@ export const HomeScreen: React.FC = () => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
   const { user } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('friends');
 
   const handleTabChange = useCallback((tab: string) => {
@@ -325,10 +326,22 @@ export const HomeScreen: React.FC = () => {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Logo size={50} />
-          <LogoutButton 
-            onLogout={handleSignOut}
-            size={24}
-          />
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              onPress={toggleTheme}
+              style={[styles.themeToggle, { backgroundColor: ds.colors.surface }]}
+            >
+              <Ionicons 
+                name={isDark ? 'sunny' : 'moon'} 
+                size={20} 
+                color={ds.colors.text.primary} 
+              />
+            </TouchableOpacity>
+            <LogoutButton 
+              onLogout={handleSignOut}
+              size={24}
+            />
+          </View>
         </View>
         
         {/* Balanço Integrado */}
@@ -365,6 +378,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  themeToggle: {
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
   },
 
 

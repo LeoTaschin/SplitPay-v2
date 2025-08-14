@@ -26,6 +26,7 @@ export * from './components/StatsGrid';
 export * from './components/DebtItem';
 export * from './components/RecentDebtItem';
 export * from './components/FriendItem';
+export * from './components/OnlineIndicator';
 export * from './components/RecentDebtsList';
 export * from './components/EditButton';
 export * from './components/EmptyStatCard';
@@ -33,7 +34,15 @@ export * from './components/StatCardSelector';
 export * from './components/GridInfo';
 export * from './components/StatsCarousel';
 export * from './components/DebtDetailsModal';
+export * from './components/BalanceCard';
+export * from './components/FriendSearchModal';
+export * from './components/FriendSearchFriendItem';
+export * from './components/FriendSearchAcceptItem';
 
 // Hooks do Design System
 export * from './hooks/useDesignSystem';
-export * from './hooks/useSlideAnimation'; 
+export * from './hooks/useSlideAnimation';
+
+// Componentes de Debug
+export * from './components/ThemeDebug';
+export * from './components/PresenceDebug'; 

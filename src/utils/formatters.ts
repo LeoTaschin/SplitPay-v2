@@ -1,5 +1,6 @@
 export function formatCurrency(value: number | string | null | undefined): string {
-    if (!value) return '';
+    // Se for null ou undefined, retorna vazio
+    if (value === null || value === undefined) return '';
   
     // Se for string, converte para número
     const numericValue = typeof value === 'string' ? parseFloat(value) : value;
