@@ -14,7 +14,7 @@ service firebase.storage {
     }
     
     // Regras para fotos de grupos
-    match /group_photos/{photoId} {
+    match /groups/{groupId}/{fileName} {
       allow read: if true;
       allow write: if isAuthenticated();
     }

@@ -38,6 +38,7 @@ export const FriendsScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [hasPendingRequests, setHasPendingRequests] = useState(false);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
   
   // Modal state
   const [isAddFriendModalVisible, setIsAddFriendModalVisible] = useState(false);
@@ -47,50 +48,42 @@ export const FriendsScreen: React.FC = () => {
 
     try {
       setLoading(true);
+      console.log('🔄 Friends: Iniciando carregamento de amigos...');
       
-      // Buscar amigos com saldos de dívidas
-      const friendsWithDebts = await getFriendsWithOpenDebts(user.id);
+      // Executar ambas as chamadas em paralelo para melhor performance
+      const [friendsWithDebts, allFriends] = await Promise.all([
+        getFriendsWithOpenDebts(user.id),
+        getUserFriends(user.id)
+      ]);
       
-      // Buscar todos os amigos (incluindo os sem dívidas)
-      const allFriends = await getUserFriends(user.id);
-      console.log('🔍 Friends: Amigos carregados do userService:', allFriends.length);
+      console.log(`📊 Friends: Dados carregados - ${allFriends.length} amigos, ${friendsWithDebts.friends.length} com dívidas`);
       
-      // Combinar os dados
-      const friendsWithBalances: FriendWithBalance[] = allFriends.map(friend => {
-        const friendWithDebt = friendsWithDebts.friends.find(f => f.id === friend.id);
-        const balance = friendWithDebt?.balance || 0;
-        
-        return {
-          id: friend.id,
-          username: friend.username,
-          email: friend.email,
-          photoURL: friend.photoURL || undefined,
-          balance: balance
-        };
-      });
+      // Criar um Map para busca O(1) em vez de O(n) para cada amigo
+      const debtMap = new Map(
+        friendsWithDebts.friends.map(friend => [friend.id, friend.balance])
+      );
+      
+      // Combinar os dados de forma otimizada
+      const friendsWithBalances: FriendWithBalance[] = allFriends.map(friend => ({
+        id: friend.id,
+        username: friend.username,
+        email: friend.email,
+        photoURL: friend.photoURL || undefined,
+        balance: debtMap.get(friend.id) || 0
+      }));
 
       // Ordenar por saldo (maior dívida primeiro)
       const sortedFriends = friendsWithBalances.sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance));
       
-      console.log('🔍 Friends: Amigos finais após combinação:', sortedFriends.length);
-      
-      // Log resumido dos amigos
+      // Log resumido dos dados processados
       const withDebts = sortedFriends.filter(f => f.balance !== 0).length;
-      const total = sortedFriends.length;
-      console.log(`Friends: ${total} amigos carregados (${withDebts} com dívidas)`);
-      
-      // Debug: Log detalhado dos amigos
-      console.log('🔍 Friends: Detailed friend data:');
-      sortedFriends.forEach((friend, index) => {
-        console.log(`  ${index + 1}. ${friend.username}:`);
-        console.log(`     - ID: ${friend.id}`);
-        console.log(`     - Email: ${friend.email}`);
-        console.log(`     - Balance: ${friend.balance}`);
-      });
+      const totalBalance = sortedFriends.reduce((sum, f) => sum + f.balance, 0);
+      console.log(`✅ Friends: Processamento concluído - ${sortedFriends.length} amigos, ${withDebts} com dívidas, saldo total: R$ ${totalBalance.toFixed(2)}`);
       
       setFriends(sortedFriends);
+      setLastFetchTime(Date.now());
     } catch (error) {
-      console.error('Friends: Erro ao carregar amigos:', error);
+      console.error('❌ Friends: Erro ao carregar amigos:', error);
       Alert.alert(t('common.error'), t('friends.loadError'));
     } finally {
       setLoading(false);
@@ -99,32 +92,44 @@ export const FriendsScreen: React.FC = () => {
 
   const checkPendingRequests = async () => {
     try {
+      console.log('🔍 Friends: Verificando solicitações pendentes...');
       const requests = await getPendingFriendRequests();
-      console.log('🔍 Friends: Verificando solicitações pendentes:', requests.length);
+      console.log(`📋 Friends: ${requests.length} solicitação${requests.length !== 1 ? 'ões' : 'ão'} pendente${requests.length !== 1 ? 's' : ''}`);
       setHasPendingRequests(requests.length > 0);
     } catch (error) {
-      console.error('Friends: Erro ao verificar solicitações pendentes:', error);
+      console.error('❌ Friends: Erro ao verificar solicitações pendentes:', error);
     }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchFriends();
-    setRefreshing(false);
+    console.log('🔄 Friends: Iniciando refresh manual...');
+    try {
+      // Atualizar tanto a lista de amigos quanto as solicitações pendentes
+      await Promise.all([
+        fetchFriends(),
+        checkPendingRequests()
+      ]);
+      console.log('✅ Friends: Refresh concluído com sucesso');
+    } catch (error) {
+      console.error('❌ Friends: Erro ao atualizar dados:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleFriendPress = (friend: FriendWithBalance) => {
     // TODO: Implementar navegação para chat ou detalhes do amigo
-    console.log(`Friends: Clicou em ${friend.username}`);
+    console.log(`👤 Friends: Amigo selecionado - ${friend.username} (ID: ${friend.id})`);
   };
 
   const handleFriendLongPress = (friend: FriendWithBalance) => {
     // TODO: Implementar menu de opções (remover amigo, etc.)
-    console.log(`Friends: Long press em ${friend.username}`);
+    console.log(`🔧 Friends: Long press em ${friend.username} - Abrindo menu de opções`);
   };
 
   const handleSwipeToSettle = (friend: FriendWithBalance) => {
-    console.log(`Friends: Swipe para acertar dívida com ${friend.username} - Saldo: R$ ${Math.abs(friend.balance).toFixed(2)}`);
+    console.log(`💰 Friends: Swipe para acertar dívida - ${friend.username} | Saldo: R$ ${Math.abs(friend.balance).toFixed(2)} | Tipo: ${friend.balance > 0 ? 'Credor' : 'Devedor'}`);
     
     // TODO: Navegar para tela de acertar dívida
     // Por enquanto, vamos armazenar as informações para usar depois
@@ -142,7 +147,12 @@ export const FriendsScreen: React.FC = () => {
     // Armazenar no AsyncStorage para usar na tela de criar dívida
     AsyncStorage.setItem('pendingSettleInfo', JSON.stringify(settleInfo))
       .then(() => {
-        console.log('Friends: Informações de acerto salvas:', settleInfo);
+        console.log('💾 Friends: Informações de acerto salvas no AsyncStorage:', {
+          friendId: settleInfo.friendId,
+          friendName: settleInfo.friendName,
+          amount: settleInfo.amount,
+          isCreditor: settleInfo.isCreditor
+        });
         // TODO: Navegar para tela de criar dívida com os dados pré-preenchidos
         Alert.alert(
           'Acertar Dívida',
@@ -151,19 +161,19 @@ export const FriendsScreen: React.FC = () => {
         );
       })
       .catch(error => {
-        console.error('Friends: Erro ao salvar informações de acerto:', error);
+        console.error('❌ Friends: Erro ao salvar informações de acerto:', error);
       });
   };
 
   const handleAddFriendPress = () => {
+    console.log('➕ Friends: Abrindo modal de adicionar amigo');
     setIsAddFriendModalVisible(true);
   };
 
-  const handleCloseModal = async () => {
+  const handleCloseModal = () => {
+    console.log('❌ Friends: Fechando modal de adicionar amigo');
     setIsAddFriendModalVisible(false);
-    // Recarregar dados quando o modal for fechado
-    await fetchFriends();
-    await checkPendingRequests();
+    // Não recarregar dados automaticamente - apenas fechar o modal
   };
 
   const handleSearchUsers = async (query: string) => {
@@ -174,37 +184,57 @@ export const FriendsScreen: React.FC = () => {
 
   const handleAddFriend = async (selectedUser: any) => {
     try {
-      console.log('Adicionando amigo:', selectedUser);
+      console.log('👥 Friends: Processando adição de amigo:', {
+        id: selectedUser.id,
+        username: selectedUser.username,
+        hasPhoto: !!selectedUser.photoURL
+      });
       
       // Se o selectedUser tem photoURL, significa que foi aceito uma solicitação
       if (selectedUser.photoURL !== undefined) {
-        // Amigo foi aceito, recarregar lista
-        await fetchFriends();
-        await checkPendingRequests();
-        
+        console.log('✅ Friends: Amigo aceito -', selectedUser.username);
+        // Amigo foi aceito - não recarregar automaticamente
         Alert.alert(
           'Amigo Adicionado',
           `${selectedUser.username} foi adicionado à sua lista de amigos!`,
           [{ text: 'OK' }]
         );
       } else {
+        console.log('📤 Friends: Solicitação enviada -', selectedUser.username);
         // Nova solicitação enviada
         Alert.alert(
           'Solicitação Enviada',
           `Solicitação de amizade enviada para ${selectedUser.username}`,
-          [{ text: 'OK', onPress: handleCloseModal }]
+          [{ text: 'OK' }]
         );
       }
     } catch (error) {
-      console.error('Erro ao adicionar amigo:', error);
+      console.error('❌ Friends: Erro ao adicionar amigo:', error);
       Alert.alert('Erro', 'Não foi possível adicionar o amigo');
     }
   };
 
   useEffect(() => {
     if (user?.id) {
-      fetchFriends();
-      checkPendingRequests();
+      const now = Date.now();
+      const cacheExpiry = 30000; // 30 segundos de cache
+      
+      console.log('🔄 Friends: useEffect executado -', {
+        hasFriends: friends.length > 0,
+        cacheAge: now - lastFetchTime,
+        cacheExpired: (now - lastFetchTime) > cacheExpiry
+      });
+      
+      // Só recarregar se não há dados ou se o cache expirou
+      if (friends.length === 0 || (now - lastFetchTime) > cacheExpiry) {
+        console.log('📡 Friends: Cache expirado ou sem dados - carregando...');
+        fetchFriends();
+        checkPendingRequests();
+      } else {
+        console.log('⚡ Friends: Usando cache - dados ainda válidos');
+        // Se há dados em cache, apenas mostrar sem loading
+        setLoading(false);
+      }
     }
   }, [user?.id]);
 

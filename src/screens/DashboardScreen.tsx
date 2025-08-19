@@ -113,6 +113,7 @@ export const DashboardScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
   const [visibleStatCards, setVisibleStatCards] = useState<string[]>([
     'unpaidDebts',
     'totalUnpaid',
@@ -144,6 +145,7 @@ export const DashboardScreen: React.FC = () => {
   // Carregar predefinições salvas
   const loadSavedCards = async () => {
     try {
+      console.log('💾 Dashboard: Carregando configurações salvas...');
       const [savedCards, savedOrder] = await Promise.all([
         AsyncStorage.getItem(DASHBOARD_CARDS_KEY),
         AsyncStorage.getItem(DASHBOARD_ORDER_KEY)
@@ -156,9 +158,11 @@ export const DashboardScreen: React.FC = () => {
           card === 'unpaidDebts' ? 'friendsWithOpenDebts' : card
         );
         setVisibleStatCards(updatedCards);
+        console.log(`📋 Dashboard: ${updatedCards.length} cards carregados das configurações salvas`);
       } else {
         // Cards padrão com o novo card
         setVisibleStatCards(['friendsWithOpenDebts', 'totalUnpaid', 'monthlyAverage']);
+        console.log('📋 Dashboard: Usando configuração padrão (3 cards)');
       }
       
       if (savedOrder) {
@@ -172,7 +176,7 @@ export const DashboardScreen: React.FC = () => {
         setCardOrder(updatedOrder);
       }
     } catch (error) {
-      console.error('Erro ao carregar cards salvos:', error);
+      console.error('❌ Dashboard: Erro ao carregar cards salvos:', error);
       // Fallback para cards padrão com o novo card
       setVisibleStatCards(['friendsWithOpenDebts', 'totalUnpaid', 'monthlyAverage']);
     }
@@ -181,12 +185,14 @@ export const DashboardScreen: React.FC = () => {
   // Salvar predefinições
   const saveCards = async (cards: string[], order?: { [key: string]: number }) => {
     try {
+      console.log(`💾 Dashboard: Salvando configuração - ${cards.length} cards`);
       await Promise.all([
         AsyncStorage.setItem(DASHBOARD_CARDS_KEY, JSON.stringify(cards)),
         AsyncStorage.setItem(DASHBOARD_ORDER_KEY, JSON.stringify(order || cardOrder))
       ]);
+      console.log('✅ Dashboard: Configuração salva com sucesso');
     } catch (error) {
-      console.error('Erro ao salvar cards:', error);
+      console.error('❌ Dashboard: Erro ao salvar cards:', error);
     }
   };
 
@@ -298,22 +304,14 @@ export const DashboardScreen: React.FC = () => {
 
     try {
       setLoading(true);
+      console.log('🔄 Dashboard: Iniciando carregamento de dados...');
       
-      // Buscar dados básicos
-      const [balance, creditorDebts, debtorDebts, friendsWithOpenDebts] = await Promise.all([
-        getUserBalance(user.id),
-        getDebtsAsCreditor(user.id),
-        getDebtsAsDebtor(user.id),
-        getFriendsWithOpenDebts(user.id)
-      ]);
-
-      setBalanceData(balance);
-      
-      // Calcular estatísticas básicas do dashboard
-      const basicStats = calculateDashboardStats(creditorDebts, debtorDebts);
-      
-      // Buscar dados avançados de analytics
+      // Executar todas as chamadas em paralelo para máxima performance
       const [
+        balance,
+        creditorDebts,
+        debtorDebts,
+        friendsWithOpenDebts,
         monthlyAverage,
         biggestDebt,
         mostActiveFriend,
@@ -321,6 +319,10 @@ export const DashboardScreen: React.FC = () => {
         highestAmountToReceive,
         debtDistribution
       ] = await Promise.all([
+        getUserBalance(user.id),
+        getDebtsAsCreditor(user.id),
+        getDebtsAsDebtor(user.id),
+        getFriendsWithOpenDebts(user.id),
         getMonthlyAverage(user.id),
         getBiggestDebt(user.id),
         getMostActiveFriend(user.id),
@@ -328,6 +330,21 @@ export const DashboardScreen: React.FC = () => {
         getHighestAmountToReceive(user.id),
         getDebtDistribution(user.id)
       ]);
+
+      console.log('📊 Dashboard: Dados carregados -', {
+        balance: `R$ ${balance.netBalance.toFixed(2)}`,
+        creditorDebts: creditorDebts.length,
+        debtorDebts: debtorDebts.length,
+        friendsWithDebts: friendsWithOpenDebts.count,
+        monthlyAverage: `R$ ${monthlyAverage.average.toFixed(2)}`,
+        biggestDebt: `R$ ${biggestDebt.amount.toFixed(2)}`,
+        groupCount: groupActivity.groupCount
+      });
+
+      setBalanceData(balance);
+      
+      // Calcular estatísticas básicas do dashboard
+      const basicStats = calculateDashboardStats(creditorDebts, debtorDebts);
 
       // Combinar todos os dados
       const completeStats: DashboardStats = {
@@ -386,14 +403,19 @@ export const DashboardScreen: React.FC = () => {
           return timestampB - timestampA; // Mais recente primeiro
         });
       
-      // Log resumido das dívidas carregadas
-      console.log(`Dashboard: Carregadas ${sortedDebts.length} dívidas recentes`);
+      // Log resumido das dívidas processadas
+      const unpaidCount = sortedDebts.filter(debt => !debt.paid).length;
+      const totalAmount = sortedDebts.reduce((sum, debt) => {
+        const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
+        return sum + amount;
+      }, 0);
       
-
+      console.log(`✅ Dashboard: Processamento concluído - ${sortedDebts.length} dívidas recentes, ${unpaidCount} não pagas, valor total: R$ ${totalAmount.toFixed(2)}`);
       
       setRecentDebts(sortedDebts);
+      setLastFetchTime(Date.now());
     } catch (error) {
-      console.error('Erro ao buscar dados do dashboard:', error);
+      console.error('❌ Dashboard: Erro ao buscar dados do dashboard:', error);
       Alert.alert(t('common.error'), t('dashboard.loadError'));
     } finally {
       setLoading(false);
@@ -402,15 +424,25 @@ export const DashboardScreen: React.FC = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchDashboardData();
-    setRefreshing(false);
+    console.log('🔄 Dashboard: Iniciando refresh manual...');
+    try {
+      await fetchDashboardData();
+      console.log('✅ Dashboard: Refresh concluído com sucesso');
+    } catch (error) {
+      console.error('❌ Dashboard: Erro durante refresh:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const toggleEditMode = () => {
-    setIsEditing(!isEditing);
+    const newEditingState = !isEditing;
+    console.log(`🔧 Dashboard: Modo de edição ${newEditingState ? 'ativado' : 'desativado'}`);
+    setIsEditing(newEditingState);
   };
 
   const removeStatCard = async (cardId: string) => {
+    console.log(`🗑️ Dashboard: Removendo card - ${cardId}`);
     const newCards = visibleStatCards.filter(id => id !== cardId);
     const newOrder = { ...cardOrder };
     delete newOrder[cardId];
@@ -422,6 +454,7 @@ export const DashboardScreen: React.FC = () => {
 
   const addStatCard = async (cardId: string) => {
     if (!visibleStatCards.includes(cardId)) {
+      console.log(`➕ Dashboard: Adicionando card - ${cardId}`);
       const newCards = [...visibleStatCards, cardId];
       const newOrder = { ...cardOrder };
       newOrder[cardId] = Math.max(...Object.values(cardOrder), -1) + 1;
@@ -429,22 +462,28 @@ export const DashboardScreen: React.FC = () => {
       setVisibleStatCards(newCards);
       setCardOrder(newOrder);
       await saveCards(newCards, newOrder);
+    } else {
+      console.log(`⚠️ Dashboard: Card já existe - ${cardId}`);
     }
     setShowCardSelector(false);
   };
 
   const handleDebtPress = (debt: Debt) => {
+    console.log(`💰 Dashboard: Dívida selecionada - ${debt.description} (ID: ${debt.id}, R$ ${debt.amount?.toFixed(2) || debt.amountPerPerson?.toFixed(2) || '0.00'})`);
     setSelectedDebt(debt);
     setShowDebtDetails(true);
   };
 
   const handleCloseDebtDetails = () => {
+    console.log('❌ Dashboard: Fechando modal de detalhes da dívida');
     setShowDebtDetails(false);
     setSelectedDebt(null);
   };
 
   const handleToggleShowAllDebts = () => {
-    setShowAllDebts(!showAllDebts);
+    const newShowAllState = !showAllDebts;
+    console.log(`📋 Dashboard: ${newShowAllState ? 'Mostrando' : 'Ocultando'} todas as dívidas`);
+    setShowAllDebts(newShowAllState);
   };
 
   const getGridCardWidth = () => {
@@ -663,8 +702,27 @@ export const DashboardScreen: React.FC = () => {
 
   useEffect(() => {
     if (user?.id) {
+      const now = Date.now();
+      const cacheExpiry = 30000; // 30 segundos de cache
+      
+      console.log('🔄 Dashboard: useEffect executado -', {
+        hasDebts: recentDebts.length > 0,
+        cacheAge: now - lastFetchTime,
+        cacheExpired: (now - lastFetchTime) > cacheExpiry
+      });
+      
+      // Sempre carregar as configurações salvas
       loadSavedCards();
-      fetchDashboardData();
+      
+      // Só recarregar dados se não há dados ou se o cache expirou
+      if (recentDebts.length === 0 || (now - lastFetchTime) > cacheExpiry) {
+        console.log('📡 Dashboard: Cache expirado ou sem dados - carregando...');
+        fetchDashboardData();
+      } else {
+        console.log('⚡ Dashboard: Usando cache - dados ainda válidos');
+        // Se há dados em cache, apenas mostrar sem loading
+        setLoading(false);
+      }
     }
   }, [user?.id]);
 

@@ -10,6 +10,7 @@ import {
   ScrollView,
   TextInput,
   ActivityIndicator,
+  Easing,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -81,17 +82,18 @@ export const FriendSearchModal: React.FC<FriendSearchModalProps> = ({
 
   React.useEffect(() => {
     if (visible) {
-      Animated.spring(slideAnim, {
+      Animated.timing(slideAnim, {
         toValue: 1,
+        duration: 300,
         useNativeDriver: true,
-        tension: 100,
-        friction: 8,
+        easing: Easing.out(Easing.cubic),
       }).start();
     } else {
       Animated.timing(slideAnim, {
         toValue: 0,
         duration: 300,
         useNativeDriver: true,
+        easing: Easing.in(Easing.cubic),
       }).start();
     }
   }, [visible]);
@@ -101,6 +103,7 @@ export const FriendSearchModal: React.FC<FriendSearchModalProps> = ({
       toValue: 0,
       duration: 300,
       useNativeDriver: true,
+      easing: Easing.in(Easing.cubic),
     }).start(() => {
       onClose();
       setSearchQuery('');
@@ -428,8 +431,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    maxHeight: Dimensions.get('window').height * 0.8,
-    minHeight: Dimensions.get('window').height * 0.6,
+    maxHeight: Dimensions.get('window').height * 0.95,
+    minHeight: Dimensions.get('window').height * 0.8,
   },
   modalHeader: {
     flexDirection: 'row',

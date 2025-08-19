@@ -85,6 +85,27 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
+    // Regras para a coleção groups
+    match /groups/{groupId} {
+      // Permitir leitura apenas para membros do grupo
+      allow read: if isAuthenticated() && 
+        request.auth.uid in resource.data.members;
+      
+      // Permitir criação apenas para usuários autenticados
+      allow create: if isAuthenticated() && 
+        request.resource.data.createdBy == request.auth.uid &&
+        request.auth.uid in request.resource.data.members;
+      
+      // Permitir atualização apenas para o criador do grupo ou membros (com restrições)
+      allow update: if isAuthenticated() && 
+        (resource.data.createdBy == request.auth.uid || 
+         request.auth.uid in resource.data.members);
+      
+      // Permitir exclusão apenas para o criador do grupo
+      allow delete: if isAuthenticated() && 
+        resource.data.createdBy == request.auth.uid;
+    }
+
     // Regras para outras coleções
     match /{document=**} {
       allow read: if isAuthenticated();

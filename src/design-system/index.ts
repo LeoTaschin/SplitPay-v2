@@ -38,6 +38,10 @@ export * from './components/BalanceCard';
 export * from './components/FriendSearchModal';
 export * from './components/FriendSearchFriendItem';
 export * from './components/FriendSearchAcceptItem';
+export * from './components/GroupItem';
+export * from './components/CreateGroupModal';
+export * from './components/CreateGroupFriendItem';
+export * from './components/GroupConfirmationItem';
 
 // Hooks do Design System
 export * from './hooks/useDesignSystem';
