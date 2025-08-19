@@ -19,6 +19,12 @@ export * from './components/Loading';
 export * from './components/LanguageSelector';
 export * from './components/Logo';
 export * from './components/LogoutButton';
+export * from './components/ProfileHeader';
+export * from './components/ProfileStats';
+export * from './components/ProfileSettings';
+export * from './components/ProfileAccountInfo';
+export * from './components/ProfileActivity';
+export * from './components/ProfileLogout';
 
 // Componentes do Dashboard
 export * from './components/StatCard';

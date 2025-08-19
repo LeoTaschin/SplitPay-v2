@@ -64,13 +64,13 @@ export const Card: React.FC<CardProps> = ({
     // Size styles
     const sizeStyles = {
       small: {
-        margin: ds.spacing.card.margin,
+        marginVertical: ds.spacing.card.margin,
       },
       medium: {
-        margin: ds.spacing.card.margin,
+        marginVertical: ds.spacing.card.margin,
       },
       large: {
-        margin: ds.spacing.card.margin,
+        marginVertical: ds.spacing.card.margin,
       },
     };
 

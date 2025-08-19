@@ -26,7 +26,8 @@
     "viewAll": "Ver Todas",
     "showLess": "Ver Menos",
     "recent": "Recentes",
-    "latest": "Mais Recente"
+    "latest": "Mais Recente",
+    "days": "dias"
   },
   "auth": {
     "login": "Entrar",
@@ -186,17 +187,30 @@
     "title": "Perfil",
     "editProfile": "Editar Perfil",
     "changePassword": "Alterar Senha",
+    "changePasswordDesc": "Altere sua senha de acesso",
     "notifications": "Notificações",
+    "notificationsDesc": "Configure suas notificações",
     "accountInfo": "Informações da Conta",
     "memberSince": "Membro desde",
+    "statistics": "Estatísticas",
     "accountSettings": "Configurações da Conta",
     "privacy": "Privacidade",
+    "privacyDesc": "Configure suas configurações de privacidade",
     "security": "Segurança",
     "help": "Ajuda",
+    "helpDesc": "Obtenha ajuda e suporte",
     "about": "Sobre",
+    "aboutDesc": "Informações sobre o aplicativo",
     "version": "Versão",
     "logoutConfirm": "Tem certeza que deseja sair da sua conta?",
-    "logoutError": "Não foi possível fazer logout. Tente novamente."
+    "logoutError": "Não foi possível fazer logout. Tente novamente.",
+    "changePhoto": "Alterar Foto",
+    "personalInfo": "Informações Pessoais",
+    "additionalInfo": "Informações Adicionais",
+    "namePlaceholder": "Digite seu nome completo",
+    "nameRequired": "O nome é obrigatório",
+    "profileUpdated": "Perfil atualizado com sucesso",
+    "updateError": "Erro ao atualizar perfil. Tente novamente."
   },
   "friends": {
     "title": "Amigos",
