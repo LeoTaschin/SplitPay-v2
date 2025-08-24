@@ -55,4 +55,9 @@ export * from './hooks/useSlideAnimation';
 
 // Componentes de Debug
 export * from './components/ThemeDebug';
-export * from './components/PresenceDebug'; 
+export * from './components/PresenceDebug';
+export * from './components/PresenceTestPanel';
+export * from './components/BadgeData';
+export * from './components/BadgeSelectorModal';
+export * from './components/BadgeItem';
+export * from './components/EditIconButton'; 

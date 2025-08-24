@@ -73,14 +73,14 @@ const BalanceSection: React.FC = () => {
     let isMounted = true;
     
     const fetchBalance = async () => {
-      if (!user?.id) {
+      if (!user?.uid) {
         setLoading(false);
         return;
       }
       
       try {
         setLoading(true);
-        const balance = await getUserBalance(user.id);
+        const balance = await getUserBalance(user.uid);
         
         // Verificar se o componente ainda está montado
         if (isMounted) {
@@ -101,7 +101,7 @@ const BalanceSection: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [user?.id]);
+  }, [user?.uid]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {

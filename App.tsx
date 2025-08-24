@@ -16,13 +16,13 @@ const AppContent = () => {
     console.log('🔍 App: Setting up auth state listener');
     console.log('🔍 App: Auth object available:', !!auth);
     
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user: any) => {
       console.log('🔍 App: Auth state changed:', user?.uid);
       console.log('🔍 App: User email:', user?.email);
       if (user) {
         console.log('🔍 App: Initializing presence service for user:', user.uid);
         try {
-          presenceService.initialize();
+          await presenceService.initialize();
           console.log('✅ App: Presence service initialized successfully');
         } catch (error) {
           console.error('❌ App: Failed to initialize presence service:', error);

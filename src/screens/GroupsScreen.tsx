@@ -68,15 +68,17 @@ export const GroupsScreen: React.FC = () => {
     }
   ];
 
-  const fetchGroups = async () => {
-    if (!user?.id) return;
+  const fetchGroups = async (showLoading: boolean = true) => {
+    if (!user?.uid) return;
 
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
       console.log('🔄 Groups: Iniciando carregamento de grupos...');
       
       // Buscar grupos reais do Firebase
-      const firebaseGroups = await GroupService.getUserGroups(user.id);
+      const firebaseGroups = await GroupService.getUserGroups(user.uid);
       console.log(`📊 Groups: ${firebaseGroups.length} grupos carregados do Firebase`);
       
       // Converter para o formato esperado pela interface
@@ -102,7 +104,9 @@ export const GroupsScreen: React.FC = () => {
       console.error('❌ Groups: Erro ao carregar grupos:', error);
       Alert.alert(t('common.error'), 'Erro ao carregar grupos');
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -110,7 +114,7 @@ export const GroupsScreen: React.FC = () => {
     setRefreshing(true);
     console.log('🔄 Groups: Iniciando refresh manual...');
     try {
-      await fetchGroups();
+      await fetchGroups(false); // Não mostrar loading no refresh
       console.log('✅ Groups: Refresh concluído com sucesso');
     } catch (error) {
       console.error('❌ Groups: Erro durante refresh:', error);
@@ -151,7 +155,6 @@ export const GroupsScreen: React.FC = () => {
   const handleCloseModal = () => {
     console.log('❌ Groups: Fechando modal de criar grupo');
     setIsCreateGroupModalVisible(false);
-    // Não recarregar dados automaticamente - apenas fechar o modal
   };
 
   const handleGroupCreated = async (groupData: any) => {
@@ -160,31 +163,33 @@ export const GroupsScreen: React.FC = () => {
       name: groupData.name,
       participantsCount: groupData.members?.length || 0
     });
-    // Não recarregar automaticamente - o usuário pode fazer pull-to-refresh se quiser
+    // Atualizar a lista sem mostrar loading
+    await fetchGroups(false);
   };
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.uid && !isCreateGroupModalVisible) {
       const now = Date.now();
       const cacheExpiry = 30000; // 30 segundos de cache
       
       console.log('🔄 Groups: useEffect executado -', {
         hasGroups: groups.length > 0,
         cacheAge: now - lastFetchTime,
-        cacheExpired: (now - lastFetchTime) > cacheExpiry
+        cacheExpired: (now - lastFetchTime) > cacheExpiry,
+        modalOpen: isCreateGroupModalVisible
       });
       
       // Só recarregar se não há dados ou se o cache expirou
       if (groups.length === 0 || (now - lastFetchTime) > cacheExpiry) {
         console.log('📡 Groups: Cache expirado ou sem dados - carregando...');
-        fetchGroups();
+        fetchGroups(true); // Mostrar loading apenas no carregamento inicial
       } else {
         console.log('⚡ Groups: Usando cache - dados ainda válidos');
         // Se há dados em cache, apenas mostrar sem loading
         setLoading(false);
       }
     }
-  }, [user?.id]);
+  }, [user?.uid, isCreateGroupModalVisible]);
 
 
 

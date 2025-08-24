@@ -139,21 +139,21 @@ export const DesignSystemExample: React.FC = () => {
         {/* Seção: Badges */}
         <Card title="Badges" variant="elevated" style={styles.section}>
           <View style={styles.badgeRow}>
-            <Badge label="Primário" variant="primary" />
-            <Badge label="Secundário" variant="secondary" />
-            <Badge label="Sucesso" variant="success" />
+            <Badge title="Primário" description="Badge primário" variant="primary" />
+            <Badge title="Secundário" description="Badge secundário" variant="secondary" />
+            <Badge title="Sucesso" description="Badge de sucesso" variant="success" />
           </View>
           
           <View style={styles.badgeRow}>
-            <Badge label="Aviso" variant="warning" />
-            <Badge label="Erro" variant="error" />
-            <Badge label="Info" variant="info" />
+            <Badge title="Aviso" description="Badge de aviso" variant="warning" />
+            <Badge title="Erro" description="Badge de erro" variant="error" />
+            <Badge title="Info" description="Badge informativo" variant="info" />
           </View>
           
           <View style={styles.badgeRow}>
-            <Badge label="Pequeno" size="small" variant="primary" />
-            <Badge label="Médio" size="medium" variant="primary" />
-            <Badge label="Grande" size="large" variant="primary" />
+            <Badge title="Pequeno" description="Badge pequeno" size="small" variant="primary" />
+            <Badge title="Médio" description="Badge médio" size="medium" variant="primary" />
+            <Badge title="Grande" description="Badge grande" size="large" variant="primary" />
           </View>
         </Card>
 

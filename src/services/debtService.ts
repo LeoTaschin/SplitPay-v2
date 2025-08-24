@@ -130,7 +130,7 @@ const sortDebtsByDate = (debts: Debt[]): Debt[] => {
     
     // Se for Firestore Timestamp
     if (createdAt && typeof createdAt === 'object' && 'toDate' in createdAt) {
-      return createdAt.toDate().getTime();
+      return (createdAt as any).toDate().getTime();
     }
     
     // Se for timestamp numérico
@@ -225,7 +225,7 @@ export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
       }));
 
       const allDebts = [...regularDebts, ...groupDebts];
-      const sortedDebts = sortDebtsByDate(allDebts);
+      const sortedDebts = sortDebtsByDate(allDebts as Debt[]);
       console.log(`debtService: ${sortedDebts.length} dívidas como credor (ordenadas localmente)`);
       return sortedDebts as Debt[];
     }
@@ -312,7 +312,7 @@ export const getDebtsAsDebtor = async (userId: string): Promise<Debt[]> => {
       }));
 
       const allDebts = [...regularDebts, ...groupDebts];
-      const sortedDebts = sortDebtsByDate(allDebts);
+      const sortedDebts = sortDebtsByDate(allDebts as Debt[]);
       console.log(`debtService: ${sortedDebts.length} dívidas como devedor (ordenadas localmente)`);
       return sortedDebts as Debt[];
     }
@@ -325,6 +325,12 @@ export const getDebtsAsDebtor = async (userId: string): Promise<Debt[]> => {
 // Marcar uma dívida como paga
 export const markDebtAsPaid = async (debtId: string): Promise<ApiResponse<void>> => {
   try {
+    if (!auth.currentUser) {
+      throw new Error('Usuário não autenticado');
+    }
+    
+    const currentUserId = auth.currentUser.uid;
+    
     await runTransaction(db, async (transaction) => {
       const debtRef = doc(db, 'debts', debtId);
       const debtDoc = await transaction.get(debtRef);

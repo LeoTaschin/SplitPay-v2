@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
-import { useDesignSystem, Loading, FriendItem, BalanceCard, Card, FriendSearchModal } from '../design-system';
+import { useDesignSystem, Loading, FriendItem, BalanceCard, Card, FriendSearchModal, PresenceTestPanel } from '../design-system';
 import { getPendingFriendRequests } from '../services/friendService';
 import { getUserFriends } from '../services/userService';
 import { getFriendsWithOpenDebts } from '../services/debtService';
@@ -43,17 +43,19 @@ export const FriendsScreen: React.FC = () => {
   // Modal state
   const [isAddFriendModalVisible, setIsAddFriendModalVisible] = useState(false);
 
-  const fetchFriends = async () => {
-    if (!user?.id) return;
+  const fetchFriends = async (showLoading: boolean = true) => {
+    if (!user?.uid) return;
 
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
       console.log('🔄 Friends: Iniciando carregamento de amigos...');
       
       // Executar ambas as chamadas em paralelo para melhor performance
       const [friendsWithDebts, allFriends] = await Promise.all([
-        getFriendsWithOpenDebts(user.id),
-        getUserFriends(user.id)
+        getFriendsWithOpenDebts(user.uid),
+        getUserFriends(user.uid)
       ]);
       
       console.log(`📊 Friends: Dados carregados - ${allFriends.length} amigos, ${friendsWithDebts.friends.length} com dívidas`);
@@ -86,7 +88,9 @@ export const FriendsScreen: React.FC = () => {
       console.error('❌ Friends: Erro ao carregar amigos:', error);
       Alert.alert(t('common.error'), t('friends.loadError'));
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -107,7 +111,7 @@ export const FriendsScreen: React.FC = () => {
     try {
       // Atualizar tanto a lista de amigos quanto as solicitações pendentes
       await Promise.all([
-        fetchFriends(),
+        fetchFriends(false), // Não mostrar loading no refresh
         checkPendingRequests()
       ]);
       console.log('✅ Friends: Refresh concluído com sucesso');
@@ -173,7 +177,6 @@ export const FriendsScreen: React.FC = () => {
   const handleCloseModal = () => {
     console.log('❌ Friends: Fechando modal de adicionar amigo');
     setIsAddFriendModalVisible(false);
-    // Não recarregar dados automaticamente - apenas fechar o modal
   };
 
   const handleSearchUsers = async (query: string) => {
@@ -193,7 +196,8 @@ export const FriendsScreen: React.FC = () => {
       // Se o selectedUser tem photoURL, significa que foi aceito uma solicitação
       if (selectedUser.photoURL !== undefined) {
         console.log('✅ Friends: Amigo aceito -', selectedUser.username);
-        // Amigo foi aceito - não recarregar automaticamente
+        // Amigo foi aceito - atualizar a lista sem mostrar loading
+        await fetchFriends(false);
         Alert.alert(
           'Amigo Adicionado',
           `${selectedUser.username} foi adicionado à sua lista de amigos!`,
@@ -201,7 +205,7 @@ export const FriendsScreen: React.FC = () => {
         );
       } else {
         console.log('📤 Friends: Solicitação enviada -', selectedUser.username);
-        // Nova solicitação enviada
+        // Nova solicitação enviada - não precisa atualizar lista ainda
         Alert.alert(
           'Solicitação Enviada',
           `Solicitação de amizade enviada para ${selectedUser.username}`,
@@ -215,20 +219,21 @@ export const FriendsScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.uid && !isAddFriendModalVisible) {
       const now = Date.now();
       const cacheExpiry = 30000; // 30 segundos de cache
       
       console.log('🔄 Friends: useEffect executado -', {
         hasFriends: friends.length > 0,
         cacheAge: now - lastFetchTime,
-        cacheExpired: (now - lastFetchTime) > cacheExpiry
+        cacheExpired: (now - lastFetchTime) > cacheExpiry,
+        modalOpen: isAddFriendModalVisible
       });
       
       // Só recarregar se não há dados ou se o cache expirou
       if (friends.length === 0 || (now - lastFetchTime) > cacheExpiry) {
         console.log('📡 Friends: Cache expirado ou sem dados - carregando...');
-        fetchFriends();
+        fetchFriends(true); // Mostrar loading apenas no carregamento inicial
         checkPendingRequests();
       } else {
         console.log('⚡ Friends: Usando cache - dados ainda válidos');
@@ -236,7 +241,7 @@ export const FriendsScreen: React.FC = () => {
         setLoading(false);
       }
     }
-  }, [user?.id]);
+  }, [user?.uid, isAddFriendModalVisible]);
 
   // Calcular balanço geral
   const calculateOverallBalance = () => {
@@ -365,6 +370,9 @@ export const FriendsScreen: React.FC = () => {
         onSearchUsers={handleSearchUsers}
         hasPendingRequests={hasPendingRequests}
       />
+
+      {/* Presence Test Panel */}
+      <PresenceTestPanel />
     </SafeAreaView>
   );
 };
@@ -378,6 +386,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

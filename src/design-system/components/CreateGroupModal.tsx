@@ -95,7 +95,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   const loadFriends = async () => {
     try {
       setLoading(true);
-      const userFriends = await getUserFriends(user!.id);
+      const userFriends = await getUserFriends(user!.uid);
       setFriends(userFriends);
     } catch (error) {
       console.error('CreateGroupModal: Erro ao carregar amigos:', error);
@@ -164,8 +164,8 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
         name: groupName.trim(),
         description: groupDescription.trim(),
         photoURL: '', // Será atualizada após upload da foto
-        members: [user!.id, ...selectedFriends],
-        createdBy: user!.id,
+        members: [user!.uid, ...selectedFriends],
+        createdBy: user!.uid,
       };
 
       const groupId = await GroupService.createGroup(groupData);

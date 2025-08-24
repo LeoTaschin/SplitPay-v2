@@ -410,5 +410,82 @@
     "thisWeek": "This week",
     "thisMonth": "This month",
     "thisYear": "This year"
+  },
+  "badges": {
+    "categories": {
+      "loyalty": "Loyalty",
+      "social": "Social",
+      "events": "Events",
+      "values": "Values"
+    },
+    "descriptions": {
+      "loyalty": {
+        "1_month": "Completed {months} month of SplitPay",
+        "3_months": "Completed {months} months of SplitPay",
+        "6_months": "Completed {months} months of SplitPay",
+        "1_year": "Completed {years} year of SplitPay",
+        "2_years": "Completed {years} years of SplitPay",
+        "5_years": "Completed {years} years of SplitPay"
+      },
+      "social": {
+        "5_friends": "Connected with {count} friends on SplitPay",
+        "20_friends": "Connected with {count} friends on SplitPay",
+        "50_friends": "Connected with {count} friends on SplitPay",
+        "100_friends": "Connected with {count} friends on SplitPay",
+        "200_friends": "Connected with {count}+ friends on SplitPay"
+      },
+      "values": {
+        "50_debts": "Created {count} debts on SplitPay",
+        "100_debts": "Created {count} debts on SplitPay",
+        "200_debts": "Created {count} debts on SplitPay",
+        "500_debts": "Created {count} debts on SplitPay",
+        "1000_debts": "Created {count}+ debts on SplitPay",
+        "3000_debts": "Created {count}+ debts on SplitPay"
+      }
+    },
+    "names": {
+      "loyalty": {
+        "1_month": "First Steps",
+        "3_months": "Regular",
+        "6_months": "Veteran",
+        "1_year": "Anniversary",
+        "2_years": "Legendary",
+        "5_years": "Immortal"
+      },
+      "social": {
+        "5_friends": "Social Beginner",
+        "20_friends": "Popular",
+        "50_friends": "Influencer",
+        "100_friends": "Celebrity",
+        "200_friends": "Social Legend"
+      },
+      "values": {
+        "50_debts": "Beginner",
+        "100_debts": "Active",
+        "200_debts": "Experienced",
+        "500_debts": "Professional",
+        "1000_debts": "Master",
+        "3000_debts": "Legend"
+      }
+    },
+    "criteria": {
+      "loyalty": "Use SplitPay for {time}",
+      "social": "Add {count} friends",
+      "values": "Create {count} debts"
+    },
+    "rarity": {
+      "common": "Common ({percentage}% of users)",
+      "rare": "Rare ({percentage}% of users)",
+      "very_rare": "Very Rare ({percentage}% of users)",
+      "legendary": "Legendary ({percentage}% of users)",
+      "event": "Event ({percentage}% of users)"
+    },
+    "alerts": {
+      "lockedBadge": {
+        "title": "Locked Badge",
+        "message": "You don't have the badge \"{badgeName}\" yet. Keep using SplitPay to unlock it!",
+        "button": "Got it"
+      }
+    }
   }
 } 

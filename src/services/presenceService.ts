@@ -1,5 +1,6 @@
 import { ref, onValue, set, onDisconnect, serverTimestamp as rtdbServerTimestamp } from 'firebase/database';
 import { database, auth } from '../config/firebase';
+import { waitForFirebaseAuth } from '../utils/authUtils';
 
 export interface UserPresence {
   userId: string;
@@ -19,7 +20,7 @@ class PresenceService {
   private heartbeatInterval: NodeJS.Timeout | null = null;
   private statusListeners: Map<string, (presence: UserPresence) => void> = new Map();
 
-  initialize() {
+  async initialize() {
     if (this.isInitialized) return;
     
     if (!auth) {
@@ -27,29 +28,31 @@ class PresenceService {
       return;
     }
     
-    if (!auth.currentUser) {
-      console.log('🔍 presenceService: No current user, skipping initialization');
+    // Aguardar Firebase Auth sincronizar
+    const isAuthenticated = await waitForFirebaseAuth();
+    if (!isAuthenticated) {
+      console.log('🔍 presenceService: No authenticated user, skipping initialization');
       return;
     }
 
-    const userId = auth.currentUser.uid;
+    const userId = auth.currentUser!.uid;
     console.log('🔍 presenceService: Initializing for user:', userId);
     
     this.presenceRef = ref(database, `presence/${userId}`);
     this.disconnectRef = ref(database, `presence/${userId}/isOnline`);
 
-    // Set user as online
+    // Set user as online automatically when app opens
     this.setOnlineStatus(true);
 
-    // Set up disconnect handler
+    // Set up disconnect handler - automatically sets offline when app closes/disconnects
     onDisconnect(this.disconnectRef).set(false);
     console.log('🔍 presenceService: Disconnect handler set up');
 
-    // Start heartbeat
+    // Start heartbeat to keep user online while app is active
     this.startHeartbeat();
 
     this.isInitialized = true;
-    console.log('✅ presenceService: Initialization complete');
+    console.log('✅ presenceService: Initialization complete - User is now online');
   }
 
   private setOnlineStatus(isOnline: boolean) {
@@ -60,17 +63,19 @@ class PresenceService {
       lastSeen: rtdbServerTimestamp(),
       status: isOnline ? 'online' : 'offline',
       deviceInfo: {
-        platform: 'ios', // You can detect this dynamically
-        appVersion: '1.0.0' // Get from app config
+        platform: 'ios',
+        appVersion: '1.0.0'
       }
     });
+    
+    console.log(`🔍 presenceService: User ${isOnline ? 'online' : 'offline'}`);
   }
 
   private startHeartbeat() {
-    // Update presence every 30 seconds
+    // Update presence every 30 seconds to keep user online while app is active
     this.heartbeatInterval = setInterval(() => {
       if (auth && auth.currentUser) {
-        console.log('💓 presenceService: Sending heartbeat for user:', auth.currentUser.uid);
+        console.log('💓 presenceService: Heartbeat - keeping user online:', auth.currentUser.uid);
         this.setOnlineStatus(true);
       }
     }, 30000);
@@ -83,9 +88,11 @@ class PresenceService {
     }
   }
 
+  // Manual status setting (for debugging/testing only)
   setStatus(status: 'online' | 'offline' | 'away' | 'busy') {
     if (!this.presenceRef) return;
 
+    console.log(`🔧 presenceService: Manual status change to ${status}`);
     set(this.presenceRef, {
       isOnline: status === 'online',
       lastSeen: rtdbServerTimestamp(),
@@ -164,12 +171,12 @@ class PresenceService {
     return 'Há mais de uma semana';
   }
 
-  // Cleanup when user logs out
+  // Cleanup when user logs out or app closes
   cleanup() {
     console.log('🔍 presenceService: Starting cleanup');
     
     if (this.presenceRef) {
-      console.log('🔍 presenceService: Setting user as offline');
+      console.log('🔍 presenceService: Setting user as offline (app closing)');
       this.setOnlineStatus(false);
     }
     
@@ -177,7 +184,7 @@ class PresenceService {
     this.statusListeners.clear();
     this.isInitialized = false;
     
-    console.log('✅ presenceService: Cleanup complete');
+    console.log('✅ presenceService: Cleanup complete - User is now offline');
   }
 }
 

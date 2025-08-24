@@ -134,7 +134,7 @@ export const getBiggestDebt = async (userId: string): Promise<BiggestDebtData> =
     return {
       amount: biggestDebt.type === 'group' ? (biggestDebt.amountPerPerson || 0) : (biggestDebt.amount || 0),
       description: biggestDebt.description || '',
-      createdAt: biggestDebt.createdAt.toDate()
+      createdAt: biggestDebt.createdAt instanceof Date ? biggestDebt.createdAt : (biggestDebt.createdAt as any).toDate()
     };
   } catch (error) {
     console.error('Erro ao buscar maior dívida:', error);
@@ -200,7 +200,7 @@ export const getMostActiveFriend = async (userId: string): Promise<MostActiveFri
         friendActivity[friendId].totalAmount += amount;
         
         // Verificar se é atividade recente
-        const debtDate = debt.createdAt instanceof Date ? debt.createdAt : debt.createdAt.toDate();
+        const debtDate = debt.createdAt instanceof Date ? debt.createdAt : (debt.createdAt as any).toDate();
         if (debtDate > thirtyDaysAgo) {
           friendActivity[friendId].recentActivity += 1;
         }

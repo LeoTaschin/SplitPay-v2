@@ -253,8 +253,8 @@ export const removeFriend = async (friendId: string): Promise<boolean> => {
     const friendUserFriends = friendUserData?.friends || [];
     
     // Remove each other from friends arrays
-    const updatedCurrentUserFriends = currentUserFriends.filter(id => id !== friendId);
-    const updatedFriendUserFriends = friendUserFriends.filter(id => id !== currentUserId);
+    const updatedCurrentUserFriends = currentUserFriends.filter((id: string) => id !== friendId);
+    const updatedFriendUserFriends = friendUserFriends.filter((id: string) => id !== currentUserId);
     
     // Update both users' documents
     await Promise.all([

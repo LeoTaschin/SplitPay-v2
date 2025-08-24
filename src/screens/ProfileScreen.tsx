@@ -12,14 +12,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 // Importar Design System, Auth e Language
-import { ProfileHeader, ProfileStats, ProfileSettings, ProfileAccountInfo, ProfileActivity, ProfileLogout } from '../design-system';
+import { ProfileStats, ProfileSettings, ProfileAccountInfo, ProfileActivity, ProfileLogout } from '../design-system';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../context/LanguageContext';
-import { signOut } from '../services/auth';
 
 export const ProfileScreen: React.FC = () => {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
@@ -38,7 +37,7 @@ export const ProfileScreen: React.FC = () => {
           onPress: async () => {
             try {
               setLoading(true);
-              await signOut();
+              await logout();
             } catch (error) {
               Alert.alert(t('common.error'), t('profile.logoutError'));
             } finally {
@@ -74,6 +73,10 @@ export const ProfileScreen: React.FC = () => {
     Alert.alert(t('profile.about'), t('common.comingSoon'));
   };
 
+  const handleQRCodePress = () => {
+    Alert.alert(t('friends.addFriend'), t('common.comingSoon'));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView 
@@ -82,10 +85,11 @@ export const ProfileScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         
-        {/* Header do Perfil */}
-        <ProfileHeader 
-          user={user}
+        {/* Card Principal do Perfil */}
+        <ProfileAccountInfo 
+          user={user} 
           navigation={navigation}
+          onQRCodePress={handleQRCodePress}
         />
 
         {/* Estatísticas do Usuário */}
@@ -102,9 +106,6 @@ export const ProfileScreen: React.FC = () => {
           onHelp={handleHelp}
           onAbout={handleAbout}
         />
-
-        {/* Informações da Conta */}
-        <ProfileAccountInfo user={user} />
 
         {/* Botão de Logout */}
         <ProfileLogout onLogout={handleLogout} loading={loading} />

@@ -23,7 +23,7 @@ export const ProfileLogout: React.FC<ProfileLogoutProps> = ({
   const { t } = useLanguage();
   
   return (
-    <Card variant="elevated" style={[styles.container, style]}>
+    <Card variant="elevated" style={styles.container}>
       <Button
         title={t('auth.logout')}
         variant="danger"

@@ -33,7 +33,7 @@ export const ThemeDebug: React.FC = () => {
           Primary: {ds.colors.primary}
         </Text>
         <Text style={[styles.infoText, { color: ds.colors.text.secondary }]}>
-          Border: {ds.colors.border}
+          Border: {JSON.stringify(ds.colors.border)}
         </Text>
       </View>
       

@@ -132,8 +132,8 @@ export const DashboardScreen: React.FC = () => {
   const [showAllDebts, setShowAllDebts] = useState(false);
 
   // Chave para salvar as predefinições
-  const DASHBOARD_CARDS_KEY = `dashboard_cards_${user?.id || 'default'}`;
-  const DASHBOARD_ORDER_KEY = `dashboard_order_${user?.id || 'default'}`;
+  const DASHBOARD_CARDS_KEY = `dashboard_cards_${user?.uid || 'default'}`;
+  const DASHBOARD_ORDER_KEY = `dashboard_order_${user?.uid || 'default'}`;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -254,7 +254,7 @@ export const DashboardScreen: React.FC = () => {
     
     if (oldestUnpaidDebt) {
       // Se o usuário atual é o credor, mostrar nome do devedor
-      if (oldestUnpaidDebt.creditorId === user?.id) {
+      if (oldestUnpaidDebt.creditorId === user?.uid) {
         oldestUnpaidDebtUserName = oldestUnpaidDebt.debtor?.username || oldestUnpaidDebt.debtor?.name || 'Usuário';
       } else {
         // Se o usuário atual é o devedor, mostrar nome do credor
@@ -300,7 +300,7 @@ export const DashboardScreen: React.FC = () => {
   };
 
   const fetchDashboardData = async () => {
-    if (!user?.id) return;
+    if (!user?.uid) return;
 
     try {
       setLoading(true);
@@ -319,16 +319,16 @@ export const DashboardScreen: React.FC = () => {
         highestAmountToReceive,
         debtDistribution
       ] = await Promise.all([
-        getUserBalance(user.id),
-        getDebtsAsCreditor(user.id),
-        getDebtsAsDebtor(user.id),
-        getFriendsWithOpenDebts(user.id),
-        getMonthlyAverage(user.id),
-        getBiggestDebt(user.id),
-        getMostActiveFriend(user.id),
-        getGroupActivity(user.id),
-        getHighestAmountToReceive(user.id),
-        getDebtDistribution(user.id)
+        getUserBalance(user.uid),
+        getDebtsAsCreditor(user.uid),
+        getDebtsAsDebtor(user.uid),
+        getFriendsWithOpenDebts(user.uid),
+        getMonthlyAverage(user.uid),
+        getBiggestDebt(user.uid),
+        getMostActiveFriend(user.uid),
+        getGroupActivity(user.uid),
+        getHighestAmountToReceive(user.uid),
+        getDebtDistribution(user.uid)
       ]);
 
       console.log('📊 Dashboard: Dados carregados -', {
@@ -701,7 +701,7 @@ export const DashboardScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.uid) {
       const now = Date.now();
       const cacheExpiry = 30000; // 30 segundos de cache
       
@@ -724,7 +724,7 @@ export const DashboardScreen: React.FC = () => {
         setLoading(false);
       }
     }
-  }, [user?.id]);
+  }, [user?.uid]);
 
 
 
@@ -800,7 +800,7 @@ export const DashboardScreen: React.FC = () => {
           visible={showDebtDetails}
           onClose={handleCloseDebtDetails}
           debt={selectedDebt}
-          currentUserId={user?.id}
+          currentUserId={user?.uid}
         />
       )}
 
@@ -820,8 +820,8 @@ export const DashboardScreen: React.FC = () => {
         {recentDebts.map((debt) => {
           // Para dívidas em grupo, usar receiverId/payerId
           const isCreditor = debt.type === 'group' 
-            ? debt.receiverId === user?.id 
-            : debt.creditorId === user?.id;
+                        ? debt.receiverId === user?.uid
+            : debt.creditorId === user?.uid;
           
           const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
           

@@ -61,7 +61,7 @@ export const FriendSearchModal: React.FC<FriendSearchModalProps> = ({
   const formatRequestsCount = (count: number) => {
     switch (language) {
       case 'pt':
-        return `${count} solicitação${count !== 1 ? 'ões' : 'ão'} pendente${count !== 1 ? 's' : ''}`;
+        return `${count} solicitação${count !== 1 ? 'ões' : ''} pendente${count !== 1 ? 's' : ''}`;
       case 'en':
         return `${count} request${count !== 1 ? 's' : ''} pending`;
       case 'es':
@@ -69,7 +69,7 @@ export const FriendSearchModal: React.FC<FriendSearchModalProps> = ({
       case 'fr':
         return `${count} demande${count !== 1 ? 's' : ''} en attente`;
       default:
-        return `${count} solicitação${count !== 1 ? 'ões' : 'ão'} pendente${count !== 1 ? 's' : ''}`;
+        return `${count} solicitação${count !== 1 ? 'ões' : ''} pendente${count !== 1 ? 's' : ''}`;
     }
   };
   const [searchQuery, setSearchQuery] = useState('');
@@ -172,8 +172,9 @@ export const FriendSearchModal: React.FC<FriendSearchModalProps> = ({
 
     try {
       setSearching(true);
-      // Use the real Firebase search service
-      const results = await searchUsers(query, existingFriends);
+      // Use the real Firebase search service - don't exclude existing friends
+      // so removed friends can be found again
+      const results = await searchUsers(query, []);
       setSearchResults(results);
     } catch (error) {
       console.error('Erro ao buscar usuários:', error);

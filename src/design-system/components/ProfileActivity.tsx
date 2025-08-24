@@ -21,7 +21,7 @@ export const ProfileActivity: React.FC<ProfileActivityProps> = ({
   const { t } = useLanguage();
 
   return (
-    <Card title={t('dashboard.recentDebts')} variant="elevated" style={[styles.container, style]}>
+    <Card title={t('dashboard.recentDebts')} variant="elevated" style={styles.container}>
       <View style={styles.emptyState}>
         <Ionicons name="receipt" size={48} color={ds.colors.text.secondary} />
         <Text style={[styles.emptyStateText, { color: ds.colors.text.secondary }]}>

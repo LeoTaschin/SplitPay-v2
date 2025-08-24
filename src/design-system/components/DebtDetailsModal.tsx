@@ -8,13 +8,13 @@ import {
   ScrollView,
   Dimensions,
   Animated,
+  Easing,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
 import { useLanguage } from '../../context/LanguageContext';
 import { Avatar } from './Avatar';
-import { useSlideAnimation } from '../hooks/useSlideAnimation';
 import { Timestamp } from 'firebase/firestore';
 
 interface DebtDetailsModalProps {
@@ -70,30 +70,36 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
 }) => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
-  const SLIDE_DURATION = 300;
-  const FADE_DURATION = 300;
-  const EXIT_DURATION = Math.max(Math.floor(SLIDE_DURATION * 0.8), Math.floor(FADE_DURATION * 0.8));
+  const slideAnim = useState(new Animated.Value(0))[0];
 
-  const { slideAnim, fadeAnim } = useSlideAnimation({
-    visible,
-    slideDistance: 600,
-    slideDuration: SLIDE_DURATION,
-    fadeDuration: FADE_DURATION,
-  });
-
-  // Manter o Modal montado até concluir a animação de saída
-  const [modalVisible, setModalVisible] = useState(visible);
   useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     if (visible) {
-      setModalVisible(true);
+      Animated.timing(slideAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.cubic),
+      }).start();
     } else {
-      timeoutId = setTimeout(() => setModalVisible(false), EXIT_DURATION);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.in(Easing.cubic),
+      }).start();
     }
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [visible, EXIT_DURATION]);
+  }, [visible]);
+
+  const handleClose = () => {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+      easing: Easing.in(Easing.cubic),
+    }).start(() => {
+      onClose();
+    });
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -166,26 +172,29 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
 
   return (
     <Modal
-      visible={modalVisible}
+      visible={visible}
       transparent
       animationType="none"
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
-      <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
-        <BlurView intensity={30} tint={ds.isDark ? 'dark' : 'light'} style={styles.blur}>
-          <TouchableOpacity 
-            style={styles.overlayTouch} 
-            onPress={onClose}
-            activeOpacity={1}
-          />
-        </BlurView>
+      <BlurView intensity={20} style={styles.modalOverlay}>
+        <TouchableOpacity 
+          style={styles.modalBackdrop} 
+          onPress={handleClose}
+          activeOpacity={1}
+        />
         <Animated.View 
           style={[
-            styles.container, 
-            { 
-              backgroundColor: ds.colors.surface,
-              transform: [{ translateY: slideAnim }]
-            }
+            styles.modalContent,
+            { backgroundColor: ds.colors.background },
+            {
+              transform: [{
+                translateY: slideAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [Dimensions.get('window').height, 0],
+                }),
+              }],
+            },
           ]}
         >
           {/* Header */}
@@ -198,7 +207,7 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
                 {debt.type === 'group' ? t('debts.details.fields.typeGroup') : t('debts.details.fields.typeIndividual')}
               </Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
               <Ionicons
                 name="close"
                 size={24}
@@ -373,41 +382,42 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
             </View>
           </ScrollView>
         </Animated.View>
-      </Animated.View>
+      </BlurView>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
+  modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
-  blur: {
-    ...StyleSheet.absoluteFillObject,
+  modalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
-  overlayTouch: {
-    flex: 1,
-  },
-  container: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '90%',
+  modalContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: Dimensions.get('window').height * 0.95,
+    minHeight: Dimensions.get('window').height * 0.6,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    alignItems: 'center',
+    marginBottom: 15,
   },
   headerContent: {
     flex: 1,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 4,
   },
@@ -418,13 +428,12 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   content: {
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingVertical: 10,
   },
   statusCard: {
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 24,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
   },
   statusHeader: {
     flexDirection: 'row',
@@ -444,12 +453,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   description: {
     fontSize: 16,
@@ -479,7 +488,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   detailsGrid: {
-    gap: 16,
+    gap: 12,
   },
   detailItem: {
     flexDirection: 'row',

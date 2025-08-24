@@ -52,7 +52,7 @@ export const CreateGroupFriendItem: React.FC<CreateGroupFriendItemProps> = ({
       {/* Profile Photo */}
       <View style={styles.avatarContainer}>
         <Avatar
-          source={friend.photoURL}
+          source={friend.photoURL || undefined}
           name={friend.username}
           size="medium"
           variant="circle"

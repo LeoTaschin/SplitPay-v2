@@ -20,4 +20,11 @@ export * from './presenceService';
 export * from './userSearchService';
 
 // Serviços de amizade
-export * from './friendService'; 
+export { 
+  sendFriendRequest, 
+  acceptFriendRequest, 
+  rejectFriendRequest, 
+  removeFriend as removeFriendFromFriends,
+  getPendingFriendRequests,
+  areUsersFriends 
+} from './friendService'; 

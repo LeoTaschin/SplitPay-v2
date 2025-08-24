@@ -106,7 +106,7 @@ export const EditProfileScreen: React.FC = () => {
             value={displayName}
             onChangeText={setDisplayName}
             placeholder={t('profile.namePlaceholder')}
-            icon="person"
+            leftIcon="person"
             style={styles.input}
           />
           
@@ -115,9 +115,9 @@ export const EditProfileScreen: React.FC = () => {
             value={email}
             onChangeText={setEmail}
             placeholder={t('auth.emailPlaceholder')}
-            icon="mail"
+            leftIcon="mail"
             keyboardType="email-address"
-            editable={false} // Email não pode ser editado
+            disabled={true} // Email não pode ser editado
             style={styles.input}
           />
         </Card>

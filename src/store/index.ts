@@ -96,21 +96,21 @@ export const useError = () => useStore((state) => state.error);
 
 // Selectors específicos
 export const useDebtsAsCreditor = () => useStore((state) => 
-  state.debts.filter((debt) => debt.owedTo === state.user?.id)
+  state.debts.filter((debt) => debt.owedTo === state.user?.uid)
 );
 
 export const useDebtsAsDebtor = () => useStore((state) => 
-  state.debts.filter((debt) => debt.owedBy === state.user?.id)
+  state.debts.filter((debt) => debt.owedBy === state.user?.uid)
 );
 
 export const useTotalToReceive = () => useStore((state) => 
   state.debts
-    .filter((debt) => debt.owedTo === state.user?.id && !debt.isPaid)
+    .filter((debt) => debt.owedTo === state.user?.uid && !debt.isPaid)
     .reduce((total, debt) => total + debt.amount, 0)
 );
 
 export const useTotalToPay = () => useStore((state) => 
   state.debts
-    .filter((debt) => debt.owedBy === state.user?.id && !debt.isPaid)
+    .filter((debt) => debt.owedBy === state.user?.uid && !debt.isPaid)
     .reduce((total, debt) => total + debt.amount, 0)
 ); 

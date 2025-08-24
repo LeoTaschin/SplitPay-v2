@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { User, ApiResponse } from '../types';
 import { User as FirebaseUser } from 'firebase/auth';
+import { isFirebaseAuthReady } from '../utils/authUtils';
 
 interface UserData {
   uid: string;
@@ -99,12 +100,11 @@ export const getUserData = async (userId: string): Promise<User> => {
 
     const data = userDoc.data();
     return {
-      id: userDoc.id,
+      uid: userDoc.id,
       email: data.email || '',
       displayName: data.username || data.displayName,
       photoURL: data.photoURL,
-      createdAt: data.createdAt?.toDate() || new Date(),
-      updatedAt: data.updatedAt?.toDate() || new Date(),
+      createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
     };
   } catch (error) {
     console.error('Error fetching user data:', error);
@@ -120,6 +120,12 @@ export const getUserFriends = async (userId: string): Promise<Friend[]> => {
     if (!userId) {
       console.error('userService - getUserFriends - userId não fornecido');
       throw new Error('ID do usuário não fornecido');
+    }
+
+    // Verificar se o Firebase Auth está autenticado
+    const isReady = await isFirebaseAuthReady(userId);
+    if (!isReady) {
+      throw new Error('Usuário não autenticado no Firebase');
     }
 
     // Primeiro, buscar o documento do usuário para obter a lista de IDs dos amigos
@@ -145,19 +151,27 @@ export const getUserFriends = async (userId: string): Promise<Friend[]> => {
 
     // Buscar os dados de todos os amigos
     const usersRef = collection(db, 'users');
-    const friendsQuery = query(usersRef, where('uid', 'in', friendsList));
-    const friendsSnapshot = await getDocs(friendsQuery);
-
-    const friends = friendsSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: data.uid,
-        username: data.username || 'Sem nome',
-        email: data.email || 'Sem email',
-        photoURL: data.photoURL || null,
-        isVerified: data.isVerified || false
-      };
-    });
+    
+    // Firestore tem limite de 10 itens para 'in' queries, então vamos buscar em lotes
+    const friends: any[] = [];
+    const batchSize = 10;
+    
+    for (let i = 0; i < friendsList.length; i += batchSize) {
+      const batch = friendsList.slice(i, i + batchSize);
+      const friendsQuery = query(usersRef, where('uid', 'in', batch));
+      const friendsSnapshot = await getDocs(friendsQuery);
+      
+      friendsSnapshot.docs.forEach(doc => {
+        const data = doc.data();
+        friends.push({
+          id: data.uid,
+          username: data.username || 'Sem nome',
+          email: data.email || 'Sem email',
+          photoURL: data.photoURL || null,
+          isVerified: data.isVerified || false
+        });
+      });
+    }
 
     console.log(`userService: ${friends.length} amigos carregados`);
     console.log('userService - getUserFriends - Dados dos amigos:', friends.map(f => ({ id: f.id, username: f.username })));

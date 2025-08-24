@@ -103,7 +103,7 @@ export const StatsCarousel: React.FC<StatsCarouselProps> = ({
               key={index}
               style={[
                 styles.dot,
-                { backgroundColor: ds.colors.border }
+                { backgroundColor: ds.colors.border.primary }
               ]}
             />
           ))}

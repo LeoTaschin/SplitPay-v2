@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
+import { useLanguage } from '../../context/LanguageContext';
 import { Avatar } from './Avatar';
 import { SearchableUser } from '../../services/userSearchService';
 
@@ -25,6 +26,7 @@ export const FriendSearchFriendItem: React.FC<FriendSearchFriendItemProps> = ({
   style,
 }) => {
   const ds = useDesignSystem();
+  const { t } = useLanguage();
 
   const handlePress = () => {
     onPress(user);
@@ -77,7 +79,7 @@ export const FriendSearchFriendItem: React.FC<FriendSearchFriendItemProps> = ({
           ]}>
             <Ionicons name="checkmark-circle" size={20} color={ds.colors.feedback.success} />
             <Text style={[styles.alreadyFriendText, { color: ds.colors.feedback.success }]}>
-              Já é amigo
+              {t('friends.alreadyFriend')}
             </Text>
           </View>
         ) : (

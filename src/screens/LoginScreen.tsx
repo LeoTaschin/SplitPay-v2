@@ -18,8 +18,6 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
-import { auth } from '../config/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import { LanguageSelector, Logo } from '../design-system';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
@@ -31,13 +29,14 @@ export const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const { theme } = useTheme();
   const { t } = useLanguage();
-  const { saveCredentials } = useAuth();
+  const { loginWithPersistence } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [hasAttemptedLogin, setHasAttemptedLogin] = useState(false);
+  const [keepLoggedIn, setKeepLoggedIn] = useState(false);
 
   const handleLogin = async () => {
     // Set hasAttemptedLogin to true on first attempt
@@ -59,17 +58,11 @@ export const LoginScreen: React.FC = () => {
 
     try {
       setLoading(true);
-      console.log('Tentando fazer login com:', email);
+      console.log('Tentando fazer login com:', email, 'keepLoggedIn:', keepLoggedIn);
       
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Login bem-sucedido:', userCredential.user.email);
-      
-      // Primeiro salvamos as credenciais
-      await saveCredentials(email, password);
-      console.log('Credenciais salvas com sucesso');
-      
-      // Navegação imediata - o Firebase já garante que a autenticação está completa
-      
+      // Usar o novo método de login com persistência
+      await loginWithPersistence(email, password, keepLoggedIn);
+      console.log('Login com persistência realizado com sucesso');
       
     } catch (error: any) {
       console.log('Erro completo:', error);
@@ -217,6 +210,24 @@ export const LoginScreen: React.FC = () => {
                   ) : null}
                 </View>
 
+                {/* Opção "Manter Logado" */}
+                <TouchableOpacity
+                  style={styles.keepLoggedInContainer}
+                  onPress={() => setKeepLoggedIn(!keepLoggedIn)}
+                  activeOpacity={0.7}
+                >
+                  <View style={[
+                    styles.checkbox,
+                    { 
+                      backgroundColor: keepLoggedIn ? theme.colors.primary : 'transparent',
+                      borderColor: keepLoggedIn ? theme.colors.primary : theme.colors.border,
+                    }
+                  ]} />
+                  <Text style={[styles.keepLoggedInText, { color: theme.colors.text }]}>
+                    {t('auth.keepLoggedIn')}
+                  </Text>
+                </TouchableOpacity>
+
                 <TouchableOpacity
                   style={[
                     styles.loginButton,
@@ -306,6 +317,23 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 12,
     marginTop: 4,
+  },
+  keepLoggedInContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING,
+    paddingVertical: 4,
+  },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 3,
+    borderWidth: 2,
+    marginRight: 10,
+  },
+  keepLoggedInText: {
+    fontSize: 15,
+    fontWeight: '400',
   },
   loginButton: {
     height: 48,

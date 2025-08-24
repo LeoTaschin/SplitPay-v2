@@ -45,11 +45,11 @@ export const onAuthStateChanged = (callback: (user: FirebaseUser | null) => void
 // Helper function to convert Firebase User to our User type
 export const convertFirebaseUser = (firebaseUser: FirebaseUser): User => {
   return {
-    id: firebaseUser.uid,
+    uid: firebaseUser.uid,
     email: firebaseUser.email || '',
     displayName: firebaseUser.displayName || undefined,
     photoURL: firebaseUser.photoURL || undefined,
-    createdAt: new Date(firebaseUser.metadata.creationTime || Date.now()),
-    updatedAt: new Date(firebaseUser.metadata.lastSignInTime || Date.now()),
+    createdAt: firebaseUser.metadata.creationTime || new Date().toISOString(),
+
   };
 }; 

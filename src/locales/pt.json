@@ -46,7 +46,8 @@
     "welcomeBack": "Bem-vindo de volta!",
     "welcome": "Bem-vindo ao SplitPay",
     "emailPlaceholder": "Seu email",
-    "passwordPlaceholder": "Sua senha"
+    "passwordPlaceholder": "Sua senha",
+    "keepLoggedIn": "Lembrar de mim"
   },
   "navigation": {
     "friends": "Amigos",
@@ -210,7 +211,9 @@
     "namePlaceholder": "Digite seu nome completo",
     "nameRequired": "O nome é obrigatório",
     "profileUpdated": "Perfil atualizado com sucesso",
-    "updateError": "Erro ao atualizar perfil. Tente novamente."
+    "updateError": "Erro ao atualizar perfil. Tente novamente.",
+    "qrCode": "QR Code",
+    "qrCodeDesc": "Compartilhe seu QR code para adicionar amigos"
   },
   "friends": {
     "title": "Amigos",
@@ -248,6 +251,7 @@
     "noRequests": "Nenhuma Solicitação",
     "noRequestsSubtitle": "Você não tem solicitações de amizade pendentes",
     "wantsToBeFriend": "Quer ser seu amigo",
+    "alreadyFriend": "Já é amigo",
     "status": {
       "online": "Online",
       "offline": "Offline",
@@ -437,5 +441,81 @@
     "thisMonth": "Este mês",
     "thisYear": "Este ano"
   },
-
+  "badges": {
+    "categories": {
+      "loyalty": "Fidelidade",
+      "social": "Social",
+      "events": "Eventos",
+      "values": "Valores"
+    },
+    "descriptions": {
+      "loyalty": {
+        "1_month": "Completou {months} mês de SplitPay",
+        "3_months": "Completou {months} meses de SplitPay",
+        "6_months": "Completou {months} meses de SplitPay",
+        "1_year": "Completou {years} ano de SplitPay",
+        "2_years": "Completou {years} anos de SplitPay",
+        "5_years": "Completou {years} anos de SplitPay"
+      },
+      "social": {
+        "5_friends": "Conectou com {count} amigos no SplitPay",
+        "20_friends": "Conectou com {count} amigos no SplitPay",
+        "50_friends": "Conectou com {count} amigos no SplitPay",
+        "100_friends": "Conectou com {count} amigos no SplitPay",
+        "200_friends": "Conectou com {count}+ amigos no SplitPay"
+      },
+      "values": {
+        "50_debts": "Criou {count} dívidas no SplitPay",
+        "100_debts": "Criou {count} dívidas no SplitPay",
+        "200_debts": "Criou {count} dívidas no SplitPay",
+        "500_debts": "Criou {count} dívidas no SplitPay",
+        "1000_debts": "Criou {count}+ dívidas no SplitPay",
+        "3000_debts": "Criou {count}+ dívidas no SplitPay"
+      }
+    },
+    "names": {
+      "loyalty": {
+        "1_month": "Primeiros Passos",
+        "3_months": "Habitual",
+        "6_months": "Veterano",
+        "1_year": "Aniversariante",
+        "2_years": "Lendário",
+        "5_years": "Imortal"
+      },
+      "social": {
+        "5_friends": "Iniciante Social",
+        "20_friends": "Popular",
+        "50_friends": "Influencer",
+        "100_friends": "Celebridade",
+        "200_friends": "Lenda Social"
+      },
+      "values": {
+        "50_debts": "Iniciante",
+        "100_debts": "Ativo",
+        "200_debts": "Experiente",
+        "500_debts": "Profissional",
+        "1000_debts": "Mestre",
+        "3000_debts": "Lenda"
+      }
+    },
+    "criteria": {
+      "loyalty": "Usar o SplitPay por {time}",
+      "social": "Adicionar {count} amigos",
+      "values": "Criar {count} dívidas"
+    },
+    "rarity": {
+      "common": "Comum ({percentage}% dos usuários)",
+      "rare": "Raro ({percentage}% dos usuários)",
+      "very_rare": "Muito Raro ({percentage}% dos usuários)",
+      "legendary": "Lendário ({percentage}% dos usuários)",
+      "event": "Evento ({percentage}% dos usuários)"
+    },
+    "alerts": {
+      "lockedBadge": {
+        "title": "Badge Bloqueado",
+        "message": "Você ainda não possui o badge \"{badgeName}\". Continue usando o SplitPay para desbloqueá-lo!",
+        "button": "Entendi"
+      }
+    }
+  }
 } 

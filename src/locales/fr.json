@@ -396,5 +396,75 @@
     "thisWeek": "Cette semaine",
     "thisMonth": "Ce mois",
     "thisYear": "Cette année"
+  },
+  "badges": {
+    "categories": {
+      "loyalty": "Fidélité",
+      "social": "Social",
+      "events": "Événements",
+      "values": "Valeurs"
+    },
+    "descriptions": {
+      "loyalty": {
+        "1_month": "A complété {months} mois de SplitPay",
+        "3_months": "A complété {months} mois de SplitPay",
+        "6_months": "A complété {months} mois de SplitPay",
+        "1_year": "A complété {years} an de SplitPay",
+        "2_years": "A complété {years} ans de SplitPay",
+        "5_years": "A complété {years} ans de SplitPay"
+      },
+      "social": {
+        "5_friends": "S'est connecté avec {count} amis sur SplitPay",
+        "20_friends": "S'est connecté avec {count} amis sur SplitPay",
+        "50_friends": "S'est connecté avec {count} amis sur SplitPay",
+        "100_friends": "S'est connecté avec {count} amis sur SplitPay",
+        "200_friends": "S'est connecté avec {count}+ amis sur SplitPay"
+      },
+      "values": {
+        "50_debts": "A créé {count} dettes sur SplitPay",
+        "100_debts": "A créé {count} dettes sur SplitPay",
+        "200_debts": "A créé {count} dettes sur SplitPay",
+        "500_debts": "A créé {count} dettes sur SplitPay",
+        "1000_debts": "A créé {count}+ dettes sur SplitPay",
+        "3000_debts": "A créé {count}+ dettes sur SplitPay"
+      }
+    },
+    "names": {
+      "loyalty": {
+        "1_month": "Premiers Pas",
+        "3_months": "Régulier",
+        "6_months": "Vétéran",
+        "1_year": "Anniversaire",
+        "2_years": "Légendaire",
+        "5_years": "Immortel"
+      },
+      "social": {
+        "5_friends": "Débutant Social",
+        "20_friends": "Populaire",
+        "50_friends": "Influenceur",
+        "100_friends": "Célébrité",
+        "200_friends": "Légende Sociale"
+      },
+      "values": {
+        "50_debts": "Débutant",
+        "100_debts": "Actif",
+        "200_debts": "Expérimenté",
+        "500_debts": "Professionnel",
+        "1000_debts": "Maître",
+        "3000_debts": "Légende"
+      }
+    },
+    "criteria": {
+      "loyalty": "Utiliser SplitPay pendant {time}",
+      "social": "Ajouter {count} amis",
+      "values": "Créer {count} dettes"
+    },
+    "rarity": {
+      "common": "Commun ({percentage}% des utilisateurs)",
+      "rare": "Rare ({percentage}% des utilisateurs)",
+      "very_rare": "Très Rare ({percentage}% des utilisateurs)",
+      "legendary": "Légendaire ({percentage}% des utilisateurs)",
+      "event": "Événement ({percentage}% des utilisateurs)"
+    }
   }
 } 
