@@ -67,4 +67,6 @@ export * from './components/PresenceTestPanel';
 export * from './components/BadgeData';
 export * from './components/BadgeSelectorModal';
 export * from './components/BadgeItem';
-export * from './components/EditIconButton'; 
+export * from './components/EditIconButton';
+export * from './components/FavoriteConfirmationModal';
+export * from './components/RemoveFriendsModal'; 

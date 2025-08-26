@@ -66,6 +66,9 @@
     "netBalanceNegative": "Vous avez de l'argent à payer",
     "netBalanceNeutral": "Vos comptes sont équilibrés"
   },
+  "balance": {
+    "general": "Solde Général"
+  },
   "dashboard": {
     "title": "Tableau de Bord",
     "subtitle": "Résumé de vos dettes",
@@ -221,6 +224,7 @@
     "noRequests": "Aucune Demande",
     "noRequestsSubtitle": "Vous n'avez pas de demandes d'amis en attente",
     "wantsToBeFriend": "Veut être votre ami",
+    "profile": "Profil",
     "friendProfile": "Profil de l'Ami",
     "loadingProfile": "Chargement du profil...",
     "settleDebt": "Régler la Dette",
@@ -232,8 +236,24 @@
     "youOwe": "Vous devez",
     "removeFriend": "Supprimer l'Ami",
     "removeFriendSubtext": "Retirer de la liste d'amis",
+    "removedSuccessfully": "Ami supprimé avec succès",
+    "removeError": "Erreur lors de la suppression de l'ami",
+    "cannotRemoveWithDebts": "Impossible de supprimer {{name}} tant qu'il y a des dettes en attente de {{amount}} ({{type}})",
+    "userNotFound": "Utilisateur non trouvé",
+    "friendNotFound": "Ami non trouvé",
     "viewTransactions": "Voir les Transactions",
     "viewTransactionsSubtext": "Historique des dettes et paiements"
+  },
+  "favorites": {
+    "addTitle": "Ajouter aux Favoris",
+    "removeTitle": "Retirer des Favoris",
+    "addMessage": "Voulez-vous ajouter {{name}} à vos favoris ? Cet ami apparaîtra en haut de votre liste d'amis.",
+    "removeMessage": "Voulez-vous retirer {{name}} de vos favoris ? Cet ami reviendra à la position normale dans la liste.",
+    "add": "Ajouter",
+    "remove": "Retirer",
+    "added": "Ajouté aux favoris",
+    "removed": "Retiré des favoris",
+    "error": "Erreur lors de la mise à jour des favoris"
   },
   "groups": {
     "title": "Groupes",

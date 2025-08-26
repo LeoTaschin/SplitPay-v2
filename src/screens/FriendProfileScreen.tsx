@@ -17,11 +17,12 @@ import {
   FriendBadges, 
   FriendAccountInfo, 
   FriendRemoveButton, 
-  FriendTransactionsButton 
+  FriendTransactionsButton,
+  RemoveFriendsModal
 } from '../design-system';
 import { User, Badge } from '../types';
 import { badgeService } from '../services/badgeService';
-import { getUserData } from '../services/userService';
+import { getUserData, removeFriend } from '../services/userService';
 
 interface FriendProfileScreenParams {
   friendId: string;
@@ -46,6 +47,7 @@ export const FriendProfileScreen: React.FC = () => {
   const [friend, setFriend] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [removeLoading, setRemoveLoading] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
 
   useEffect(() => {
     loadFriendData();
@@ -79,32 +81,52 @@ export const FriendProfileScreen: React.FC = () => {
   };
 
   const handleRemoveFriend = () => {
-    Alert.alert(
-      t('friends.removeFriend'),
-      'Tem certeza que deseja remover este amigo?',
-      [
-        {
-          text: t('common.cancel'),
-          style: 'cancel',
-        },
-        {
-          text: t('friends.removeFriend'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setRemoveLoading(true);
-              // Implementar lógica de remoção
-              Alert.alert('Sucesso', 'Amigo removido com sucesso');
-              navigation.goBack();
-            } catch (error) {
-              Alert.alert('Erro', 'Não foi possível remover o amigo');
-            } finally {
-              setRemoveLoading(false);
-            }
-          },
-        },
-      ]
-    );
+    setShowRemoveModal(true);
+  };
+
+  const handleConfirmRemove = async () => {
+    if (!currentUser?.uid || !friendId) {
+      Alert.alert('Erro', 'Dados insuficientes para remover o amigo');
+      return;
+    }
+
+    try {
+      setRemoveLoading(true);
+      
+      const result = await removeFriend(currentUser.uid, friendId);
+      
+      if (result.success) {
+        Alert.alert(
+          t('common.success'), 
+          t('friends.removedSuccessfully'),
+          [{ text: 'OK', onPress: () => navigation.goBack() }]
+        );
+      } else {
+        let errorMessage = t('friends.removeError');
+        
+        if (result.error === 'PENDING_DEBTS') {
+          const balance = result.finalBalance || 0;
+          const absBalance = Math.abs(balance);
+          const isPositive = balance > 0;
+          
+          errorMessage = t('friends.cannotRemoveWithDebts')
+            .replace('{{name}}', friend?.displayName || friendData?.username || '')
+            .replace('{{amount}}', `R$ ${absBalance.toFixed(2)}`)
+            .replace('{{type}}', isPositive ? t('friends.owesYou') : t('friends.youOwe'));
+        } else if (result.error === 'USER_NOT_FOUND') {
+          errorMessage = t('friends.userNotFound');
+        } else if (result.error === 'FRIEND_NOT_FOUND') {
+          errorMessage = t('friends.friendNotFound');
+        }
+        
+        Alert.alert(t('common.error'), errorMessage);
+      }
+    } catch (error) {
+      console.error('Erro ao remover amigo:', error);
+      Alert.alert(t('common.error'), t('friends.removeError'));
+    } finally {
+      setRemoveLoading(false);
+    }
   };
 
   if (loading) {
@@ -163,6 +185,16 @@ export const FriendProfileScreen: React.FC = () => {
         <FriendRemoveButton onPress={handleRemoveFriend} loading={removeLoading} />
 
       </ScrollView>
+
+      {/* Modal de Remoção */}
+      <RemoveFriendsModal
+        visible={showRemoveModal}
+        onClose={() => setShowRemoveModal(false)}
+        onConfirm={handleConfirmRemove}
+        friend={friend}
+        friendData={friendData}
+        loading={removeLoading}
+      />
     </SafeAreaView>
   );
 };

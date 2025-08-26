@@ -242,4 +242,28 @@ export interface UserBadgeProgress {
     paidBy: string;
     splitBetween: string[];
     category?: string;
+  }
+
+  // Favorite types
+  export interface FavoriteFriend {
+    friendId: string;
+    addedAt: Date;
+    order: number;
+    lastSynced: Date;
+  }
+
+  export interface UserFavorites {
+    [friendId: string]: FavoriteFriend;
+  }
+
+  export interface FavoriteCache {
+    favorites: string[];
+    lastSync: Date;
+    version: string;
+  }
+
+  export interface FavoriteServiceResponse {
+    success: boolean;
+    data?: any;
+    error?: string;
   } 

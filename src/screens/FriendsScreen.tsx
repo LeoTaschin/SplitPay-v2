@@ -15,6 +15,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigation } from '@react-navigation/native';
 import { useDesignSystem, Loading, FriendItem, BalanceCard, Card, FriendSearchModal } from '../design-system';
+import { useFavorites } from '../hooks/useFavorites';
 import { getPendingFriendRequests } from '../services/friendService';
 import { getUserFriends } from '../services/userService';
 import { getFriendsWithOpenDebts } from '../services/debtService';
@@ -36,6 +37,9 @@ export const FriendsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
   
+  // Hook de favoritos
+  const { favorites, loading: favoritesLoading } = useFavorites();
+  
   const [friends, setFriends] = useState<FriendWithBalance[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -44,6 +48,28 @@ export const FriendsScreen: React.FC = () => {
   
   // Modal state
   const [isAddFriendModalVisible, setIsAddFriendModalVisible] = useState(false);
+
+  // Função de ordenação com favoritos
+  const sortFriendsWithFavorites = (friends: FriendWithBalance[]) => {
+    return friends.sort((a, b) => {
+      const aIsFavorite = favorites.includes(a.id);
+      const bIsFavorite = favorites.includes(b.id);
+      
+      // Favoritos primeiro
+      if (aIsFavorite && !bIsFavorite) return -1;
+      if (!aIsFavorite && bIsFavorite) return 1;
+      
+      // Entre favoritos, manter ordem original
+      if (aIsFavorite && bIsFavorite) {
+        const aOrder = favorites.indexOf(a.id);
+        const bOrder = favorites.indexOf(b.id);
+        return aOrder - bOrder;
+      }
+      
+      // Entre não-favoritos, ordenar por saldo
+      return Math.abs(b.balance) - Math.abs(a.balance);
+    });
+  };
 
   const fetchFriends = async (showLoading: boolean = true) => {
     if (!user?.uid) return;
@@ -76,8 +102,8 @@ export const FriendsScreen: React.FC = () => {
         balance: debtMap.get(friend.id) || 0
       }));
 
-      // Ordenar por saldo (maior dívida primeiro)
-      const sortedFriends = friendsWithBalances.sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance));
+      // Ordenar com favoritos primeiro, depois por saldo
+      const sortedFriends = sortFriendsWithFavorites(friendsWithBalances);
       
       // Log resumido dos dados processados
       const withDebts = sortedFriends.filter(f => f.balance !== 0).length;
@@ -250,6 +276,29 @@ export const FriendsScreen: React.FC = () => {
     }
   }, [user?.uid, isAddFriendModalVisible]);
 
+  // Atualizar lista quando a tela receber foco (após voltar de FriendProfileScreen)
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log('🔄 Friends: Tela recebeu foco - verificando se precisa atualizar...');
+      if (user?.uid && friends.length > 0) {
+        // Forçar atualização da lista para refletir mudanças (como remoção de amigos)
+        fetchFriends(false); // Não mostrar loading
+        checkPendingRequests();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, user?.uid, friends.length]);
+
+  // Reordenar amigos quando favoritos mudarem
+  useEffect(() => {
+    if (friends.length > 0 && !favoritesLoading) {
+      console.log('🔄 Friends: Favoritos mudaram, reordenando lista...');
+      const reorderedFriends = sortFriendsWithFavorites([...friends]);
+      setFriends(reorderedFriends);
+    }
+  }, [favorites, favoritesLoading]);
+
   // Calcular balanço geral
   const calculateOverallBalance = () => {
     const totalBalance = friends.reduce((sum, friend) => sum + friend.balance, 0);
@@ -286,7 +335,6 @@ export const FriendsScreen: React.FC = () => {
         <View style={styles.balanceContainer}>
           <BalanceCard 
             balance={overallBalance.total}
-            title="Balanço Geral"
             style={styles.balanceCard}
           />
         </View>

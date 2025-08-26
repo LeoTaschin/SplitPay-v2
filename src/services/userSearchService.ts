@@ -139,10 +139,22 @@ export const searchUsers = async (searchQuery: string, excludeUserIds: string[] 
     
     // Filter out users who are already friends
     const filteredResults = [];
+    console.log('🔍 userSearchService - Iniciando filtro de amigos...');
+    
     for (const user of results) {
+      console.log('🔍 userSearchService - Verificando usuário:', user.username);
       const areFriends = await areUsersFriends(currentUserId, user.id);
+      console.log('🔍 userSearchService - Resultado da verificação:', { 
+        username: user.username, 
+        userId: user.id, 
+        areFriends 
+      });
+      
       if (!areFriends) {
         filteredResults.push(user);
+        console.log('🔍 userSearchService - Usuário adicionado aos resultados:', user.username);
+      } else {
+        console.log('🔍 userSearchService - Usuário filtrado (já é amigo):', user.username);
       }
     }
     

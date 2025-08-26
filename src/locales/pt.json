@@ -68,6 +68,9 @@
     "netBalanceNegative": "Você tem dinheiro a pagar",
     "netBalanceNeutral": "Suas contas estão equilibradas"
   },
+  "balance": {
+    "general": "Balanço Geral"
+  },
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Resumo das suas dívidas",
@@ -265,6 +268,7 @@
       "daysAgo": "Há {{days}} dias",
       "weekAgo": "Há mais de uma semana"
     },
+    "profile": "Perfil",
     "friendProfile": "Perfil do Amigo",
     "loadingProfile": "Carregando perfil...",
     "settleDebt": "Acertar Dívida",
@@ -276,8 +280,24 @@
     "youOwe": "Você deve",
     "removeFriend": "Remover Amigo",
     "removeFriendSubtext": "Remover da lista de amigos",
+    "removedSuccessfully": "Amigo removido com sucesso",
+    "removeError": "Erro ao remover amigo",
+    "cannotRemoveWithDebts": "Não é possível remover {{name}} enquanto há dívidas pendentes de {{amount}} ({{type}})",
+    "userNotFound": "Usuário não encontrado",
+    "friendNotFound": "Amigo não encontrado",
     "viewTransactions": "Ver Transações",
     "viewTransactionsSubtext": "Histórico de dívidas e pagamentos"
+  },
+  "favorites": {
+    "addTitle": "Adicionar aos Favoritos",
+    "removeTitle": "Remover dos Favoritos",
+    "addMessage": "Deseja adicionar {{name}} aos seus favoritos? Este amigo aparecerá no topo da sua lista de amigos.",
+    "removeMessage": "Deseja remover {{name}} dos seus favoritos? Este amigo voltará à posição normal na lista.",
+    "add": "Adicionar",
+    "remove": "Remover",
+    "added": "Adicionado aos favoritos",
+    "removed": "Removido dos favoritos",
+    "error": "Erro ao atualizar favoritos"
   },
   "groups": {
     "title": "Grupos",

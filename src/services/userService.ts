@@ -8,7 +8,8 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  deleteDoc
 } from 'firebase/firestore';
 import { User, ApiResponse } from '../types';
 import { User as FirebaseUser } from 'firebase/auth';
@@ -275,7 +276,27 @@ export const removeFriend = async (currentUserId: string, friendId: string): Pro
     const friendFriends = friendDoc.data().friends || [];
     const updatedFriendFriends = friendFriends.filter((id: string) => id !== currentUserId);
     
-    // Atualizar ambos os documentos em uma transação
+    // Remove friendship documents from the friends collection
+    const friendship1Id = `${currentUserId}_${friendId}`;
+    const friendship2Id = `${friendId}_${currentUserId}`;
+    
+    console.log('userService - removeFriend - Removendo documentos da coleção friends:', {
+      friendship1Id,
+      friendship2Id
+    });
+
+    // Verificar se os documentos existem antes de tentar removê-los
+    const friendship1Doc = await getDoc(doc(db, 'friends', friendship1Id));
+    const friendship2Doc = await getDoc(doc(db, 'friends', friendship2Id));
+    
+    console.log('userService - removeFriend - Documentos existem antes da remoção:', {
+      friendship1Exists: friendship1Doc.exists(),
+      friendship2Exists: friendship2Doc.exists(),
+      friendship1Data: friendship1Doc.exists() ? friendship1Doc.data() : null,
+      friendship2Data: friendship2Doc.exists() ? friendship2Doc.data() : null
+    });
+
+    // Atualizar ambos os documentos e remover documentos da coleção friends
     await Promise.all([
       updateDoc(doc(db, 'users', currentUserId), { 
         friends: updatedFriends,
@@ -284,10 +305,16 @@ export const removeFriend = async (currentUserId: string, friendId: string): Pro
       updateDoc(doc(db, 'users', friendId), { 
         friends: updatedFriendFriends,
         updatedAt: serverTimestamp()
-      })
+      }),
+      deleteDoc(doc(db, 'friends', friendship1Id)),
+      deleteDoc(doc(db, 'friends', friendship2Id))
     ]);
 
     console.log('userService - removeFriend - Amigo removido com sucesso');
+    console.log('userService - removeFriend - Arrays atualizados:', {
+      currentUserFriends: updatedFriends,
+      friendUserFriends: updatedFriendFriends
+    });
     return { success: true };
   } catch (error) {
     console.error('userService - removeFriend - Erro:', error);

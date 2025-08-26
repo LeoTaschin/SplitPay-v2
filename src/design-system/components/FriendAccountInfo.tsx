@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,14 +6,17 @@ import {
   ViewStyle,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
 import { useLanguage } from '../../context/LanguageContext';
 import { usePresence } from '../../hooks/usePresence';
+import { useFavorites } from '../../hooks/useFavorites';
 import { Card } from './Card';
 import { Avatar } from './Avatar';
 import { OnlineIndicator } from './OnlineIndicator';
+import { FavoriteConfirmationModal } from './FavoriteConfirmationModal';
 import { User } from '../../types';
 
 interface FriendAccountInfoProps {
@@ -39,6 +42,13 @@ export const FriendAccountInfo: React.FC<FriendAccountInfoProps> = ({
   // Obter presença do amigo
   const friendId = friend?.uid || friendData?.id;
   const { presence } = usePresence(friendId || '');
+  
+  // Hook de favoritos
+  const { isFavorite, toggleFavorite, loading: favoriteLoading } = useFavorites();
+  const favorite = isFavorite(friendId || '');
+  
+  // Estado do modal
+  const [showFavoriteModal, setShowFavoriteModal] = useState(false);
 
   // Formatar moeda
   const formatCurrency = (value: number) => {
@@ -89,18 +99,53 @@ export const FriendAccountInfo: React.FC<FriendAccountInfoProps> = ({
 
   const balanceStatus = getBalanceStatus();
 
+  // Função para abrir modal de confirmação
+  const handleFavoritePress = () => {
+    if (!friendId) return;
+    setShowFavoriteModal(true);
+  };
+
+  // Função para confirmar favoritar/desfavoritar
+  const handleConfirmFavorite = async () => {
+    if (!friendId) return;
+    
+    const success = await toggleFavorite(friendId);
+    if (!success) {
+      Alert.alert('Erro', 'Não foi possível atualizar favorito');
+    }
+  };
+
   return (
-    <Card variant="elevated" style={[styles.container, style]}>
+    <Card variant="elevated" style={[styles.container, style] as any}>
       {/* Header do Card com ícones */}
       <View style={styles.cardHeader}>
-        <TouchableOpacity style={styles.headerIcon}>
-          <Ionicons name="star-outline" size={20} color={ds.colors.text.secondary} />
+        <TouchableOpacity 
+          style={styles.headerIcon}
+          onPress={handleFavoritePress}
+          disabled={favoriteLoading}
+        >
+          <Ionicons 
+            name={favorite ? "star" : "star-outline"} 
+            size={20} 
+            color={favorite ? "#FFD700" : ds.colors.text.secondary} 
+          />
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.headerIcon}>
           <Ionicons name="notifications-outline" size={20} color={ds.colors.text.secondary} />
         </TouchableOpacity>
       </View>
+
+      {/* Modal de Confirmação de Favoritos */}
+      <FavoriteConfirmationModal
+        visible={showFavoriteModal}
+        onClose={() => setShowFavoriteModal(false)}
+        onConfirm={handleConfirmFavorite}
+        friend={friend}
+        friendData={friendData}
+        isFavorite={favorite}
+        loading={favoriteLoading}
+      />
 
       {/* Avatar Centralizado */}
       <View style={styles.avatarSection}>

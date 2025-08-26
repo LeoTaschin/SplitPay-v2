@@ -66,6 +66,9 @@
     "netBalanceNegative": "You have money to pay",
     "netBalanceNeutral": "Your accounts are balanced"
   },
+  "balance": {
+    "general": "General Balance"
+  },
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Summary of your debts",
@@ -235,6 +238,7 @@
     "noRequests": "No Requests",
     "noRequestsSubtitle": "You don't have pending friend requests",
     "wantsToBeFriend": "Wants to be your friend",
+    "profile": "Profile",
     "friendProfile": "Friend Profile",
     "loadingProfile": "Loading profile...",
     "settleDebt": "Settle Debt",
@@ -246,8 +250,24 @@
     "youOwe": "You owe",
     "removeFriend": "Remove Friend",
     "removeFriendSubtext": "Remove from friends list",
+    "removedSuccessfully": "Friend removed successfully",
+    "removeError": "Error removing friend",
+    "cannotRemoveWithDebts": "Cannot remove {{name}} while there are pending debts of {{amount}} ({{type}})",
+    "userNotFound": "User not found",
+    "friendNotFound": "Friend not found",
     "viewTransactions": "View Transactions",
     "viewTransactionsSubtext": "History of debts and payments"
+  },
+  "favorites": {
+    "addTitle": "Add to Favorites",
+    "removeTitle": "Remove from Favorites",
+    "addMessage": "Do you want to add {{name}} to your favorites? This friend will appear at the top of your friends list.",
+    "removeMessage": "Do you want to remove {{name}} from your favorites? This friend will return to the normal position in the list.",
+    "add": "Add",
+    "remove": "Remove",
+    "added": "Added to favorites",
+    "removed": "Removed from favorites",
+    "error": "Error updating favorites"
   },
   "groups": {
     "title": "Groups",

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { useDesignSystem } from '../hooks/useDesignSystem';
+import { useLanguage } from '../../context/LanguageContext';
 import { Card } from './Card';
 import { formatCurrency } from '../../utils/formatters';
 
@@ -12,10 +13,13 @@ interface BalanceCardProps {
 
 export const BalanceCard: React.FC<BalanceCardProps> = ({
   balance,
-  title = 'Balanço Geral',
+  title,
   style
 }) => {
   const ds = useDesignSystem();
+  const { t } = useLanguage();
+  
+  const defaultTitle = t('balance.general');
   
   const isPositive = balance >= 0;
   const isZero = balance === 0;
@@ -35,7 +39,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
     ]}>
       <View style={styles.content}>
         <Text style={[styles.title, { color: ds.colors.text.secondary }]}>
-          {title}
+          {title || defaultTitle}
         </Text>
         <Text style={[
           styles.value, 
