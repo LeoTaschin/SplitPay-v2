@@ -196,7 +196,8 @@
     "about": "About",
     "version": "Version",
     "logoutConfirm": "Are you sure you want to logout?",
-    "logoutError": "Unable to logout. Please try again."
+    "logoutError": "Unable to logout. Please try again.",
+    "dateNotAvailable": "Date not available"
   },
   "friends": {
     "title": "Friends",
@@ -233,7 +234,20 @@
     "requestsCount": "{{count}} request{{plural}} pending",
     "noRequests": "No Requests",
     "noRequestsSubtitle": "You don't have pending friend requests",
-    "wantsToBeFriend": "Wants to be your friend"
+    "wantsToBeFriend": "Wants to be your friend",
+    "friendProfile": "Friend Profile",
+    "loadingProfile": "Loading profile...",
+    "settleDebt": "Settle Debt",
+    "settleDebtSubtext": "Resolve financial pending",
+    "sendMessage": "Send Message",
+    "sendMessageSubtext": "Chat with friend",
+    "accountsSettled": "All settled",
+    "owesYou": "Owes you",
+    "youOwe": "You owe",
+    "removeFriend": "Remove Friend",
+    "removeFriendSubtext": "Remove from friends list",
+    "viewTransactions": "View Transactions",
+    "viewTransactionsSubtext": "History of debts and payments"
   },
   "groups": {
     "title": "Groups",
@@ -412,6 +426,11 @@
     "thisYear": "This year"
   },
   "badges": {
+    "title": "Badges",
+    "loading": "Loading badges...",
+    "noBadgesSelected": "No badges selected",
+    "noBadgesDisplayed": "No badges displayed",
+    "noBadgesSubtext": "This user hasn't selected any badges yet",
     "categories": {
       "loyalty": "Loyalty",
       "social": "Social",
@@ -485,6 +504,51 @@
         "title": "Locked Badge",
         "message": "You don't have the badge \"{badgeName}\" yet. Keep using SplitPay to unlock it!",
         "button": "Got it"
+      }
+    },
+    "selector": {
+      "title": "Select Badges",
+      "selected": "Selected",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "items": {
+      "loyalty_1": {
+        "name": "First Login",
+        "description": "Welcome to SplitPay!"
+      },
+      "loyalty_2": {
+        "name": "Active User",
+        "description": "Using the app for 7 days"
+      },
+      "social_1": {
+        "name": "First Friend",
+        "description": "Added your first friend"
+      },
+      "financial_1": {
+        "name": "First Debt",
+        "description": "Created your first debt"
+      },
+      "events_1": {
+        "name": "Christmas 2023",
+        "description": "Active on SplitPay during Christmas 2023"
+      },
+      "events_2": {
+        "name": "New Year 2024",
+        "description": "Started 2024 with SplitPay"
+      },
+      "events_3": {
+        "name": "Halloween 2024",
+        "description": "Financial terror on Halloween 2024"
+      },
+      "events_4": {
+        "name": "Christmas 2024",
+        "description": "Christmas 2024 with SplitPay"
+      },
+      "events_5": {
+        "name": "Pioneer",
+        "description": "First user in the city on SplitPay"
       }
     }
   }

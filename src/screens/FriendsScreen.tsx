@@ -13,7 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
-import { useDesignSystem, Loading, FriendItem, BalanceCard, Card, FriendSearchModal, PresenceTestPanel } from '../design-system';
+import { useNavigation } from '@react-navigation/native';
+import { useDesignSystem, Loading, FriendItem, BalanceCard, Card, FriendSearchModal } from '../design-system';
 import { getPendingFriendRequests } from '../services/friendService';
 import { getUserFriends } from '../services/userService';
 import { getFriendsWithOpenDebts } from '../services/debtService';
@@ -32,6 +33,7 @@ interface FriendWithBalance {
 export const FriendsScreen: React.FC = () => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
+  const navigation = useNavigation();
   const { user } = useAuth();
   
   const [friends, setFriends] = useState<FriendWithBalance[]>([]);
@@ -123,8 +125,13 @@ export const FriendsScreen: React.FC = () => {
   };
 
   const handleFriendPress = (friend: FriendWithBalance) => {
-    // TODO: Implementar navegação para chat ou detalhes do amigo
-    console.log(`👤 Friends: Amigo selecionado - ${friend.username} (ID: ${friend.id})`);
+    console.log(`👤 Friends: Navegando para perfil do amigo - ${friend.username} (ID: ${friend.id})`);
+    
+    // Navegar para o perfil do amigo
+    (navigation as any).navigate('FriendProfile', {
+      friendId: friend.id,
+      friendData: friend,
+    });
   };
 
   const handleFriendLongPress = (friend: FriendWithBalance) => {
@@ -370,9 +377,6 @@ export const FriendsScreen: React.FC = () => {
         onSearchUsers={handleSearchUsers}
         hasPendingRequests={hasPendingRequests}
       />
-
-      {/* Presence Test Panel */}
-      <PresenceTestPanel />
     </SafeAreaView>
   );
 };
@@ -445,7 +449,7 @@ const styles = StyleSheet.create({
   friendsList: {
     gap: 0,
     paddingHorizontal: 0,
-    paddingBottom: 30,
+    paddingBottom: 70,
   },
   friendItem: {
     marginBottom: 0,

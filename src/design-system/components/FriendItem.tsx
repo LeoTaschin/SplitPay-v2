@@ -15,6 +15,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { Avatar } from './Avatar';
 import { OnlineIndicator } from './OnlineIndicator';
 import { usePresence } from '../../hooks/usePresence';
+import { useNavigation } from '@react-navigation/native';
 
 interface FriendItemProps {
   friend: {
@@ -45,6 +46,7 @@ export const FriendItem: React.FC<FriendItemProps> = ({
 }) => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
+  const navigation = useNavigation();
   const { presence, getStatusText } = usePresence(friend.id);
   const translateX = useRef(new Animated.Value(0)).current;
   const swipeThreshold = -120; // Distância mínima para ativar o swipe (menos sensível)
@@ -127,6 +129,18 @@ export const FriendItem: React.FC<FriendItemProps> = ({
     }
   };
 
+  const handlePress = () => {
+    if (onPress) {
+      onPress();
+    } else {
+      // Navegar para o perfil do amigo
+      (navigation as any).navigate('FriendProfile', {
+        friendId: friend.id,
+        friendData: friend,
+      });
+    }
+  };
+
   return (
     <View style={styles.wrapper}>
       {/* Background do swipe */}
@@ -164,7 +178,7 @@ export const FriendItem: React.FC<FriendItemProps> = ({
         >
           <TouchableOpacity 
             style={styles.touchable}
-            onPress={onPress}
+            onPress={handlePress}
             onLongPress={onLongPress}
             activeOpacity={0.7}
           >

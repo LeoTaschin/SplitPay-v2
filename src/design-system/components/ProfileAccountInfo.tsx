@@ -55,7 +55,7 @@ export const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
     try {
       const date = new Date(createdAt);
       if (isNaN(date.getTime())) {
-        return 'Data não disponível';
+        return t('profile.dateNotAvailable');
       }
       
       return date.toLocaleDateString('pt-BR', {
@@ -64,7 +64,7 @@ export const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
         year: 'numeric'
       });
     } catch (error) {
-      return 'Data não disponível';
+      return t('profile.dateNotAvailable');
     }
   };
 
@@ -122,7 +122,7 @@ export const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
         <View style={styles.createdAtSection}>
           <Ionicons name="calendar-outline" size={16} color={ds.colors.text.secondary} />
           <Text style={[styles.createdAtText, { color: ds.colors.text.secondary }]}>
-            Membro desde {user?.createdAt ? formatCreatedAt(user.createdAt) : 'Data não disponível'}
+            {t('profile.memberSince')} {user?.createdAt ? formatCreatedAt(user.createdAt) : t('profile.dateNotAvailable')}
           </Text>
         </View>
       </View>

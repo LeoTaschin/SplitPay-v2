@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   groupsList: {
     gap: 0,
     paddingHorizontal: 0,
-    paddingBottom: 30,
+    paddingBottom: 70,
   },
   groupItem: {
     marginBottom: 0,

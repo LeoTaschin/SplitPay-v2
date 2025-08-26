@@ -23,6 +23,7 @@ interface BadgeSelectorModalProps {
   onSelect: (selectedBadges: Badge[]) => void;
   availableBadges: Badge[];
   selectedBadges: Badge[];
+  loading?: boolean;
 }
 
 export const BadgeSelectorModal: React.FC<BadgeSelectorModalProps> = ({
@@ -31,6 +32,7 @@ export const BadgeSelectorModal: React.FC<BadgeSelectorModalProps> = ({
   onSelect,
   availableBadges,
   selectedBadges,
+  loading = false,
 }) => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
@@ -79,6 +81,7 @@ export const BadgeSelectorModal: React.FC<BadgeSelectorModalProps> = ({
   };
 
   const handleSave = () => {
+    if (loading) return;
     onSelect(tempSelectedBadges);
   };
 
@@ -115,7 +118,7 @@ export const BadgeSelectorModal: React.FC<BadgeSelectorModalProps> = ({
           {/* Header */}
           <View style={styles.header}>
             <Text style={[styles.title, { color: ds.colors.text.primary }]}>
-              Selecionar Badges
+              {t('badges.selector.title')}
             </Text>
             <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
               <Ionicons
@@ -155,7 +158,7 @@ export const BadgeSelectorModal: React.FC<BadgeSelectorModalProps> = ({
                       <View style={styles.selectedIndicator}>
                         <Ionicons name="checkmark-circle" size={16} color="#10B981" />
                         <Text style={[styles.selectedText, { color: '#10B981' }]}>
-                          Selecionado
+                          {t('badges.selector.selected')}
                         </Text>
                       </View>
                     )}
@@ -184,16 +187,23 @@ export const BadgeSelectorModal: React.FC<BadgeSelectorModalProps> = ({
               onPress={handleCancel}
             >
               <Text style={[styles.buttonText, { color: '#616161' }]}>
-                Cancelar
+                {t('badges.selector.cancel')}
               </Text>
             </TouchableOpacity>
             
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: ds.colors.primary }]}
+              style={[
+                styles.button, 
+                { 
+                  backgroundColor: loading ? ds.colors.surfaceVariant : ds.colors.primary,
+                  opacity: loading ? 0.6 : 1,
+                }
+              ]}
               onPress={handleSave}
+              disabled={loading}
             >
-              <Text style={[styles.buttonText, { color: 'white' }]}>
-                Salvar ({tempSelectedBadges.length})
+              <Text style={[styles.buttonText, { color: loading ? ds.colors.text.secondary : 'white' }]}>
+                {loading ? t('badges.selector.saving') : `${t('badges.selector.save')} (${tempSelectedBadges.length})`}
               </Text>
             </TouchableOpacity>
           </View>

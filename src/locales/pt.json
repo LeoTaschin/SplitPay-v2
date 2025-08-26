@@ -213,7 +213,8 @@
     "profileUpdated": "Perfil atualizado com sucesso",
     "updateError": "Erro ao atualizar perfil. Tente novamente.",
     "qrCode": "QR Code",
-    "qrCodeDesc": "Compartilhe seu QR code para adicionar amigos"
+    "qrCodeDesc": "Compartilhe seu QR code para adicionar amigos",
+    "dateNotAvailable": "Data não disponível"
   },
   "friends": {
     "title": "Amigos",
@@ -263,7 +264,20 @@
       "hoursAgo": "Há {{hours}}h",
       "daysAgo": "Há {{days}} dias",
       "weekAgo": "Há mais de uma semana"
-    }
+    },
+    "friendProfile": "Perfil do Amigo",
+    "loadingProfile": "Carregando perfil...",
+    "settleDebt": "Acertar Dívida",
+    "settleDebtSubtext": "Resolver pendências financeiras",
+    "sendMessage": "Enviar Mensagem",
+    "sendMessageSubtext": "Conversar com o amigo",
+    "accountsSettled": "Contas em dia",
+    "owesYou": "Te deve",
+    "youOwe": "Você deve",
+    "removeFriend": "Remover Amigo",
+    "removeFriendSubtext": "Remover da lista de amigos",
+    "viewTransactions": "Ver Transações",
+    "viewTransactionsSubtext": "Histórico de dívidas e pagamentos"
   },
   "groups": {
     "title": "Grupos",
@@ -442,6 +456,11 @@
     "thisYear": "Este ano"
   },
   "badges": {
+    "title": "Badges",
+    "loading": "Carregando badges...",
+    "noBadgesSelected": "Nenhum badge selecionado",
+    "noBadgesDisplayed": "Nenhum badge exibido",
+    "noBadgesSubtext": "Este usuário ainda não selecionou badges",
     "categories": {
       "loyalty": "Fidelidade",
       "social": "Social",
@@ -515,6 +534,51 @@
         "title": "Badge Bloqueado",
         "message": "Você ainda não possui o badge \"{badgeName}\". Continue usando o SplitPay para desbloqueá-lo!",
         "button": "Entendi"
+      }
+    },
+    "selector": {
+      "title": "Selecionar Badges",
+      "selected": "Selecionado",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "saving": "Salvando..."
+    },
+    "items": {
+      "loyalty_1": {
+        "name": "Primeiro Login",
+        "description": "Bem-vindo ao SplitPay!"
+      },
+      "loyalty_2": {
+        "name": "Usuário Ativo",
+        "description": "Usando o app por 7 dias"
+      },
+      "social_1": {
+        "name": "Primeiro Amigo",
+        "description": "Adicionou seu primeiro amigo"
+      },
+      "financial_1": {
+        "name": "Primeira Dívida",
+        "description": "Criou sua primeira dívida"
+      },
+      "events_1": {
+        "name": "Natalino 2023",
+        "description": "Ativo no SplitPay durante o Natal 2023"
+      },
+      "events_2": {
+        "name": "Ano Novo 2024",
+        "description": "Começou 2024 com SplitPay"
+      },
+      "events_3": {
+        "name": "Halloween 2024",
+        "description": "Terror financeiro no Halloween 2024"
+      },
+      "events_4": {
+        "name": "Natalino 2024",
+        "description": "Natal 2024 com SplitPay"
+      },
+      "events_5": {
+        "name": "Pioneiro",
+        "description": "Primeiro usuário da cidade no SplitPay"
       }
     }
   }

@@ -184,7 +184,8 @@
     "about": "Acerca de",
     "version": "Versión",
     "logoutConfirm": "¿Estás seguro de que quieres cerrar sesión?",
-    "logoutError": "No se pudo cerrar sesión. Inténtalo de nuevo."
+    "logoutError": "No se pudo cerrar sesión. Inténtalo de nuevo.",
+    "dateNotAvailable": "Fecha no disponible"
   },
   "friends": {
     "title": "Amigos",
@@ -221,7 +222,20 @@
     "requestsCount": "{{count}} solicitud{{plural}} pendiente{{plural}}",
     "noRequests": "Sin Solicitudes",
     "noRequestsSubtitle": "No tienes solicitudes de amistad pendientes",
-    "wantsToBeFriend": "Quiere ser tu amigo"
+    "wantsToBeFriend": "Quiere ser tu amigo",
+    "friendProfile": "Perfil del Amigo",
+    "loadingProfile": "Cargando perfil...",
+    "settleDebt": "Liquidar Deuda",
+    "settleDebtSubtext": "Resolver pendientes financieros",
+    "sendMessage": "Enviar Mensaje",
+    "sendMessageSubtext": "Chatear con amigo",
+    "accountsSettled": "Cuentas al día",
+    "owesYou": "Te debe",
+    "youOwe": "Tú debes",
+    "removeFriend": "Remover Amigo",
+    "removeFriendSubtext": "Remover de la lista de amigos",
+    "viewTransactions": "Ver Transacciones",
+    "viewTransactionsSubtext": "Historial de deudas y pagos"
   },
   "groups": {
     "title": "Grupos",
@@ -400,6 +414,11 @@
     "thisYear": "Este año"
   },
   "badges": {
+    "title": "Insignias",
+    "loading": "Cargando insignias...",
+    "noBadgesSelected": "Ninguna insignia seleccionada",
+    "noBadgesDisplayed": "Ninguna insignia mostrada",
+    "noBadgesSubtext": "Este usuario aún no ha seleccionado insignias",
     "categories": {
       "loyalty": "Lealtad",
       "social": "Social",
@@ -467,6 +486,51 @@
       "very_rare": "Muy Raro ({percentage}% de usuarios)",
       "legendary": "Legendario ({percentage}% de usuarios)",
       "event": "Evento ({percentage}% de usuarios)"
+    },
+    "selector": {
+      "title": "Seleccionar Badges",
+      "selected": "Seleccionado",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando..."
+    },
+    "items": {
+      "loyalty_1": {
+        "name": "Primer Inicio de Sesión",
+        "description": "¡Bienvenido a SplitPay!"
+      },
+      "loyalty_2": {
+        "name": "Usuario Activo",
+        "description": "Usando la app por 7 días"
+      },
+      "social_1": {
+        "name": "Primer Amigo",
+        "description": "Agregó tu primer amigo"
+      },
+      "financial_1": {
+        "name": "Primera Deuda",
+        "description": "Creó tu primera deuda"
+      },
+      "events_1": {
+        "name": "Navidad 2023",
+        "description": "Activo en SplitPay durante Navidad 2023"
+      },
+      "events_2": {
+        "name": "Año Nuevo 2024",
+        "description": "Comenzó 2024 con SplitPay"
+      },
+      "events_3": {
+        "name": "Halloween 2024",
+        "description": "Terror financiero en Halloween 2024"
+      },
+      "events_4": {
+        "name": "Navidad 2024",
+        "description": "Navidad 2024 con SplitPay"
+      },
+      "events_5": {
+        "name": "Pionero",
+        "description": "Primer usuario de la ciudad en SplitPay"
+      }
     }
   }
 } 

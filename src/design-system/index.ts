@@ -28,6 +28,10 @@ export * from './components/SettingsPrivacy';
 export * from './components/SettingsLanguage';
 export * from './components/SettingsTheme';
 export * from './components/SettingsSecurity';
+export * from './components/FriendBadges';
+export * from './components/FriendAccountInfo';
+export * from './components/FriendRemoveButton';
+export * from './components/FriendTransactionsButton';
 
 // Componentes do Dashboard
 export * from './components/StatCard';

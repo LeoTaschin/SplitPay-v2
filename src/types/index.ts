@@ -5,7 +5,43 @@ export interface User {
     displayName?: string;
     photoURL?: string;
     createdAt: string;
+    // Novos campos para badges
+    selectedBadges?: Badge[];
+    totalPoints?: number;
+    rank?: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
   }
+
+// Badge types
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  rank: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+  category: 'social' | 'financial' | 'achievement' | 'special' | 'events';
+  isUnlocked: boolean;
+  unlockCondition: string;
+  points: number;
+  createdAt: Date;
+}
+
+export interface BadgeHistory {
+  id: string;
+  userId: string;
+  badgeId: string;
+  unlockedAt: Date;
+  unlockedBy: 'achievement' | 'purchase' | 'gift';
+  pointsEarned: number;
+}
+
+export interface UserBadgeProgress {
+  userId: string;
+  totalPoints: number;
+  rank: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+  unlockedBadges: Badge[];
+  selectedBadges: Badge[];
+  achievements: BadgeHistory[];
+}
   
   // Debt types
   export interface Debt {
@@ -84,7 +120,16 @@ export interface User {
     Profile: undefined;
     Settings: undefined;
     EditProfile: undefined;
-    FriendProfile: { userId: string };
+    FriendProfile: { 
+      friendId: string;
+      friendData?: {
+        id: string;
+        username: string;
+        email: string;
+        photoURL?: string;
+        balance: number;
+      };
+    };
     SelectDebtTarget: undefined;
     SelectGroup: undefined;
     Activity: undefined;

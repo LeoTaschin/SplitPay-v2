@@ -5,42 +5,32 @@ import {
   StyleSheet,
   ViewStyle,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
 import { useLanguage } from '../../context/LanguageContext';
-import { useAuth } from '../../hooks/useAuth';
-import { BadgeSelectorModal } from './BadgeSelectorModal';
-import { Badge } from './BadgeSystem';
-import { getMockBadges } from './BadgeData';
-import { EditIconButton } from './EditIconButton';
 import { User, Badge as BadgeType } from '../../types';
 import { badgeService } from '../../services/badgeService';
 
-interface ProfileStatsProps {
-  user: User | null;
+interface FriendBadgesProps {
+  userId: string;
   style?: ViewStyle;
 }
 
-export const ProfileStats: React.FC<ProfileStatsProps> = ({
-  user,
+export const FriendBadges: React.FC<FriendBadgesProps> = ({
+  userId,
   style,
 }) => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
-  const { user: currentUser } = useAuth();
-  const [showModal, setShowModal] = useState(false);
   const [selectedBadges, setSelectedBadges] = useState<BadgeType[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
 
-  // Carregar badges do usuário ao montar o componente
+  // Carregar badges do amigo
   useEffect(() => {
-    if (user?.uid) {
-      loadUserBadges();
-    }
-  }, [user?.uid]);
+    loadFriendBadges();
+  }, [userId]);
 
   // Função para traduzir badges
   const translateBadge = (badge: BadgeType): BadgeType => {
@@ -53,54 +43,20 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({
     };
   };
 
-  const loadUserBadges = async () => {
+  const loadFriendBadges = async () => {
     try {
       setLoading(true);
-      const userBadges = await badgeService.getUserBadges(user!.uid);
+      const userBadges = await badgeService.getUserBadges(userId);
       if (userBadges) {
         // Aplicar traduções aos badges
         const translatedBadges = (userBadges.selectedBadges || []).map(translateBadge);
         setSelectedBadges(translatedBadges);
       }
     } catch (error) {
-      console.error('Erro ao carregar badges do usuário:', error);
+      console.error('Erro ao carregar badges do amigo:', error);
     } finally {
       setLoading(false);
     }
-  };
-
-
-
-  const handleBadgePress = (badge: Badge) => {
-    console.log('Badge pressed:', badge.name);
-  };
-
-  const handleSelectBadges = async (newSelectedBadges: BadgeType[]) => {
-    try {
-      setLoading(true);
-      
-      // Salvar no Firebase
-      await badgeService.saveSelectedBadges(user!.uid, newSelectedBadges);
-      
-      // Atualizar estado local
-      setSelectedBadges(newSelectedBadges);
-      setShowModal(false);
-      
-      Alert.alert('Sucesso', 'Badges salvos com sucesso!');
-    } catch (error) {
-      console.error('Erro ao salvar badges:', error);
-      Alert.alert('Erro', 'Não foi possível salvar os badges. Tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEditPress = () => {
-    if (!user?.uid) {
-      Alert.alert('Erro', 'Usuário não identificado');
-      return;
-    }
-    setShowModal(true);
   };
 
   const getRankColor = (rank: string) => {
@@ -125,23 +81,35 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({
     }
   };
 
+  const handleBadgePress = (badge: BadgeType) => {
+    console.log('Badge do amigo:', badge.name);
+  };
 
 
-  const isCurrentUser = currentUser?.uid === user?.uid;
+
+  if (loading) {
+    return (
+      <View style={[styles.container, style]}>
+        <Text style={[styles.title, { color: ds.colors.text.primary }]}>
+          {t('badges.title')}
+        </Text>
+        <View style={styles.loadingContainer}>
+          <Ionicons name="refresh" size={20} color={ds.colors.text.secondary} />
+          <Text style={[styles.loadingText, { color: ds.colors.text.secondary }]}>
+            {t('badges.loading')}
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, style]}>
-      {/* Header com título e botão de editar */}
+      {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.title, { color: ds.colors.text.primary }]}>
-          Badges
+          {t('badges.title')}
         </Text>
-        {isCurrentUser && (
-          <EditIconButton
-            onPress={handleEditPress}
-            disabled={loading}
-          />
-        )}
       </View>
 
 
@@ -210,26 +178,13 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({
             color={ds.colors.text.secondary} 
           />
           <Text style={[styles.emptyText, { color: ds.colors.text.secondary }]}>
-            {isCurrentUser ? t('badges.noBadgesSelected') : t('badges.noBadgesDisplayed')}
+            {t('badges.noBadgesDisplayed')}
           </Text>
           <Text style={[styles.emptySubtext, { color: ds.colors.text.secondary }]}>
-            {isCurrentUser 
-              ? 'Toque no ícone de editar para escolher seus badges'
-              : 'Este usuário ainda não selecionou badges'
-            }
+            {t('badges.noBadgesSubtext')}
           </Text>
         </View>
       )}
-
-      {/* Modal de seleção de badges */}
-      <BadgeSelectorModal
-        visible={showModal}
-        onClose={() => setShowModal(false)}
-        onSelect={handleSelectBadges}
-        availableBadges={getMockBadges(t)}
-        selectedBadges={selectedBadges}
-        loading={loading}
-      />
     </View>
   );
 };
@@ -247,6 +202,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    gap: 8,
+  },
+  loadingText: {
+    fontSize: 14,
   },
 
   badgesContainer: {

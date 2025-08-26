@@ -13,6 +13,7 @@ import {
 import { User, ApiResponse } from '../types';
 import { User as FirebaseUser } from 'firebase/auth';
 import { isFirebaseAuthReady } from '../utils/authUtils';
+import { badgeService } from './badgeService';
 
 interface UserData {
   uid: string;
@@ -62,9 +63,21 @@ export const initializeUser = async (user: FirebaseUser): Promise<ApiResponse<vo
         debtsAsDebtor: [],
         totalToReceive: 0,
         totalToPay: 0,
+        // Inicializar badges
+        selectedBadges: [],
+        totalPoints: 0,
+        rank: 'bronze',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
+
+      // Inicializar badges do usuário
+      try {
+        await badgeService.initializeUserBadges(user.uid);
+        console.log('✅ Badges inicializados para novo usuário:', user.uid);
+      } catch (error) {
+        console.error('❌ Erro ao inicializar badges:', error);
+      }
     } else {
       // Garantir que todos os campos necessários existam
       const userData = userDoc.data();

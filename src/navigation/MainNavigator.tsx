@@ -10,6 +10,7 @@ import { DebtDetailsScreen } from '../screens/DebtDetailsScreen';
 import { GroupDetailScreen } from '../screens/GroupDetailScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { EditProfileScreen } from '../screens/EditProfileScreen';
+import { FriendProfileScreen } from '../screens/FriendProfileScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -53,6 +54,11 @@ export const MainNavigator: React.FC = () => {
         name="EditProfile" 
         component={EditProfileScreen}
         key={`edit-profile-${isDark}`}
+      />
+      <Stack.Screen 
+        name="FriendProfile" 
+        component={FriendProfileScreen}
+        key={`friend-profile-${isDark}`}
       />
     </Stack.Navigator>
   );
