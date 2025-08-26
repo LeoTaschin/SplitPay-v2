@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { 
   View, 
-  Text, 
   StyleSheet, 
   SafeAreaView, 
   ScrollView,
   Alert,
-  TouchableOpacity,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 // Importar Design System, Auth e Language
-import { ProfileStats, ProfileSettings, ProfileAccountInfo, ProfileActivity, ProfileLogout } from '../design-system';
+import { ProfileStats, ProfileAccountInfo, ProfileLogoutButton, ProfileSettingsButton } from '../design-system';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -49,32 +46,13 @@ export const ProfileScreen: React.FC = () => {
     );
   };
 
-  const handleChangePassword = () => {
-    Alert.alert(t('profile.changePassword'), t('common.comingSoon'));
-  };
-
-  const handleNotifications = () => {
-    Alert.alert(t('profile.notifications'), t('common.comingSoon'));
-  };
-
-  const handlePrivacy = () => {
-    Alert.alert(t('profile.privacy'), t('common.comingSoon'));
-  };
-
-  const handleSecurity = () => {
-    Alert.alert(t('profile.security'), t('common.comingSoon'));
-  };
-
-  const handleHelp = () => {
-    Alert.alert(t('profile.help'), t('common.comingSoon'));
-  };
-
-  const handleAbout = () => {
-    Alert.alert(t('profile.about'), t('common.comingSoon'));
+  const handleSettings = () => {
+    navigation.navigate && navigation.navigate('Settings' as never);
   };
 
   const handleQRCodePress = () => {
-    Alert.alert(t('friends.addFriend'), t('common.comingSoon'));
+    // Implementar lógica para mostrar QR code
+    console.log('Show QR Code for adding friends');
   };
 
   return (
@@ -88,27 +66,17 @@ export const ProfileScreen: React.FC = () => {
         {/* Card Principal do Perfil */}
         <ProfileAccountInfo 
           user={user} 
-          navigation={navigation}
           onQRCodePress={handleQRCodePress}
         />
 
         {/* Estatísticas do Usuário */}
         <ProfileStats user={user} />
 
-        {/* Atividade Recente */}
-        <ProfileActivity />
-
-        {/* Configurações */}
-        <ProfileSettings
-          onChangePassword={handleChangePassword}
-          onNotifications={handleNotifications}
-          onPrivacy={handlePrivacy}
-          onHelp={handleHelp}
-          onAbout={handleAbout}
-        />
+        {/* Botão de Configurações */}
+        <ProfileSettingsButton onPress={handleSettings} />
 
         {/* Botão de Logout */}
-        <ProfileLogout onLogout={handleLogout} loading={loading} />
+        <ProfileLogoutButton onPress={handleLogout} loading={loading} />
 
       </ScrollView>
     </SafeAreaView>
@@ -123,6 +91,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 100,
   },
 }); 

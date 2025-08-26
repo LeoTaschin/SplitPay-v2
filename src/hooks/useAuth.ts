@@ -105,7 +105,7 @@ import {
       // Inicializar autenticação
       initializeAuth();
 
-      const unsubscribe = onAuthStateChanged(async (firebaseUser) => {
+      const unsubscribe = firebaseAuthStateChanged(auth, async (firebaseUser) => {
         console.log('🔍 Firebase Auth state changed:', firebaseUser?.uid);
         
         if (firebaseUser) {

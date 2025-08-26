@@ -7,6 +7,7 @@ import { LanguageProvider } from './src/context/LanguageContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { presenceService } from './src/services/presenceService';
 import { auth } from './src/config/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const AppContent = () => {
   const { isDark } = useTheme();
@@ -16,7 +17,7 @@ const AppContent = () => {
     console.log('🔍 App: Setting up auth state listener');
     console.log('🔍 App: Auth object available:', !!auth);
     
-    const unsubscribe = auth.onAuthStateChanged(async (user: any) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user: any) => {
       console.log('🔍 App: Auth state changed:', user?.uid);
       console.log('🔍 App: User email:', user?.email);
       if (user) {

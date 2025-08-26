@@ -19,12 +19,15 @@ export * from './components/Loading';
 export * from './components/LanguageSelector';
 export * from './components/Logo';
 export * from './components/LogoutButton';
-export * from './components/ProfileHeader';
 export * from './components/ProfileStats';
-export * from './components/ProfileSettings';
 export * from './components/ProfileAccountInfo';
-export * from './components/ProfileActivity';
-export * from './components/ProfileLogout';
+export * from './components/ProfileLogoutButton';
+export * from './components/ProfileSettingsButton';
+export * from './components/SettingsNotifications';
+export * from './components/SettingsPrivacy';
+export * from './components/SettingsLanguage';
+export * from './components/SettingsTheme';
+export * from './components/SettingsSecurity';
 
 // Componentes do Dashboard
 export * from './components/StatCard';
