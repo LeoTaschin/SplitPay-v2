@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ interface SettingRadioProps {
   value: string;
   selectedValue: string;
   onSelect: (value: string) => void;
-  icon?: keyof typeof Ionicons.glyphMap;
+  flag?: string;
 }
 
 const SettingRadio: React.FC<SettingRadioProps> = ({
@@ -22,7 +22,7 @@ const SettingRadio: React.FC<SettingRadioProps> = ({
   value,
   selectedValue,
   onSelect,
-  icon,
+  flag,
 }) => {
   const ds = useDesignSystem();
   const isSelected = selectedValue === value;
@@ -32,31 +32,25 @@ const SettingRadio: React.FC<SettingRadioProps> = ({
       style={[
         styles.settingItem, 
         { 
-          backgroundColor: ds.colors.surface,
-          borderColor: isSelected ? ds.colors.primary : 'transparent',
-          borderWidth: isSelected ? 2 : 0,
+          backgroundColor: isSelected ? ds.colors.primary + '20' : ds.colors.surface,
+          borderColor: isSelected ? ds.colors.primary : ds.colors.border.primary,
+          borderWidth: 1,
         }
       ]}
       onPress={() => onSelect(value)}
       activeOpacity={0.7}
     >
       <View style={styles.settingContent}>
-        {icon && (
-          <View style={[
-            styles.iconContainer, 
-            { 
-              backgroundColor: isSelected 
-                ? ds.colors.primary + '15' 
-                : ds.colors.surfaceVariant 
-            }
-          ]}>
-            <Ionicons 
-              name={icon} 
-              size={20} 
-              color={isSelected ? ds.colors.primary : ds.colors.text.secondary} 
-            />
-          </View>
-        )}
+        <View style={[
+          styles.iconContainer, 
+          { 
+            backgroundColor: isSelected ? ds.colors.primary + '10' : ds.colors.surface,
+            borderColor: isSelected ? ds.colors.primary + '30' : ds.colors.border.primary,
+            borderWidth: 1,
+          }
+        ]}>
+          <Text style={styles.flagText}>{flag}</Text>
+        </View>
         <View style={styles.textContainer}>
           <Text style={[
             styles.settingTitle, 
@@ -70,14 +64,14 @@ const SettingRadio: React.FC<SettingRadioProps> = ({
         </View>
       </View>
       <View style={[
-        styles.radioButton,
-        {
-          borderColor: isSelected ? ds.colors.primary : ds.colors.text.secondary,
+        styles.checkbox,
+        { 
           backgroundColor: isSelected ? ds.colors.primary : 'transparent',
+          borderColor: isSelected ? ds.colors.primary : ds.colors.border.primary
         }
       ]}>
         {isSelected && (
-          <View style={[styles.radioInner, { backgroundColor: 'white' }]} />
+          <Ionicons name="checkmark" size={16} color="white" />
         )}
       </View>
     </TouchableOpacity>
@@ -86,61 +80,47 @@ const SettingRadio: React.FC<SettingRadioProps> = ({
 
 export const SettingsLanguage: React.FC = () => {
   const ds = useDesignSystem();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   
-  const [selectedLanguage, setSelectedLanguage] = useState('pt-BR');
-  const [selectedCurrency, setSelectedCurrency] = useState('BRL');
+  const [selectedLanguage, setSelectedLanguageState] = useState(language);
 
   const languages = [
-    { value: 'pt-BR', title: 'Português (Brasil)', icon: 'flag' },
-    { value: 'en-US', title: 'English', icon: 'flag' },
-    { value: 'es-ES', title: 'Español', icon: 'flag' },
-    { value: 'fr-FR', title: 'Français', icon: 'flag' },
+    { value: 'pt-BR', title: 'Português', flag: '🇧🇷' },
+    { value: 'en-US', title: 'English', flag: '🇺🇸' },
+    { value: 'es-ES', title: 'Español', flag: '🇪🇸' },
+    { value: 'fr-FR', title: 'Français', flag: '🇫🇷' },
   ];
 
-  const currencies = [
-    { value: 'BRL', title: 'Real (R$)', icon: 'cash' },
-    { value: 'USD', title: 'Dólar (US$)', icon: 'cash' },
-    { value: 'EUR', title: 'Euro (€)', icon: 'cash' },
-  ];
+  // Sincronizar estado local com idioma atual
+  useEffect(() => {
+    setSelectedLanguageState(language);
+  }, [language]);
+
+  const handleLanguageSelect = async (value: string) => {
+    setSelectedLanguageState(value);
+    await setLanguage(value);
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.sectionTitle, { color: ds.colors.text.primary }]}>
-        🌍 Idioma
-      </Text>
-      <Text style={[styles.sectionDescription, { color: ds.colors.text.secondary }]}>
-        Escolha seu idioma e formato regional
-      </Text>
+      <View style={styles.header}>
+        <Text style={[styles.sectionTitle, { color: ds.colors.text.primary }]}>
+          {t('settings.sections.language.title')}
+        </Text>
+        <Text style={[styles.sectionDescription, { color: ds.colors.text.secondary }]}>
+          {t('settings.sections.language.description')}
+        </Text>
+      </View>
 
       <View style={styles.settingsContainer}>
-        <Text style={[styles.sectionLabel, { color: ds.colors.text.primary }]}>
-          Idioma
-        </Text>
         {languages.map((language) => (
           <SettingRadio
             key={language.value}
             title={language.title}
             value={language.value}
             selectedValue={selectedLanguage}
-            onSelect={setSelectedLanguage}
-            icon={language.icon as any}
-          />
-        ))}
-
-        <View style={styles.separator} />
-
-        <Text style={[styles.sectionLabel, { color: ds.colors.text.primary }]}>
-          Moeda
-        </Text>
-        {currencies.map((currency) => (
-          <SettingRadio
-            key={currency.value}
-            title={currency.title}
-            value={currency.value}
-            selectedValue={selectedCurrency}
-            onSelect={setSelectedCurrency}
-            icon={currency.icon as any}
+            onSelect={handleLanguageSelect}
+            flag={language.flag}
           />
         ))}
       </View>
@@ -152,32 +132,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',
     marginBottom: 8,
     textAlign: 'center',
   },
   sectionDescription: {
-    fontSize: 15,
+    fontSize: 16,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 32,
     opacity: 0.8,
   },
   settingsContainer: {
-    gap: 16,
-  },
-  sectionLabel: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-    marginTop: 8,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    marginVertical: 16,
+    gap: 12,
   },
   settingItem: {
     flexDirection: 'row',
@@ -209,19 +181,17 @@ const styles = StyleSheet.create({
   },
   settingTitle: {
     fontSize: 16,
-    marginBottom: 4,
+    marginBottom: 2,
   },
-  radioButton: {
+  flagText: {
+    fontSize: 20,
+  },
+  checkbox: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  radioInner: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
   },
 });

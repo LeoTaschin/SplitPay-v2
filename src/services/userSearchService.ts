@@ -2,6 +2,7 @@ import { collection, query, where, getDocs, orderBy, limit } from 'firebase/fire
 import { db } from '../config/firebase';
 import { auth } from '../config/firebase';
 import { areUsersFriends } from './friendService';
+import { DEBUG_CONFIG } from '../config/debug';
 
 export interface SearchableUser {
   id: string;
@@ -135,30 +136,23 @@ export const searchUsers = async (searchQuery: string, excludeUserIds: string[] 
       return aUsername.localeCompare(bUsername);
     });
 
-    console.log(`✅ Found ${results.length} users matching "${searchQuery}"`);
+    DEBUG_CONFIG.log('SEARCH', `${results.length} usuários encontrados para "${searchQuery}"`);
     
     // Filter out users who are already friends
     const filteredResults = [];
-    console.log('🔍 userSearchService - Iniciando filtro de amigos...');
     
     for (const user of results) {
-      console.log('🔍 userSearchService - Verificando usuário:', user.username);
       const areFriends = await areUsersFriends(currentUserId, user.id);
-      console.log('🔍 userSearchService - Resultado da verificação:', { 
-        username: user.username, 
-        userId: user.id, 
-        areFriends 
-      });
       
       if (!areFriends) {
         filteredResults.push(user);
-        console.log('🔍 userSearchService - Usuário adicionado aos resultados:', user.username);
+        DEBUG_CONFIG.log('SUCCESS', `Adicionado: ${user.username}`);
       } else {
-        console.log('🔍 userSearchService - Usuário filtrado (já é amigo):', user.username);
+        DEBUG_CONFIG.log('INFO', `Filtrado: ${user.username} (já é amigo)`);
       }
     }
     
-    console.log(`✅ After filtering friends: ${filteredResults.length} users available`);
+    DEBUG_CONFIG.log('INFO', `Resultado final: ${filteredResults.length} usuários disponíveis`);
     return filteredResults.slice(0, 20); // Limit to 20 results
 
   } catch (error) {

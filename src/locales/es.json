@@ -365,6 +365,68 @@
   },
   "settings": {
     "title": "Configuración",
+    "tabs": {
+      "notifications": "Notificaciones",
+      "privacy": "Privacidad",
+      "language": "Idioma",
+      "theme": "Tema",
+      "security": "Seguridad"
+    },
+    "sections": {
+      "notifications": {
+        "title": "🔔 Notificaciones",
+        "description": "Configura cómo recibes notificaciones",
+        "pushNotifications": "Notificaciones Push",
+        "pushNotificationsDesc": "Recibir notificaciones en el teléfono",
+        "soundVibration": "Sonido y Vibración",
+        "soundVibrationDesc": "Reproducir sonido en notificaciones",
+        "debtReminders": "Recordatorios de Deudas",
+        "debtRemindersDesc": "Alertas de deudas pendientes",
+        "newFriends": "Nuevos Amigos",
+        "newFriendsDesc": "Solicitudes de amistad"
+      },
+      "theme": {
+        "title": "🎨 Apariencia",
+        "description": "Personaliza la apariencia de la app",
+        "theme": "Tema",
+        "lightTheme": "Tema Claro",
+        "darkTheme": "Tema Oscuro",
+        "systemTheme": "Seguir Sistema",
+        "fontSize": "Tamaño de Fuente",
+        "smallFont": "Pequeño",
+        "normalFont": "Normal",
+        "largeFont": "Grande",
+        "animations": "Animaciones"
+      },
+      "privacy": {
+        "title": "🛡️ Privacidad",
+        "description": "Gestiona tu configuración de privacidad",
+        "profileVisible": "Perfil Visible",
+        "profileVisibleDesc": "Permitir que amigos vean tu perfil",
+        "shareData": "Compartir Datos",
+        "shareDataDesc": "Datos para mejorar la app",
+        "privacyPolicy": "Política de Privacidad",
+        "privacyPolicyDesc": "Leer política completa",
+        "termsOfService": "Términos de Uso",
+        "termsOfServiceDesc": "Leer términos de uso"
+      },
+      "language": {
+        "title": "🌍 Idioma",
+        "description": "Elige el idioma de la aplicación"
+      },
+      "security": {
+        "title": "🔐 Seguridad",
+        "description": "Gestiona la seguridad de tu cuenta",
+        "changePassword": "Cambiar Contraseña",
+        "changePasswordDesc": "Cambiar contraseña de la cuenta",
+        "verifyEmail": "Verificar Email",
+        "verifyEmailDesc": "Confirmar dirección de email",
+        "logoutAll": "Cerrar Sesión en Todos",
+        "logoutAllDesc": "Salir de todos los dispositivos",
+        "deleteAccount": "Eliminar Cuenta",
+        "deleteAccountDesc": "Eliminar cuenta permanentemente"
+      }
+    },
     "language": "Idioma",
     "theme": "Tema",
     "notifications": "Notificaciones",

@@ -41,9 +41,9 @@ const SettingRadio: React.FC<SettingRadioProps> = ({
       style={[
         styles.settingItem, 
         { 
-          backgroundColor: ds.colors.surface,
-          borderColor: isSelected ? ds.colors.primary : 'transparent',
-          borderWidth: isSelected ? 2 : 0,
+          backgroundColor: isSelected ? ds.colors.primary + '20' : ds.colors.surface,
+          borderColor: isSelected ? ds.colors.primary : ds.colors.border.primary,
+          borderWidth: 1,
         }
       ]}
       onPress={() => onSelect(value)}
@@ -54,9 +54,9 @@ const SettingRadio: React.FC<SettingRadioProps> = ({
           <View style={[
             styles.iconContainer, 
             { 
-              backgroundColor: isSelected 
-                ? ds.colors.primary + '15' 
-                : ds.colors.surfaceVariant 
+              backgroundColor: isSelected ? ds.colors.primary + '10' : ds.colors.surface,
+              borderColor: isSelected ? ds.colors.primary + '30' : ds.colors.border.primary,
+              borderWidth: 1,
             }
           ]}>
             <Ionicons 
@@ -79,14 +79,14 @@ const SettingRadio: React.FC<SettingRadioProps> = ({
         </View>
       </View>
       <View style={[
-        styles.radioButton,
-        {
-          borderColor: isSelected ? ds.colors.primary : ds.colors.text.secondary,
+        styles.checkbox,
+        { 
           backgroundColor: isSelected ? ds.colors.primary : 'transparent',
+          borderColor: isSelected ? ds.colors.primary : ds.colors.border.primary
         }
       ]}>
         {isSelected && (
-          <View style={[styles.radioInner, { backgroundColor: 'white' }]} />
+          <Ionicons name="checkmark" size={16} color="white" />
         )}
       </View>
     </TouchableOpacity>
@@ -131,19 +131,12 @@ export const SettingsTheme: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
   
   const [selectedTheme, setSelectedTheme] = useState(isDark ? 'dark' : 'light');
-  const [selectedFontSize, setSelectedFontSize] = useState('normal');
   const [animations, setAnimations] = useState(true);
 
   const themes = [
-    { value: 'light', title: 'Tema Claro', icon: 'sunny-outline' },
-    { value: 'dark', title: 'Tema Escuro', icon: 'moon-outline' },
-    { value: 'system', title: 'Seguir Sistema', icon: 'settings-outline' },
-  ];
-
-  const fontSizes = [
-    { value: 'small', title: 'Pequeno', icon: 'text-outline' },
-    { value: 'normal', title: 'Normal', icon: 'text-outline' },
-    { value: 'large', title: 'Grande', icon: 'text-outline' },
+    { value: 'light', title: t('settings.sections.theme.lightTheme'), icon: 'sunny-outline' },
+    { value: 'dark', title: t('settings.sections.theme.darkTheme'), icon: 'moon-outline' },
+    { value: 'system', title: t('settings.sections.theme.systemTheme'), icon: 'settings-outline' },
   ];
 
   const handleThemeChange = (theme: string) => {
@@ -158,16 +151,13 @@ export const SettingsTheme: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={[styles.sectionTitle, { color: ds.colors.text.primary }]}>
-        🎨 Aparência
+        {t('settings.sections.theme.title')}
       </Text>
       <Text style={[styles.sectionDescription, { color: ds.colors.text.secondary }]}>
-        Personalize a aparência do app
+        {t('settings.sections.theme.description')}
       </Text>
 
       <View style={styles.settingsContainer}>
-        <Text style={[styles.sectionLabel, { color: ds.colors.text.primary }]}>
-          Tema
-        </Text>
         {themes.map((theme) => (
           <SettingRadio
             key={theme.value}
@@ -181,24 +171,8 @@ export const SettingsTheme: React.FC = () => {
 
         <View style={styles.separator} />
 
-        <Text style={[styles.sectionLabel, { color: ds.colors.text.primary }]}>
-          Tamanho da Fonte
-        </Text>
-        {fontSizes.map((fontSize) => (
-          <SettingRadio
-            key={fontSize.value}
-            title={fontSize.title}
-            value={fontSize.value}
-            selectedValue={selectedFontSize}
-            onSelect={setSelectedFontSize}
-            icon={fontSize.icon as any}
-          />
-        ))}
-
-        <View style={styles.separator} />
-
         <SettingToggle
-          title="Animações"
+          title={t('settings.sections.theme.animations')}
           value={animations}
           onValueChange={setAnimations}
           icon="flash-outline"
@@ -271,17 +245,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 4,
   },
-  radioButton: {
+  checkbox: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  radioInner: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
   },
 });

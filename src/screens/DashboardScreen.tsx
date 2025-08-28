@@ -15,6 +15,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useDesignSystem, Avatar, Loading, StatCard, StatsGrid, RecentDebtItem, RecentDebtsList, EditButton, EmptyStatCard, StatCardSelector, GridInfo, StatsCarousel, DebtDetailsModal } from '../design-system';
 import { Dimensions } from 'react-native';
 import { getUserBalance, getDebtsAsCreditor, getDebtsAsDebtor, getFriendsWithOpenDebts } from '../services/debtService';
+import { getDoc, doc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 import { 
   getMonthlyAverage, 
   getBiggestDebt, 
@@ -331,15 +333,7 @@ export const DashboardScreen: React.FC = () => {
         getDebtDistribution(user.uid)
       ]);
 
-      console.log('📊 Dashboard: Dados carregados -', {
-        balance: `R$ ${balance.netBalance.toFixed(2)}`,
-        creditorDebts: creditorDebts.length,
-        debtorDebts: debtorDebts.length,
-        friendsWithDebts: friendsWithOpenDebts.count,
-        monthlyAverage: `R$ ${monthlyAverage.average.toFixed(2)}`,
-        biggestDebt: `R$ ${biggestDebt.amount.toFixed(2)}`,
-        groupCount: groupActivity.groupCount
-      });
+      console.log(`📊 Dashboard: R$ ${balance.netBalance.toFixed(2)} | ${creditorDebts.length + debtorDebts.length} dívidas | ${friendsWithOpenDebts.count} amigos`);
 
       setBalanceData(balance);
       
@@ -367,6 +361,95 @@ export const DashboardScreen: React.FC = () => {
       
       // Combinar e ordenar dívidas recentes
       const allDebts = [...creditorDebts, ...debtorDebts];
+      
+      // Contar tipos de dívidas
+      const personalDebts = allDebts.filter(debt => debt.type !== 'group');
+      const groupDebts = allDebts.filter(debt => debt.type === 'group' && debt.groupId);
+      
+      console.log(`📊 Dashboard: ${personalDebts.length} dívidas individuais, ${groupDebts.length} dívidas em grupo`);
+      
+      // Buscar informações dos grupos para dívidas de grupo
+      const groupIds = [...new Set(groupDebts.map(debt => debt.groupId!))];
+      
+      let groupData: { [key: string]: any } = {};
+      if (groupIds.length > 0) {
+        try {
+          const groupDocs = await Promise.all(
+            groupIds.map(groupId => getDoc(doc(db, 'groups', groupId)))
+          );
+          
+          groupDocs.forEach((groupDoc, index) => {
+            if (groupDoc.exists()) {
+              groupData[groupIds[index]] = groupDoc.data();
+            }
+          });
+          
+
+        } catch (error) {
+          console.error('Dashboard: Erro ao carregar dados dos grupos:', error);
+        }
+      }
+      
+      // Buscar informações dos criadores das dívidas
+      const creatorIds = [...new Set(allDebts.map(debt => {
+        // Para dívidas de grupo, usar createdBy se disponível, senão usar creditorId
+        if (debt.type === 'group') {
+          return debt.createdBy || debt.creditorId || debt.receiverId;
+        }
+        return debt.createdBy || debt.creditorId;
+      }).filter(Boolean))];
+      let creatorData: { [key: string]: any } = {};
+      
+      if (creatorIds.length > 0) {
+        try {
+          const creatorDocs = await Promise.all(
+            creatorIds.map(creatorId => getDoc(doc(db, 'users', creatorId)))
+          );
+          
+          creatorDocs.forEach((creatorDoc, index) => {
+            if (creatorDoc.exists()) {
+              creatorData[creatorIds[index]] = creatorDoc.data();
+            }
+          });
+          
+
+        } catch (error) {
+          console.error('Dashboard: Erro ao carregar dados dos criadores:', error);
+        }
+      }
+      
+      // Adicionar informações do grupo e criador às dívidas
+      const enrichedDebts = allDebts.map(debt => {
+        let enrichedDebt = { ...debt };
+        
+        // Adicionar dados do grupo
+        if (debt.type === 'group' && debt.groupId && groupData[debt.groupId]) {
+          enrichedDebt = {
+            ...enrichedDebt,
+            groupName: groupData[debt.groupId].name,
+            group: groupData[debt.groupId]
+          };
+        }
+        
+        // Adicionar dados do criador
+        const creatorId = debt.type === 'group' 
+          ? (debt.createdBy || debt.creditorId || debt.receiverId)
+          : (debt.createdBy || debt.creditorId);
+          
+        if (creatorId && creatorData[creatorId]) {
+          enrichedDebt = {
+            ...enrichedDebt,
+            createdByUser: {
+              id: creatorId,
+              username: creatorData[creatorId].username,
+              name: creatorData[creatorId].displayName || creatorData[creatorId].name,
+              photoURL: creatorData[creatorId].photoURL
+            }
+          };
+        }
+        
+        return enrichedDebt;
+      });
       
       // Função para converter data para timestamp
       const getDebtTimestamp = (debt: Debt) => {
@@ -396,7 +479,7 @@ export const DashboardScreen: React.FC = () => {
       };
       
       // Ordenar por data de criação (mais recente primeiro)
-      const sortedDebts = allDebts
+      const sortedDebts = enrichedDebts
         .sort((a, b) => {
           const timestampA = getDebtTimestamp(a);
           const timestampB = getDebtTimestamp(b);
@@ -410,7 +493,7 @@ export const DashboardScreen: React.FC = () => {
         return sum + amount;
       }, 0);
       
-      console.log(`✅ Dashboard: Processamento concluído - ${sortedDebts.length} dívidas recentes, ${unpaidCount} não pagas, valor total: R$ ${totalAmount.toFixed(2)}`);
+      console.log(`✅ Dashboard: ${sortedDebts.length} dívidas processadas`);
       
       setRecentDebts(sortedDebts);
       setLastFetchTime(Date.now());
@@ -835,6 +918,8 @@ export const DashboardScreen: React.FC = () => {
             otherPerson = isCreditor ? debt.debtor : debt.creditor;
           }
           
+
+          
           return (
             <RecentDebtItem
               key={debt.id}
@@ -845,6 +930,11 @@ export const DashboardScreen: React.FC = () => {
               isCreditor={isCreditor}
               date={debt.createdAt}
               isGroup={debt.type === 'group'}
+              groupName={debt.groupName || debt.group?.name}
+              createdBy={debt.createdByUser ? {
+                name: debt.createdByUser.username || debt.createdByUser.name || 'Usuário',
+                photo: debt.createdByUser.photoURL
+              } : undefined}
               onPress={() => handleDebtPress(debt as any)}
             />
           );

@@ -32,11 +32,11 @@ export const SettingsScreen: React.FC = () => {
   const scrollViewRef = useRef<ScrollView>(null);
 
   const tabs = [
-    { id: 'notifications' as TabType, icon: 'notifications-outline', label: 'Notificações' },
-    { id: 'privacy' as TabType, icon: 'shield-outline', label: 'Privacidade' },
-    { id: 'language' as TabType, icon: 'language-outline', label: 'Idioma' },
-    { id: 'theme' as TabType, icon: 'color-palette-outline', label: 'Tema' },
-    { id: 'security' as TabType, icon: 'lock-closed-outline', label: 'Segurança' },
+    { id: 'notifications' as TabType, icon: 'notifications-outline', label: t('settings.tabs.notifications') },
+    { id: 'privacy' as TabType, icon: 'shield-outline', label: t('settings.tabs.privacy') },
+    { id: 'language' as TabType, icon: 'language-outline', label: t('settings.tabs.language') },
+    { id: 'theme' as TabType, icon: 'color-palette-outline', label: t('settings.tabs.theme') },
+    { id: 'security' as TabType, icon: 'lock-closed-outline', label: t('settings.tabs.security') },
   ];
 
   const scrollToTab = (tabIndex: number) => {
@@ -112,7 +112,7 @@ export const SettingsScreen: React.FC = () => {
         </TouchableOpacity>
         
         <Text style={[styles.headerTitle, { color: ds.colors.text.primary }]}>
-          Configurações
+          {t('settings.title')}
         </Text>
         
         <View style={styles.headerSpacer} />

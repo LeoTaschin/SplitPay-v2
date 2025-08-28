@@ -363,6 +363,68 @@
   },
   "settings": {
     "title": "Paramètres",
+    "tabs": {
+      "notifications": "Notifications",
+      "privacy": "Confidentialité",
+      "language": "Langue",
+      "theme": "Thème",
+      "security": "Sécurité"
+    },
+    "sections": {
+      "notifications": {
+        "title": "🔔 Notifications",
+        "description": "Configurez comment vous recevez les notifications",
+        "pushNotifications": "Notifications Push",
+        "pushNotificationsDesc": "Recevoir des notifications sur votre téléphone",
+        "soundVibration": "Son et Vibration",
+        "soundVibrationDesc": "Jouer un son pour les notifications",
+        "debtReminders": "Rappels de Dettes",
+        "debtRemindersDesc": "Alertes pour les dettes en attente",
+        "newFriends": "Nouveaux Amis",
+        "newFriendsDesc": "Demandes d'amitié"
+      },
+      "theme": {
+        "title": "🎨 Apparence",
+        "description": "Personnalisez l'apparence de l'application",
+        "theme": "Thème",
+        "lightTheme": "Thème Clair",
+        "darkTheme": "Thème Sombre",
+        "systemTheme": "Suivre le Système",
+        "fontSize": "Taille de Police",
+        "smallFont": "Petit",
+        "normalFont": "Normal",
+        "largeFont": "Grand",
+        "animations": "Animations"
+      },
+      "privacy": {
+        "title": "🛡️ Confidentialité",
+        "description": "Gérez vos paramètres de confidentialité",
+        "profileVisible": "Profil Visible",
+        "profileVisibleDesc": "Permettre aux amis de voir votre profil",
+        "shareData": "Partager les Données",
+        "shareDataDesc": "Données pour améliorer l'application",
+        "privacyPolicy": "Politique de Confidentialité",
+        "privacyPolicyDesc": "Lire la politique complète",
+        "termsOfService": "Conditions de Service",
+        "termsOfServiceDesc": "Lire les conditions d'utilisation"
+      },
+      "language": {
+        "title": "🌍 Langue",
+        "description": "Choisissez la langue de l'application"
+      },
+      "security": {
+        "title": "🔐 Sécurité",
+        "description": "Gérez la sécurité de votre compte",
+        "changePassword": "Changer le Mot de Passe",
+        "changePasswordDesc": "Changer le mot de passe du compte",
+        "verifyEmail": "Vérifier l'Email",
+        "verifyEmailDesc": "Confirmer l'adresse email",
+        "logoutAll": "Déconnexion de Tous",
+        "logoutAllDesc": "Se déconnecter de tous les appareils",
+        "deleteAccount": "Supprimer le Compte",
+        "deleteAccountDesc": "Supprimer définitivement le compte"
+      }
+    },
     "language": "Langue",
     "theme": "Thème",
     "notifications": "Notifications",

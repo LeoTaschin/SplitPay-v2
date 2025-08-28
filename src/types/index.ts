@@ -64,6 +64,8 @@ export interface UserBadgeProgress {
     type?: 'personal' | 'group';
     amountPerPerson?: number;
     groupId?: string;
+    groupName?: string; // Nome do grupo
+    group?: any; // Dados completos do grupo
     creditor?: any;
     debtor?: any;
     // Campos para dívidas em grupo
@@ -71,6 +73,13 @@ export interface UserBadgeProgress {
     payerId?: string;
     receiver?: any;
     payer?: any;
+    // Informações do criador da dívida
+    createdByUser?: {
+      id: string;
+      username: string;
+      name?: string;
+      photoURL?: string;
+    };
   }
   
   // Group types
@@ -121,6 +130,16 @@ export interface UserBadgeProgress {
     Settings: undefined;
     EditProfile: undefined;
     FriendProfile: { 
+      friendId: string;
+      friendData?: {
+        id: string;
+        username: string;
+        email: string;
+        photoURL?: string;
+        balance: number;
+      };
+    };
+    FriendTransactions: {
       friendId: string;
       friendData?: {
         id: string;

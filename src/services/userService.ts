@@ -15,6 +15,7 @@ import { User, ApiResponse } from '../types';
 import { User as FirebaseUser } from 'firebase/auth';
 import { isFirebaseAuthReady } from '../utils/authUtils';
 import { badgeService } from './badgeService';
+import { DEBUG_CONFIG } from '../config/debug';
 
 interface UserData {
   uid: string;
@@ -280,20 +281,15 @@ export const removeFriend = async (currentUserId: string, friendId: string): Pro
     const friendship1Id = `${currentUserId}_${friendId}`;
     const friendship2Id = `${friendId}_${currentUserId}`;
     
-    console.log('userService - removeFriend - Removendo documentos da coleção friends:', {
-      friendship1Id,
-      friendship2Id
-    });
+    DEBUG_CONFIG.log('REMOVAL', 'Iniciando remoção', { currentUserId: currentUserId.slice(-4), friendId: friendId.slice(-4) });
 
     // Verificar se os documentos existem antes de tentar removê-los
     const friendship1Doc = await getDoc(doc(db, 'friends', friendship1Id));
     const friendship2Doc = await getDoc(doc(db, 'friends', friendship2Id));
     
-    console.log('userService - removeFriend - Documentos existem antes da remoção:', {
-      friendship1Exists: friendship1Doc.exists(),
-      friendship2Exists: friendship2Doc.exists(),
-      friendship1Data: friendship1Doc.exists() ? friendship1Doc.data() : null,
-      friendship2Data: friendship2Doc.exists() ? friendship2Doc.data() : null
+    DEBUG_CONFIG.log('INFO', 'Documentos encontrados', {
+      doc1: friendship1Doc.exists() ? '✅' : '❌',
+      doc2: friendship2Doc.exists() ? '✅' : '❌'
     });
 
     // Atualizar ambos os documentos e remover documentos da coleção friends
@@ -310,10 +306,10 @@ export const removeFriend = async (currentUserId: string, friendId: string): Pro
       deleteDoc(doc(db, 'friends', friendship2Id))
     ]);
 
-    console.log('userService - removeFriend - Amigo removido com sucesso');
-    console.log('userService - removeFriend - Arrays atualizados:', {
-      currentUserFriends: updatedFriends,
-      friendUserFriends: updatedFriendFriends
+    DEBUG_CONFIG.log('SUCCESS', 'Amigo removido com sucesso');
+    DEBUG_CONFIG.log('INFO', 'Arrays atualizados', {
+      currentUser: updatedFriends.length,
+      friend: updatedFriendFriends.length
     });
     return { success: true };
   } catch (error) {

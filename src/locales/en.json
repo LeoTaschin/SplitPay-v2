@@ -377,6 +377,68 @@
   },
   "settings": {
     "title": "Settings",
+    "tabs": {
+      "notifications": "Notifications",
+      "privacy": "Privacy",
+      "language": "Language",
+      "theme": "Theme",
+      "security": "Security"
+    },
+    "sections": {
+      "notifications": {
+        "title": "🔔 Notifications",
+        "description": "Configure how you receive notifications",
+        "pushNotifications": "Push Notifications",
+        "pushNotificationsDesc": "Receive notifications on your phone",
+        "soundVibration": "Sound & Vibration",
+        "soundVibrationDesc": "Play sound for notifications",
+        "debtReminders": "Debt Reminders",
+        "debtRemindersDesc": "Alerts for pending debts",
+        "newFriends": "New Friends",
+        "newFriendsDesc": "Friend requests"
+      },
+      "theme": {
+        "title": "🎨 Appearance",
+        "description": "Customize the app appearance",
+        "theme": "Theme",
+        "lightTheme": "Light Theme",
+        "darkTheme": "Dark Theme",
+        "systemTheme": "Follow System",
+        "fontSize": "Font Size",
+        "smallFont": "Small",
+        "normalFont": "Normal",
+        "largeFont": "Large",
+        "animations": "Animations"
+      },
+      "privacy": {
+        "title": "🛡️ Privacy",
+        "description": "Manage your privacy settings",
+        "profileVisible": "Profile Visible",
+        "profileVisibleDesc": "Allow friends to see your profile",
+        "shareData": "Share Data",
+        "shareDataDesc": "Data to improve the app",
+        "privacyPolicy": "Privacy Policy",
+        "privacyPolicyDesc": "Read full policy",
+        "termsOfService": "Terms of Service",
+        "termsOfServiceDesc": "Read terms of use"
+      },
+      "language": {
+        "title": "🌍 Language",
+        "description": "Choose the app language"
+      },
+      "security": {
+        "title": "🔐 Security",
+        "description": "Manage your account security",
+        "changePassword": "Change Password",
+        "changePasswordDesc": "Change account password",
+        "verifyEmail": "Verify Email",
+        "verifyEmailDesc": "Confirm email address",
+        "logoutAll": "Logout All",
+        "logoutAllDesc": "Sign out from all devices",
+        "deleteAccount": "Delete Account",
+        "deleteAccountDesc": "Permanently delete account"
+      }
+    },
     "language": "Language",
     "theme": "Theme",
     "notifications": "Notifications",

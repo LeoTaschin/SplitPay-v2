@@ -15,7 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
 import { useLanguage } from '../../context/LanguageContext';
 import { Avatar } from './Avatar';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, getDoc, doc } from 'firebase/firestore';
+import { db } from '../../config/firebase';
 
 interface DebtDetailsModalProps {
   visible: boolean;
@@ -58,6 +59,17 @@ interface DebtDetailsModalProps {
       username?: string;
       photoURL?: string;
     };
+    // Campos adicionais para enriquecimento de dados
+    groupId?: string;
+    groupName?: string;
+    group?: any;
+    createdBy?: string;
+    createdByUser?: {
+      id: string;
+      name?: string;
+      username?: string;
+      photoURL?: string;
+    };
   };
   currentUserId?: string;
 }
@@ -71,6 +83,7 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
   const ds = useDesignSystem();
   const { t } = useLanguage();
   const slideAnim = useState(new Animated.Value(0))[0];
+  const [enrichedDebt, setEnrichedDebt] = useState(debt);
 
   useEffect(() => {
     if (visible) {
@@ -80,6 +93,9 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
         useNativeDriver: true,
         easing: Easing.out(Easing.cubic),
       }).start();
+      
+      // Buscar dados enriquecidos quando o modal é aberto
+      loadEnrichedDebtData();
     } else {
       Animated.timing(slideAnim, {
         toValue: 0,
@@ -88,7 +104,90 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
         easing: Easing.in(Easing.cubic),
       }).start();
     }
-  }, [visible]);
+  }, [visible, debt]);
+
+  // Função para carregar dados enriquecidos da dívida
+  const loadEnrichedDebtData = async () => {
+    if (!debt) return;
+    
+    try {
+      let enrichedData = { ...debt };
+      
+      // Coletar IDs de usuários para buscar
+      const userIds = new Set<string>();
+      
+      // Para dívidas pessoais
+      if (debt.type !== 'group') {
+        if (debt.creditorId) userIds.add(debt.creditorId);
+        if (debt.debtorId) userIds.add(debt.debtorId);
+      } else {
+        // Para dívidas de grupo
+        if (debt.receiverId) userIds.add(debt.receiverId);
+        if (debt.payerId) userIds.add(debt.payerId);
+      }
+      
+      // Buscar dados dos usuários
+      const userData: { [key: string]: any } = {};
+      
+      for (const userId of userIds) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', userId));
+          if (userDoc.exists()) {
+            userData[userId] = userDoc.data();
+          }
+        } catch (error) {
+          console.error(`❌ DebtDetailsModal: Erro ao buscar usuário ${userId}`);
+        }
+      }
+      
+      // Enriquecer dados da dívida
+      if (debt.type !== 'group') {
+        // Dívidas pessoais
+        if (debt.creditorId && userData[debt.creditorId]) {
+          enrichedData.creditor = {
+            id: debt.creditorId,
+            username: userData[debt.creditorId].username,
+            name: userData[debt.creditorId].displayName || userData[debt.creditorId].name,
+            photoURL: userData[debt.creditorId].photoURL
+          };
+        }
+        
+        if (debt.debtorId && userData[debt.debtorId]) {
+          enrichedData.debtor = {
+            id: debt.debtorId,
+            username: userData[debt.debtorId].username,
+            name: userData[debt.debtorId].displayName || userData[debt.debtorId].name,
+            photoURL: userData[debt.debtorId].photoURL
+          };
+        }
+      } else {
+        // Dívidas de grupo
+        if (debt.receiverId && userData[debt.receiverId]) {
+          enrichedData.receiver = {
+            id: debt.receiverId,
+            username: userData[debt.receiverId].username,
+            name: userData[debt.receiverId].displayName || userData[debt.receiverId].name,
+            photoURL: userData[debt.receiverId].photoURL
+          };
+        }
+        
+        if (debt.payerId && userData[debt.payerId]) {
+          enrichedData.payer = {
+            id: debt.payerId,
+            username: userData[debt.payerId].username,
+            name: userData[debt.payerId].displayName || userData[debt.payerId].name,
+            photoURL: userData[debt.payerId].photoURL
+          };
+        }
+      }
+      
+      console.log(`📋 DebtDetailsModal: "${enrichedDebt.description}" - R$ ${amount.toFixed(2)}`);
+      setEnrichedDebt(enrichedData);
+      
+    } catch (error) {
+      console.error('❌ DebtDetailsModal: Erro ao carregar dados');
+    }
+  };
 
   const handleClose = () => {
     Animated.timing(slideAnim, {
@@ -142,21 +241,21 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
   };
 
   // Para dívidas em grupo, usar receiverId/payerId
-  const isCreditor = debt.type === 'group' 
-    ? debt.receiverId === currentUserId 
-    : debt.creditorId === currentUserId;
+  const isCreditor = enrichedDebt.type === 'group' 
+    ? enrichedDebt.receiverId === currentUserId 
+    : enrichedDebt.creditorId === currentUserId;
   
   // Determinar a pessoa correta baseada no tipo de dívida
   let otherPerson;
-  if (debt.type === 'group') {
+  if (enrichedDebt.type === 'group') {
     // Para dívidas em grupo, usar payerId/receiverId
-    otherPerson = isCreditor ? debt.payer : debt.receiver;
+    otherPerson = isCreditor ? enrichedDebt.payer : enrichedDebt.receiver;
   } else {
     // Para dívidas pessoais, usar debtor/creditor
-    otherPerson = isCreditor ? debt.debtor : debt.creditor;
+    otherPerson = isCreditor ? enrichedDebt.debtor : enrichedDebt.creditor;
   }
   
-  const amount = debt.type === 'group' ? (debt.amountPerPerson || 0) : (debt.amount || 0);
+  const amount = enrichedDebt.type === 'group' ? (enrichedDebt.amountPerPerson || 0) : (enrichedDebt.amount || 0);
 
   const getStatusColor = () => {
     return isCreditor ? '#10B981' : '#EF4444';
@@ -204,7 +303,7 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
                 {t('debts.details.title')}
               </Text>
               <Text style={[styles.subtitle, { color: ds.colors.text.secondary }]}>
-                {debt.type === 'group' ? t('debts.details.fields.typeGroup') : t('debts.details.fields.typeIndividual')}
+                {enrichedDebt.type === 'group' ? t('debts.details.fields.typeGroup') : t('debts.details.fields.typeIndividual')}
               </Text>
             </View>
             <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
@@ -217,6 +316,8 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
           </View>
 
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+
+            
             {/* Status Card */}
             <View style={[styles.statusCard, { backgroundColor: getStatusColor() + '10' }]}>
               <View style={styles.statusHeader}>
@@ -237,13 +338,13 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
             </View>
 
             {/* Description */}
-            {debt.description && (
+            {enrichedDebt.description && (
               <View style={styles.section}>
                 <Text style={[styles.sectionTitle, { color: ds.colors.text.primary }]}>
                   {t('debts.details.sections.description')}
                 </Text>
                 <Text style={[styles.description, { color: ds.colors.text.secondary }]}>
-                  {debt.description}
+                  {enrichedDebt.description}
                 </Text>
               </View>
             )}
@@ -256,22 +357,22 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
               <View style={styles.peopleContainer}>
                 <View style={styles.personCard}>
                   <Avatar
-                    source={debt.type === 'group' ? debt.receiver?.photoURL : debt.creditor?.photoURL}
-                    name={debt.type === 'group' 
-                      ? (debt.receiver?.username || debt.receiver?.name || 'Usuário')
-                      : (debt.creditor?.username || debt.creditor?.name || 'Usuário')
+                    source={enrichedDebt.type === 'group' ? enrichedDebt.receiver?.photoURL : enrichedDebt.creditor?.photoURL}
+                    name={enrichedDebt.type === 'group' 
+                      ? (enrichedDebt.receiver?.username || enrichedDebt.receiver?.name || 'Usuário')
+                      : (enrichedDebt.creditor?.username || enrichedDebt.creditor?.name || 'Usuário')
                     }
                     size="large"
                     variant="circle"
                   />
                   <Text style={[styles.personName, { color: ds.colors.text.primary }]}>
-                    {debt.type === 'group' 
-                      ? (debt.receiver?.username || debt.receiver?.name || 'Usuário')
-                      : (debt.creditor?.username || debt.creditor?.name || 'Usuário')
+                    {enrichedDebt.type === 'group' 
+                      ? (enrichedDebt.receiver?.username || enrichedDebt.receiver?.name || 'Usuário')
+                      : (enrichedDebt.creditor?.username || enrichedDebt.creditor?.name || 'Usuário')
                     }
                   </Text>
                   <Text style={[styles.personRole, { color: '#10B981' }]}>
-                    {debt.type === 'group' ? 'Recebeu' : t('debts.details.fields.creditor')}
+                    {t('debts.details.fields.creditor')}
                   </Text>
                 </View>
 
@@ -281,26 +382,28 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
 
                 <View style={styles.personCard}>
                   <Avatar
-                    source={debt.type === 'group' ? debt.payer?.photoURL : debt.debtor?.photoURL}
-                    name={debt.type === 'group' 
-                      ? (debt.payer?.username || debt.payer?.name || 'Usuário')
-                      : (debt.debtor?.username || debt.debtor?.name || 'Usuário')
+                    source={enrichedDebt.type === 'group' ? enrichedDebt.payer?.photoURL : enrichedDebt.debtor?.photoURL}
+                    name={enrichedDebt.type === 'group' 
+                      ? (enrichedDebt.payer?.username || enrichedDebt.payer?.name || 'Usuário')
+                      : (enrichedDebt.debtor?.username || enrichedDebt.debtor?.name || 'Usuário')
                     }
                     size="large"
                     variant="circle"
                   />
                   <Text style={[styles.personName, { color: ds.colors.text.primary }]}>
-                    {debt.type === 'group' 
-                      ? (debt.payer?.username || debt.payer?.name || 'Usuário')
-                      : (debt.debtor?.username || debt.debtor?.name || 'Usuário')
+                    {enrichedDebt.type === 'group' 
+                      ? (enrichedDebt.payer?.username || enrichedDebt.payer?.name || 'Usuário')
+                      : (enrichedDebt.debtor?.username || enrichedDebt.debtor?.name || 'Usuário')
                     }
                   </Text>
                   <Text style={[styles.personRole, { color: '#EF4444' }]}>
-                    {debt.type === 'group' ? 'Pagou' : t('debts.details.fields.debtor')}
+                    {t('debts.details.fields.debtor')}
                   </Text>
                 </View>
               </View>
             </View>
+
+
 
             {/* Transaction Details */}
             <View style={styles.section}>
@@ -315,7 +418,7 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
                       {t('debts.details.fields.creationDate')}
                     </Text>
                     <Text style={[styles.detailValue, { color: ds.colors.text.primary }]}>
-                      {formatDate(debt.createdAt)}
+                      {formatDate(enrichedDebt.createdAt)}
                     </Text>
                   </View>
                 </View>
@@ -327,12 +430,12 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
                       {t('debts.details.fields.totalAmount')}
                     </Text>
                     <Text style={[styles.detailValue, { color: ds.colors.text.primary }]}>
-                      {formatCurrency(debt.amount)}
+                      {formatCurrency(enrichedDebt.amount)}
                     </Text>
                   </View>
                 </View>
 
-                {debt.type === 'group' && (
+                {enrichedDebt.type === 'group' && (
                   <View style={styles.detailItem}>
                     <Ionicons name="people-outline" size={20} color={ds.colors.text.secondary} />
                                       <View style={styles.detailInfo}>
@@ -340,7 +443,7 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
                       {t('debts.details.fields.amountPerPerson')}
                     </Text>
                       <Text style={[styles.detailValue, { color: ds.colors.text.primary }]}>
-                        {formatCurrency(debt.amountPerPerson || 0)}
+                        {formatCurrency(enrichedDebt.amountPerPerson || 0)}
                       </Text>
                     </View>
                   </View>
@@ -348,9 +451,9 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
 
                 <View style={styles.detailItem}>
                   <Ionicons 
-                    name={debt.paid ? 'checkmark-circle' : 'time-outline'} 
+                    name={enrichedDebt.paid ? 'checkmark-circle' : 'time-outline'} 
                     size={20} 
-                    color={debt.paid ? '#10B981' : ds.colors.text.secondary} 
+                    color={enrichedDebt.paid ? '#10B981' : ds.colors.text.secondary} 
                   />
                   <View style={styles.detailInfo}>
                     <Text style={[styles.detailLabel, { color: ds.colors.text.secondary }]}>
@@ -358,14 +461,14 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
                     </Text>
                     <Text style={[
                       styles.detailValue, 
-                      { color: debt.paid ? '#10B981' : '#F59E0B' }
+                      { color: enrichedDebt.paid ? '#10B981' : '#F59E0B' }
                                          ]}>
-                       {debt.paid ? t('debts.details.status.paid') : t('debts.details.status.pending')}
+                       {enrichedDebt.paid ? t('debts.details.status.paid') : t('debts.details.status.pending')}
                      </Text>
                   </View>
                 </View>
 
-                {debt.paid && debt.paidAt && (
+                {enrichedDebt.paid && enrichedDebt.paidAt && (
                   <View style={styles.detailItem}>
                     <Ionicons name="checkmark-circle-outline" size={20} color="#10B981" />
                                       <View style={styles.detailInfo}>
@@ -373,7 +476,7 @@ export const DebtDetailsModal: React.FC<DebtDetailsModalProps> = ({
                       {t('debts.details.fields.paymentDate')}
                     </Text>
                       <Text style={[styles.detailValue, { color: ds.colors.text.primary }]}>
-                        {formatDate(debt.paidAt)}
+                        {formatDate(enrichedDebt.paidAt)}
                       </Text>
                     </View>
                   </View>

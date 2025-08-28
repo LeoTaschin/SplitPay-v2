@@ -65,40 +65,40 @@ export const SettingsNotifications: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={[styles.sectionTitle, { color: ds.colors.text.primary }]}>
-        🔔 Notificações
+        {t('settings.sections.notifications.title')}
       </Text>
       <Text style={[styles.sectionDescription, { color: ds.colors.text.secondary }]}>
-        Configure como você recebe notificações
+        {t('settings.sections.notifications.description')}
       </Text>
 
       <View style={styles.settingsContainer}>
         <SettingToggle
-          title="Notificações Push"
-          description="Receber notificações no celular"
+          title={t('settings.sections.notifications.pushNotifications')}
+          description={t('settings.sections.notifications.pushNotificationsDesc')}
           value={pushNotifications}
           onValueChange={setPushNotifications}
           icon="notifications-outline"
         />
 
         <SettingToggle
-          title="Som e Vibração"
-          description="Tocar som nas notificações"
+          title={t('settings.sections.notifications.soundVibration')}
+          description={t('settings.sections.notifications.soundVibrationDesc')}
           value={soundVibration}
           onValueChange={setSoundVibration}
           icon="volume-high-outline"
         />
 
         <SettingToggle
-          title="Lembretes de Dívidas"
-          description="Alertas de dívidas pendentes"
+          title={t('settings.sections.notifications.debtReminders')}
+          description={t('settings.sections.notifications.debtRemindersDesc')}
           value={debtReminders}
           onValueChange={setDebtReminders}
           icon="alert-circle-outline"
         />
 
         <SettingToggle
-          title="Novos Amigos"
-          description="Solicitações de amizade"
+          title={t('settings.sections.notifications.newFriends')}
+          description={t('settings.sections.notifications.newFriendsDesc')}
           value={newFriends}
           onValueChange={setNewFriends}
           icon="person-add-outline"

@@ -407,6 +407,68 @@
   },
   "settings": {
     "title": "Configurações",
+    "tabs": {
+      "notifications": "Notificações",
+      "privacy": "Privacidade",
+      "language": "Idioma",
+      "theme": "Tema",
+      "security": "Segurança"
+    },
+    "sections": {
+      "notifications": {
+        "title": "🔔 Notificações",
+        "description": "Configure como você recebe notificações",
+        "pushNotifications": "Notificações Push",
+        "pushNotificationsDesc": "Receber notificações no celular",
+        "soundVibration": "Som e Vibração",
+        "soundVibrationDesc": "Tocar som nas notificações",
+        "debtReminders": "Lembretes de Dívidas",
+        "debtRemindersDesc": "Alertas de dívidas pendentes",
+        "newFriends": "Novos Amigos",
+        "newFriendsDesc": "Solicitações de amizade"
+      },
+      "theme": {
+        "title": "🎨 Aparência",
+        "description": "Personalize a aparência do app",
+        "theme": "Tema",
+        "lightTheme": "Tema Claro",
+        "darkTheme": "Tema Escuro",
+        "systemTheme": "Seguir Sistema",
+        "fontSize": "Tamanho da Fonte",
+        "smallFont": "Pequeno",
+        "normalFont": "Normal",
+        "largeFont": "Grande",
+        "animations": "Animações"
+      },
+      "privacy": {
+        "title": "🛡️ Privacidade",
+        "description": "Gerencie suas configurações de privacidade",
+        "profileVisible": "Perfil Visível",
+        "profileVisibleDesc": "Permitir que amigos vejam seu perfil",
+        "shareData": "Compartilhar Dados",
+        "shareDataDesc": "Dados para melhorar o app",
+        "privacyPolicy": "Política de Privacidade",
+        "privacyPolicyDesc": "Ler política completa",
+        "termsOfService": "Termos de Uso",
+        "termsOfServiceDesc": "Ler termos de uso"
+      },
+      "language": {
+        "title": "🌍 Idioma",
+        "description": "Escolha o idioma do aplicativo"
+      },
+      "security": {
+        "title": "🔐 Segurança",
+        "description": "Gerencie a segurança da sua conta",
+        "changePassword": "Alterar Senha",
+        "changePasswordDesc": "Mudar senha da conta",
+        "verifyEmail": "Verificar Email",
+        "verifyEmailDesc": "Confirmar endereço de email",
+        "logoutAll": "Logout de Todos",
+        "logoutAllDesc": "Sair de todos os dispositivos",
+        "deleteAccount": "Excluir Conta",
+        "deleteAccountDesc": "Deletar conta permanentemente"
+      }
+    },
     "language": "Idioma",
     "theme": "Tema",
     "notifications": "Notificações",

@@ -77,7 +77,7 @@ export const FriendProfileScreen: React.FC = () => {
   };
 
   const handleViewTransactions = () => {
-    Alert.alert('Transações', 'Funcionalidade de transações em desenvolvimento');
+    // Removido - agora o botão navega diretamente
   };
 
   const handleRemoveFriend = () => {
@@ -179,7 +179,12 @@ export const FriendProfileScreen: React.FC = () => {
         />
 
         {/* Botão de Ver Transações */}
-        <FriendTransactionsButton onPress={handleViewTransactions} />
+        <FriendTransactionsButton 
+          friendId={friendId}
+          friendData={friendData}
+        />
+
+
 
         {/* Botão de Remover Amigo */}
         <FriendRemoveButton onPress={handleRemoveFriend} loading={removeLoading} />
@@ -241,4 +246,5 @@ const styles = StyleSheet.create({
   badgesSection: {
     marginBottom: 24,
   },
+
 });

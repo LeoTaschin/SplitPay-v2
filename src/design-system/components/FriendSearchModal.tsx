@@ -17,7 +17,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
 import { useLanguage } from '../../context/LanguageContext';
 import { searchUsers, SearchableUser } from '../../services/userSearchService';
-import { sendFriendRequest, getPendingFriendRequests, acceptFriendRequest, rejectFriendRequest, FriendRequest, debugFriendsCollection } from '../../services/friendService';
+import { sendFriendRequest, getPendingFriendRequests, acceptFriendRequest, rejectFriendRequest, FriendRequest } from '../../services/friendService';
+import { DEBUG_CONFIG } from '../../config/debug';
 import { FriendSearchFriendItem } from './FriendSearchFriendItem';
 import { FriendSearchAcceptItem } from './FriendSearchAcceptItem';
 
@@ -172,18 +173,12 @@ export const FriendSearchModal: React.FC<FriendSearchModalProps> = ({
 
     try {
       setSearching(true);
-      console.log('🔍 FriendSearchModal: Buscando usuários com query:', query);
-      console.log('🔍 FriendSearchModal: Amigos existentes:', existingFriends);
+      DEBUG_CONFIG.log('SEARCH', `Modal buscando "${query}"`, { amigosExistentes: existingFriends.length });
       
       // Use the real Firebase search service - don't exclude existing friends
       // so removed friends can be found again
-      console.log('🔍 FriendSearchModal: Chamando searchUsers sem exclusões');
-      
-      // Debug: Verificar estado da coleção friends
-      await debugFriendsCollection();
-      
       const results = await searchUsers(query, []);
-      console.log('🔍 FriendSearchModal: Resultados encontrados:', results.length);
+      DEBUG_CONFIG.log('INFO', `Modal: ${results.length} resultados encontrados`);
       
       setSearchResults(results);
     } catch (error) {
@@ -214,7 +209,7 @@ export const FriendSearchModal: React.FC<FriendSearchModalProps> = ({
 
   const isUserAlreadyFriend = (userId: string) => {
     const isFriend = existingFriends.includes(userId);
-    console.log('🔍 FriendSearchModal: Verificando se usuário é amigo:', { userId, isFriend, existingFriends });
+    DEBUG_CONFIG.log('VERIFICATION', `${userId.slice(-4)} é amigo?`, { resultado: isFriend ? 'SIM' : 'NÃO' });
     return isFriend;
   };
 

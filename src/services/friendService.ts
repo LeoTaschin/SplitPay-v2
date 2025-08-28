@@ -1,6 +1,7 @@
 import { collection, doc, setDoc, getDoc, getDocs, query, where, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { auth } from '../config/firebase';
+import { DEBUG_CONFIG } from '../config/debug';
 
 export interface FriendRequest {
   id: string;
@@ -309,8 +310,6 @@ export const getPendingFriendRequests = async (): Promise<FriendRequest[]> => {
 
 export const areUsersFriends = async (userId1: string, userId2: string): Promise<boolean> => {
   try {
-    console.log('🔍 areUsersFriends - Verificando se são amigos:', { userId1, userId2 });
-    
     const friendsRef = collection(db, 'friends');
     
     // Verificar na direção userId1 -> userId2
@@ -334,32 +333,16 @@ export const areUsersFriends = async (userId1: string, userId2: string): Promise
     
     const areFriends = !existingFriends1.empty || !existingFriends2.empty;
     
-    console.log('🔍 areUsersFriends - Resultado:', { 
-      userId1, 
-      userId2, 
-      areFriends, 
-      documentsFound1: existingFriends1.size,
-      documentsFound2: existingFriends2.size
+    DEBUG_CONFIG.log('VERIFICATION', 'Verificando amizade', {
+      user1: userId1.slice(-4),
+      user2: userId2.slice(-4),
+      resultado: areFriends ? 'AMIGOS' : 'NÃO AMIGOS',
+      docs: existingFriends1.size + existingFriends2.size
     });
-    
-    // Debug: Listar todos os documentos encontrados
-    if (existingFriends1.size > 0) {
-      console.log('🔍 areUsersFriends - Documentos direção 1->2:');
-      existingFriends1.forEach(doc => {
-        console.log('🔍 areUsersFriends - Documento encontrado:', doc.id, doc.data());
-      });
-    }
-    
-    if (existingFriends2.size > 0) {
-      console.log('🔍 areUsersFriends - Documentos direção 2->1:');
-      existingFriends2.forEach(doc => {
-        console.log('🔍 areUsersFriends - Documento encontrado:', doc.id, doc.data());
-      });
-    }
     
     return areFriends;
   } catch (error) {
-    console.error('❌ Error checking if users are friends:', error);
+    console.error('❌ ERRO ao verificar amizade:', error);
     return false;
   }
 };
@@ -367,15 +350,20 @@ export const areUsersFriends = async (userId1: string, userId2: string): Promise
 // Função de debug para verificar todos os documentos da coleção friends
 export const debugFriendsCollection = async (): Promise<void> => {
   try {
-    console.log('🔍 DEBUG: Verificando toda a coleção friends...');
     const friendsRef = collection(db, 'friends');
     const allFriends = await getDocs(friendsRef);
     
-    console.log(`🔍 DEBUG: Total de documentos na coleção friends: ${allFriends.size}`);
-    allFriends.forEach(doc => {
-      console.log('🔍 DEBUG: Documento:', doc.id, doc.data());
-    });
+    DEBUG_CONFIG.log('INFO', `Coleção friends: ${allFriends.size} documentos`);
+    if (allFriends.size > 0) {
+      allFriends.forEach(doc => {
+        const data = doc.data();
+        DEBUG_CONFIG.log('INFO', `Documento: ${doc.id}`, {
+          from: data.userId?.slice(-4),
+          to: data.friendId?.slice(-4)
+        });
+      });
+    }
   } catch (error) {
-    console.error('❌ Error debugging friends collection:', error);
+    console.error('❌ ERRO ao verificar coleção friends:', error);
   }
 };

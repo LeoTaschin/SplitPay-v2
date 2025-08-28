@@ -11,6 +11,7 @@ import { GroupDetailScreen } from '../screens/GroupDetailScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { FriendProfileScreen } from '../screens/FriendProfileScreen';
+import { FriendTransactionsScreen } from '../screens/FriendTransactionsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -59,6 +60,11 @@ export const MainNavigator: React.FC = () => {
         name="FriendProfile" 
         component={FriendProfileScreen}
         key={`friend-profile-${isDark}`}
+      />
+      <Stack.Screen 
+        name="FriendTransactions" 
+        component={FriendTransactionsScreen}
+        key={`friend-transactions-${isDark}`}
       />
     </Stack.Navigator>
   );

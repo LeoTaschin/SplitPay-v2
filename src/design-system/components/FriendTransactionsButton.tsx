@@ -8,18 +8,42 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
 import { useLanguage } from '../../context/LanguageContext';
+import { useNavigation } from '@react-navigation/native';
+
+// type FriendTransactionsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'FriendTransactions'>;
 
 interface FriendTransactionsButtonProps {
-  onPress: () => void;
+  friendId: string;
+  friendData?: {
+    id: string;
+    username: string;
+    email: string;
+    photoURL?: string;
+    balance: number;
+  };
   style?: any;
 }
 
 export const FriendTransactionsButton: React.FC<FriendTransactionsButtonProps> = ({
-  onPress,
+  friendId,
+  friendData,
   style,
 }) => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
+  const navigation = useNavigation();
+
+  const handlePress = () => {
+    try {
+      // @ts-ignore
+      navigation.navigate('FriendTransactions', {
+        friendId,
+        friendData,
+      });
+    } catch (error) {
+      console.error('FriendTransactionsButton: Erro na navegação:', error);
+    }
+  };
 
   return (
     <TouchableOpacity
@@ -28,7 +52,7 @@ export const FriendTransactionsButton: React.FC<FriendTransactionsButtonProps> =
         { backgroundColor: ds.colors.surface },
         style,
       ]}
-      onPress={onPress}
+      onPress={handlePress}
       activeOpacity={0.8}
     >
       <View style={styles.content}>

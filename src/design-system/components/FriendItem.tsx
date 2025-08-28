@@ -16,6 +16,7 @@ import { Avatar } from './Avatar';
 import { OnlineIndicator } from './OnlineIndicator';
 import { usePresence } from '../../hooks/usePresence';
 import { useNavigation } from '@react-navigation/native';
+import { DEBUG_CONFIG } from '../../config/debug';
 
 interface FriendItemProps {
   friend: {
@@ -48,11 +49,27 @@ export const FriendItem: React.FC<FriendItemProps> = ({
   const { t } = useLanguage();
   const navigation = useNavigation();
   const { presence, getStatusText } = usePresence(friend.id);
+  
+  // Log mudanças de presença
+  React.useEffect(() => {
+    if (presence) {
+      DEBUG_CONFIG.log('UI', `Presença atualizada`, {
+        username: friend.username,
+        status: presence.status,
+        lastSeen: presence.lastSeen
+      });
+    }
+  }, [presence?.status, friend.username]);
   const translateX = useRef(new Animated.Value(0)).current;
   const swipeThreshold = -120; // Distância mínima para ativar o swipe (menos sensível)
 
   // Debug logs
-  console.log('👤 FriendItem: Rendering friend', friend.username, 'ID:', friend.id, 'with presence:', presence);
+  DEBUG_CONFIG.log('UI', `Renderizando FriendItem`, {
+    username: friend.username,
+    id: friend.id.slice(-4),
+    presence: presence?.status || 'offline',
+    balance: friend.balance
+  });
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -62,28 +79,41 @@ export const FriendItem: React.FC<FriendItemProps> = ({
   };
 
   const getBalanceStatus = () => {
+    let status;
+    
     if (friend.balance === 0) {
-      return {
+      status = {
         icon: 'checkmark-circle',
         color: ds.colors.text.primary,
         text: t('friends.balanced'),
-        amountColor: ds.colors.text.primary
+        amountColor: ds.colors.text.primary,
+        type: 'balanced'
       };
     } else if (friend.balance > 0) {
-      return {
+      status = {
         icon: 'arrow-up-circle',
         color: '#10B981',
         text: t('friends.owesYou'),
-        amountColor: '#10B981'
+        amountColor: '#10B981',
+        type: 'owes_you'
       };
     } else {
-      return {
+      status = {
         icon: 'arrow-down-circle',
         color: '#EF4444',
         text: t('friends.youOwe'),
-        amountColor: '#EF4444'
+        amountColor: '#EF4444',
+        type: 'you_owe'
       };
     }
+    
+    DEBUG_CONFIG.log('UI', `Status de balance calculado`, {
+      username: friend.username,
+      balance: friend.balance,
+      status: status.type
+    });
+    
+    return status;
   };
 
   const status = getBalanceStatus();
@@ -113,8 +143,21 @@ export const FriendItem: React.FC<FriendItemProps> = ({
         const isFastSwipe = velocityX < -500; // Swipe rápido para esquerda
         const isLongSwipe = translationX < swipeThreshold; // Swipe longo
         
+        DEBUG_CONFIG.log('UI', `Swipe detectado`, {
+          username: friend.username,
+          translationX: Math.round(translationX),
+          velocityX: Math.round(velocityX),
+          isFastSwipe,
+          isLongSwipe,
+          threshold: swipeThreshold
+        });
+        
         if ((isFastSwipe || isLongSwipe) && onSwipeToSettle) {
           // Swipe ativado - acertar dívida
+          DEBUG_CONFIG.log('SUCCESS', `Swipe ativado para acertar dívida`, {
+            username: friend.username,
+            balance: friend.balance
+          });
           onSwipeToSettle(friend);
         }
       }
@@ -130,10 +173,19 @@ export const FriendItem: React.FC<FriendItemProps> = ({
   };
 
   const handlePress = () => {
+    DEBUG_CONFIG.log('UI', `FriendItem pressionado`, {
+      username: friend.username,
+      hasCustomPress: !!onPress
+    });
+    
     if (onPress) {
       onPress();
     } else {
       // Navegar para o perfil do amigo
+      DEBUG_CONFIG.log('UI', `Navegando para perfil do amigo`, {
+        username: friend.username,
+        friendId: friend.id.slice(-4)
+      });
       (navigation as any).navigate('FriendProfile', {
         friendId: friend.id,
         friendData: friend,

@@ -104,49 +104,49 @@ export const SettingsPrivacy: React.FC = () => {
   const [shareData, setShareData] = useState(false);
 
   const handlePrivacyPolicy = () => {
-    Alert.alert('Política de Privacidade', 'Abrindo política de privacidade...');
+    Alert.alert(t('settings.sections.privacy.privacyPolicy'), 'Abrindo política de privacidade...');
   };
 
   const handleTermsOfService = () => {
-    Alert.alert('Termos de Uso', 'Abrindo termos de uso...');
+    Alert.alert(t('settings.sections.privacy.termsOfService'), 'Abrindo termos de uso...');
   };
 
   return (
     <View style={styles.container}>
       <Text style={[styles.sectionTitle, { color: ds.colors.text.primary }]}>
-        🛡️ Privacidade
+        {t('settings.sections.privacy.title')}
       </Text>
       <Text style={[styles.sectionDescription, { color: ds.colors.text.secondary }]}>
-        Gerencie suas configurações de privacidade
+        {t('settings.sections.privacy.description')}
       </Text>
 
       <View style={styles.settingsContainer}>
         <SettingToggle
-          title="Perfil Visível"
-          description="Permitir que amigos vejam seu perfil"
+          title={t('settings.sections.privacy.profileVisible')}
+          description={t('settings.sections.privacy.profileVisibleDesc')}
           value={profileVisible}
           onValueChange={setProfileVisible}
           icon="eye-outline"
         />
 
         <SettingToggle
-          title="Compartilhar Dados"
-          description="Dados para melhorar o app"
+          title={t('settings.sections.privacy.shareData')}
+          description={t('settings.sections.privacy.shareDataDesc')}
           value={shareData}
           onValueChange={setShareData}
           icon="share-outline"
         />
 
         <SettingButton
-          title="Política de Privacidade"
-          description="Ler política completa"
+          title={t('settings.sections.privacy.privacyPolicy')}
+          description={t('settings.sections.privacy.privacyPolicyDesc')}
           onPress={handlePrivacyPolicy}
           icon="document-text-outline"
         />
 
         <SettingButton
-          title="Termos de Uso"
-          description="Ler termos de uso"
+          title={t('settings.sections.privacy.termsOfService')}
+          description={t('settings.sections.privacy.termsOfServiceDesc')}
           onPress={handleTermsOfService}
           icon="document-outline"
         />

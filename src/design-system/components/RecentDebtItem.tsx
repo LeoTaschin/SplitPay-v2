@@ -21,6 +21,11 @@ interface RecentDebtItemProps {
   isCreditor: boolean;
   date: string | Date | Timestamp;
   isGroup?: boolean;
+  groupName?: string; // Nome do grupo
+  createdBy?: {
+    name: string;
+    photo?: string;
+  }; // Informações do criador da dívida
   style?: ViewStyle;
   personNameStyle?: TextStyle;
   descriptionStyle?: TextStyle;
@@ -39,6 +44,8 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
   isCreditor,
   date,
   isGroup = false,
+  groupName,
+  createdBy,
   style,
   personNameStyle,
   descriptionStyle,
@@ -141,8 +148,8 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
           <Avatar
-            source={personPhoto}
-            name={personName}
+            source={isGroup && createdBy?.photo ? createdBy.photo : personPhoto}
+            name={isGroup && createdBy?.name ? createdBy.name : personName}
             size="medium"
             variant="circle"
           />
@@ -161,7 +168,7 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {personName}
+            {isGroup && createdBy?.name ? createdBy.name : personName}
           </Text>
           <Text style={[styles.description, { color: ds.colors.text.secondary }, descriptionStyle]}>
             {description}
@@ -195,11 +202,11 @@ export const RecentDebtItem: React.FC<RecentDebtItemProps> = ({
           </Text>
         </View>
         
-        {isGroup && (
+        {isGroup && groupName && (
           <View style={[styles.groupBadge, { backgroundColor: ds.colors.primary + '20' }, groupBadgeStyle]}>
             <Ionicons name="people" size={12} color={ds.colors.primary} />
             <Text style={[styles.groupText, { color: ds.colors.primary }, groupTextStyle]}>
-              Grupo
+              {groupName}
             </Text>
           </View>
         )}

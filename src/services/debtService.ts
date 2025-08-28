@@ -149,7 +149,7 @@ const sortDebtsByDate = (debts: Debt[]): Debt[] => {
 };
 
 // Buscar dívidas onde o usuário é credor
-export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
+export const getDebtsAsCreditor = async (userId: string, includePaid: boolean = false): Promise<Debt[]> => {
   try {
     console.log('debtService: Buscando dívidas como credor...');
     
@@ -158,7 +158,7 @@ export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
       const q = query(
         collection(db, 'debts'),
         where('creditorId', '==', userId),
-        where('paid', '==', false),
+        ...(includePaid ? [] : [where('paid', '==', false)]),
         orderBy('createdAt', 'desc')
       );
 
@@ -166,7 +166,7 @@ export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
         collection(db, 'debts'),
         where('receiverId', '==', userId),
         where('type', '==', 'group'),
-        where('paid', '==', false),
+        ...(includePaid ? [] : [where('paid', '==', false)]),
         orderBy('createdAt', 'desc')
       );
 
@@ -197,14 +197,14 @@ export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
       const q = query(
         collection(db, 'debts'),
         where('creditorId', '==', userId),
-        where('paid', '==', false)
+        ...(includePaid ? [] : [where('paid', '==', false)])
       );
 
       const groupQ = query(
         collection(db, 'debts'),
         where('receiverId', '==', userId),
         where('type', '==', 'group'),
-        where('paid', '==', false)
+        ...(includePaid ? [] : [where('paid', '==', false)])
       );
 
       const [querySnapshot, groupQuerySnapshot] = await Promise.all([
@@ -236,7 +236,7 @@ export const getDebtsAsCreditor = async (userId: string): Promise<Debt[]> => {
 };
 
 // Buscar dívidas onde o usuário é devedor
-export const getDebtsAsDebtor = async (userId: string): Promise<Debt[]> => {
+export const getDebtsAsDebtor = async (userId: string, includePaid: boolean = false): Promise<Debt[]> => {
   try {
     console.log('debtService: Buscando dívidas como devedor...');
     
@@ -245,7 +245,7 @@ export const getDebtsAsDebtor = async (userId: string): Promise<Debt[]> => {
       const q = query(
         collection(db, 'debts'),
         where('debtorId', '==', userId),
-        where('paid', '==', false),
+        ...(includePaid ? [] : [where('paid', '==', false)]),
         orderBy('createdAt', 'desc')
       );
 
@@ -253,7 +253,7 @@ export const getDebtsAsDebtor = async (userId: string): Promise<Debt[]> => {
         collection(db, 'debts'),
         where('payerId', '==', userId),
         where('type', '==', 'group'),
-        where('paid', '==', false),
+        ...(includePaid ? [] : [where('paid', '==', false)]),
         orderBy('createdAt', 'desc')
       );
 
@@ -284,14 +284,14 @@ export const getDebtsAsDebtor = async (userId: string): Promise<Debt[]> => {
       const q = query(
         collection(db, 'debts'),
         where('debtorId', '==', userId),
-        where('paid', '==', false)
+        ...(includePaid ? [] : [where('paid', '==', false)])
       );
 
       const groupQ = query(
         collection(db, 'debts'),
         where('payerId', '==', userId),
         where('type', '==', 'group'),
-        where('paid', '==', false)
+        ...(includePaid ? [] : [where('paid', '==', false)])
       );
 
       const [querySnapshot, groupQuerySnapshot] = await Promise.all([
