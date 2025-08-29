@@ -9,6 +9,8 @@ import { presenceService } from './src/services/presenceService';
 import { auth } from './src/config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
+
+
 const AppContent = () => {
   const { isDark } = useTheme();
   

@@ -9,7 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
 import { useLanguage } from '../../context/LanguageContext';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme, type ThemeMode } from '../../context/ThemeContext';
 
 interface SettingRadioProps {
   title: string;
@@ -128,9 +128,8 @@ const SettingToggle: React.FC<SettingToggleProps> = ({
 export const SettingsTheme: React.FC = () => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
-  const { isDark, toggleTheme } = useTheme();
+  const { isDark, themeMode, systemColorScheme, setThemeMode, isLoaded } = useTheme();
   
-  const [selectedTheme, setSelectedTheme] = useState(isDark ? 'dark' : 'light');
   const [animations, setAnimations] = useState(true);
 
   const themes = [
@@ -140,12 +139,7 @@ export const SettingsTheme: React.FC = () => {
   ];
 
   const handleThemeChange = (theme: string) => {
-    setSelectedTheme(theme);
-    if (theme === 'dark' && !isDark) {
-      toggleTheme();
-    } else if (theme === 'light' && isDark) {
-      toggleTheme();
-    }
+    setThemeMode(theme as ThemeMode);
   };
 
   return (
@@ -156,6 +150,8 @@ export const SettingsTheme: React.FC = () => {
       <Text style={[styles.sectionDescription, { color: ds.colors.text.secondary }]}>
         {t('settings.sections.theme.description')}
       </Text>
+      
+
 
       <View style={styles.settingsContainer}>
         {themes.map((theme) => (
@@ -163,7 +159,7 @@ export const SettingsTheme: React.FC = () => {
             key={theme.value}
             title={theme.title}
             value={theme.value}
-            selectedValue={selectedTheme}
+            selectedValue={themeMode}
             onSelect={handleThemeChange}
             icon={theme.icon as any}
           />
@@ -253,4 +249,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
 });

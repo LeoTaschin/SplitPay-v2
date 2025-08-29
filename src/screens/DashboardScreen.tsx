@@ -402,13 +402,15 @@ export const DashboardScreen: React.FC = () => {
       
       if (creatorIds.length > 0) {
         try {
+          // Filter to only string IDs and keep track of the filtered array
+          const validCreatorIds = creatorIds.filter((id): id is string => typeof id === 'string');
           const creatorDocs = await Promise.all(
-            creatorIds.map(creatorId => getDoc(doc(db, 'users', creatorId)))
+            validCreatorIds.map(creatorId => getDoc(doc(db, 'users', creatorId)))
           );
           
           creatorDocs.forEach((creatorDoc, index) => {
             if (creatorDoc.exists()) {
-              creatorData[creatorIds[index]] = creatorDoc.data();
+              creatorData[validCreatorIds[index]] = creatorDoc.data();
             }
           });
           
