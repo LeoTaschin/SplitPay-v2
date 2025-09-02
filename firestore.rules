@@ -106,6 +106,26 @@ service cloud.firestore {
         resource.data.createdBy == request.auth.uid;
     }
 
+    // Regras para a coleção transactions
+    match /transactions/{transactionId} {
+      // Permitir leitura apenas para o remetente ou destinatário da transação
+      allow read: if isAuthenticated() && 
+        (resource.data.fromUser == request.auth.uid || 
+         resource.data.toUser == request.auth.uid);
+      
+      // Permitir criação apenas se o usuário for o remetente
+      allow create: if isAuthenticated() && 
+        request.resource.data.fromUser == request.auth.uid;
+      
+      // Permitir atualização apenas para o remetente ou destinatário
+      allow update: if isAuthenticated() && 
+        (resource.data.fromUser == request.auth.uid || 
+         resource.data.toUser == request.auth.uid);
+      
+      // Não permitir exclusão
+      allow delete: if false;
+    }
+
     // Regras para outras coleções
     match /{document=**} {
       allow read: if isAuthenticated();

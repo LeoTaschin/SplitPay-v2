@@ -8,6 +8,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDesignSystem } from '../hooks/useDesignSystem';
 import { useLanguage } from '../../context/LanguageContext';
@@ -38,6 +39,7 @@ export const FriendAccountInfo: React.FC<FriendAccountInfoProps> = ({
 }) => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
+  const navigation = useNavigation<any>();
   
   // Obter presença do amigo
   const friendId = friend?.uid || friendData?.id;
@@ -112,6 +114,44 @@ export const FriendAccountInfo: React.FC<FriendAccountInfoProps> = ({
     const success = await toggleFavorite(friendId);
     if (!success) {
       Alert.alert('Erro', 'Não foi possível atualizar favorito');
+    }
+  };
+
+  // Função para acertar dívida
+  const handleSettleDebt = () => {
+    if (!friendId) {
+      Alert.alert('Erro', 'Dados do amigo não encontrados');
+      return;
+    }
+
+    // Verificar se há dívida para acertar
+    if (friendData?.balance === 0) {
+      Alert.alert('Contas Acertadas', 'Não há dívidas pendentes para acertar.');
+      return;
+    }
+
+    // Verificar se o amigo tem dados Pix configurados
+    if (!friend?.pixKey || !friend?.name || !friend?.city) {
+      Alert.alert(
+        'Dados Pix Incompletos', 
+        'Seu amigo precisa configurar os dados Pix para receber pagamentos.'
+      );
+      return;
+    }
+
+    // Calcular valor a pagar (valor absoluto do saldo)
+    const amountToPay = Math.abs(friendData?.balance || 0);
+
+    // Navegar para a tela de pagamento Pix
+    try {
+      navigation.navigate('PixPayment', {
+        friendId,
+        friendData,
+        amount: amountToPay
+      });
+    } catch (error) {
+      console.error('Erro na navegação:', error);
+      Alert.alert('Erro', 'Não foi possível abrir a tela de pagamento');
     }
   };
 
@@ -203,6 +243,7 @@ export const FriendAccountInfo: React.FC<FriendAccountInfoProps> = ({
             }
           ]}
           disabled={friendData?.balance === 0}
+          onPress={handleSettleDebt}
         >
           <Ionicons 
             name="cash-outline" 

@@ -9,6 +9,22 @@ export interface User {
     selectedBadges?: Badge[];
     totalPoints?: number;
     rank?: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+    // Campos obrigatórios para BR Code Pix
+    name?: string; // Nome completo do beneficiário
+    city?: string; // Cidade do beneficiário
+    pixKey?: string; // Chave Pix (CPF, CNPJ, email, telefone, chave aleatória)
+    pixKeyType?: 'cpf' | 'cnpj' | 'email' | 'phone' | 'random'; // Tipo da chave Pix
+    document?: string; // CPF/CNPJ do beneficiário
+    merchantName?: string; // Nome do estabelecimento (opcional)
+    merchantCity?: string; // Cidade do estabelecimento (opcional)
+    // Novos campos para múltiplas chaves Pix
+    pixKeys?: Array<{
+      id: string;
+      pixKey: string;
+      pixKeyType: 'cpf' | 'cnpj' | 'email' | 'phone';
+      bankName?: string;
+      isDefault: boolean;
+    }>;
   }
 
 // Badge types
@@ -149,6 +165,17 @@ export interface UserBadgeProgress {
         balance: number;
       };
     };
+    PixPayment: {
+      friendId: string;
+      friendData?: {
+        id: string;
+        username: string;
+        email: string;
+        photoURL?: string;
+        balance: number;
+      };
+      amount: number;
+    };
     SelectDebtTarget: undefined;
     SelectGroup: undefined;
     Activity: undefined;
@@ -261,6 +288,46 @@ export interface UserBadgeProgress {
     paidBy: string;
     splitBetween: string[];
     category?: string;
+  }
+
+  // Transaction types para BR Code Pix
+  export interface Transaction {
+    id: string;
+    fromUser: string;
+    toUser: string;
+    amount: number;
+    referenceId: string;
+    status: 'pending' | 'completed' | 'failed' | 'cancelled';
+    createdAt: Date;
+    updatedAt: Date;
+    pixPayload?: string; // Payload do QR Code Pix
+    description?: string; // Descrição da transação
+  }
+
+  export interface CreateTransactionForm {
+    toUser: string;
+    amount: number;
+    description?: string;
+  }
+
+  // BR Code Pix types
+  export interface PixPayload {
+    payloadFormatIndicator: string; // "01"
+    pointOfInitiationMethod: string; // "12" para QR Code único, "11" para QR Code reutilizável
+    merchantAccountInformation: {
+      gui: string; // "br.gov.bcb.pix"
+      key: string; // Chave Pix
+      keyType: string; // Tipo da chave
+    };
+    merchantCategoryCode: string; // "0000" para MCC genérico
+    transactionCurrency: string; // "986" para BRL
+    transactionAmount?: string; // Valor da transação (opcional)
+    countryCode: string; // "BR"
+    merchantName: string; // Nome do beneficiário
+    merchantCity: string; // Cidade do beneficiário
+    additionalDataFieldTemplate?: {
+      referenceLabel?: string; // ID de referência
+    };
   }
 
   // Favorite types

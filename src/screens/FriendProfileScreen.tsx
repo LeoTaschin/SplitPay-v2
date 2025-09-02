@@ -18,11 +18,13 @@ import {
   FriendAccountInfo, 
   FriendRemoveButton, 
   FriendTransactionsButton,
-  RemoveFriendsModal
+  RemoveFriendsModal,
+  Button
 } from '../design-system';
 import { User, Badge } from '../types';
 import { badgeService } from '../services/badgeService';
 import { getUserData, removeFriend } from '../services/userService';
+import { calculateBalance, generatePixPayloadForDebt, markDebtsAsPaid } from '../services/debtService';
 
 interface FriendProfileScreenParams {
   friendId: string;
@@ -38,7 +40,7 @@ interface FriendProfileScreenParams {
 export const FriendProfileScreen: React.FC = () => {
   const ds = useDesignSystem();
   const { t } = useLanguage();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const route = useRoute();
   const { user: currentUser } = useAuth();
   
@@ -56,12 +58,25 @@ export const FriendProfileScreen: React.FC = () => {
   const loadFriendData = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Carregando dados do amigo...');
       
       // Carregar dados completos do amigo
       const friendUserData = await getUserData(friendId);
       setFriend(friendUserData);
+      console.log('✅ Dados do amigo carregados:', friendUserData);
+      
+      // Calcular saldo entre os usuários (mantido para referência)
+      if (currentUser?.uid) {
+        console.log('🔄 Calculando saldo...');
+        const balanceData = await calculateBalance(currentUser.uid, friendId);
+        console.log('✅ Saldo calculado:', balanceData);
+        console.log('💰 Valores finais:');
+        console.log('💰 balance:', balanceData.balance);
+        console.log('💰 totalToReceive:', balanceData.totalToReceive);
+        console.log('💰 totalToPay:', balanceData.totalToPay);
+      }
     } catch (error) {
-      console.error('Erro ao carregar dados do amigo:', error);
+      console.error('❌ Erro ao carregar dados do amigo:', error);
       Alert.alert('Erro', 'Não foi possível carregar os dados do amigo');
     } finally {
       setLoading(false);
@@ -72,9 +87,7 @@ export const FriendProfileScreen: React.FC = () => {
     navigation.goBack();
   };
 
-  const handleSettleDebt = () => {
-    Alert.alert('Acertar Dívida', 'Funcionalidade de acerto em desenvolvimento');
-  };
+
 
   const handleViewTransactions = () => {
     // Removido - agora o botão navega diretamente
@@ -128,6 +141,8 @@ export const FriendProfileScreen: React.FC = () => {
       setRemoveLoading(false);
     }
   };
+
+
 
   if (loading) {
     return (
@@ -200,6 +215,8 @@ export const FriendProfileScreen: React.FC = () => {
         friendData={friendData}
         loading={removeLoading}
       />
+
+
     </SafeAreaView>
   );
 };
@@ -246,5 +263,4 @@ const styles = StyleSheet.create({
   badgesSection: {
     marginBottom: 24,
   },
-
 });

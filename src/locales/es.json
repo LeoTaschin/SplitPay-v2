@@ -21,6 +21,7 @@
     "name": "Nombre",
     "notDefined": "No definido",
     "notAvailable": "No disponible",
+    "pleaseCorrectErrors": "Por favor, corrige los errores en el formulario",
     "comingSoon": "Funcionalidad en desarrollo",
     "groups": "grupos",
     "viewAll": "Ver Todas",
@@ -370,7 +371,8 @@
       "privacy": "Privacidad",
       "language": "Idioma",
       "theme": "Tema",
-      "security": "Seguridad"
+      "security": "Seguridad",
+      "payment": "Pagos"
     },
     "sections": {
       "notifications": {
@@ -425,6 +427,71 @@
         "logoutAllDesc": "Salir de todos los dispositivos",
         "deleteAccount": "Eliminar Cuenta",
         "deleteAccountDesc": "Eliminar cuenta permanentemente"
+      },
+      "payment": {
+        "title": "💳 Pagos",
+        "description": "Configura tus datos para recibir pagos",
+        "personalData": "Datos Personales",
+        "pixKey": "Clave Pix",
+        "keyType": "Tipo de Clave",
+        "establishmentData": "Datos del Establecimiento",
+        "howItWorks": "Cómo Funciona",
+        "saveData": "Guardar Datos Pix",
+        "saving": "Guardando...",
+        "successMessage": "Tus datos Pix han sido guardados exitosamente. Ahora puedes recibir pagos vía Código QR.",
+        "errorMessage": "No se pudieron guardar los datos",
+        "fullName": "Nombre Completo",
+        "fullNamePlaceholder": "Tu nombre completo",
+        "city": "Ciudad",
+        "cityPlaceholder": "Tu ciudad",
+        "bankName": "Nombre del Banco",
+        "bankNamePlaceholder": "Ej: Nubank, Itaú, Bradesco",
+        "pixKeyPlaceholder": "Clave Pix",
+        "addKey": "Agregar Clave",
+        "saveKey": "Guardar Clave",
+        "savingKey": "Guardando...",
+        "cancel": "Cancelar",
+        "viewSavedKeys": "Ver Claves Guardadas",
+        "savedKeys": "Claves Guardadas:",
+        "noKeysConfigured": "Ninguna clave Pix configurada aún.",
+        "setDefault": "Establecer Predeterminada",
+        "default": "Predeterminada",
+        "deleteKey": "Eliminar",
+        "confirmDelete": "Confirmar Eliminación",
+        "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar esta clave Pix?",
+        "delete": "Eliminar",
+        "keySaved": "¡Clave Pix guardada exitosamente!",
+        "defaultKeyUpdated": "¡Clave predeterminada actualizada!",
+        "keyDeleted": "¡Clave Pix eliminada!",
+        "needAtLeastOneKey": "Necesitas tener al menos una clave Pix configurada",
+        "couldNotSaveKey": "No se pudo guardar la clave Pix",
+        "couldNotUpdateDefault": "No se pudo actualizar la clave predeterminada",
+        "couldNotDeleteKey": "No se pudo eliminar la clave Pix",
+        "pleaseEnterPixKey": "Por favor, ingresa la clave Pix",
+        "pleaseEnterBankName": "Por favor, ingresa el nombre del banco",
+        "pleaseSelectKeyType": "Por favor, selecciona un tipo de clave",
+        "invalidPixKey": "Clave Pix inválida",
+        "howItWorksDescription": "Configura tus claves Pix para que tus amigos puedan generar Códigos QR y hacer pagos directamente a ti.",
+        "keyTypes": {
+          "cpf": "CPF",
+          "cnpj": "CNPJ",
+          "email": "Correo Electrónico",
+          "phone": "Teléfono"
+        },
+        "placeholders": {
+          "cpf": "000.000.000-00",
+          "cnpj": "00.000.000/0000-00",
+          "email": "tu@email.com",
+          "phone": "(11) 99999-9999"
+        },
+        "validationErrors": {
+          "nameRequired": "El nombre es obligatorio",
+          "nameMinLength": "El nombre debe tener al menos 3 caracteres",
+          "cityRequired": "La ciudad es obligatoria",
+          "pixKeyRequired": "La clave Pix es obligatoria",
+          "pixKeyInvalid": "Clave Pix inválida",
+          "documentRequired": "El documento es obligatorio"
+        }
       }
     },
     "language": "Idioma",
@@ -461,7 +528,8 @@
     "userDisabled": "Usuario deshabilitado",
     "wrongPassword": "Contraseña incorrecta",
     "invalidCredentials": "Credenciales inválidas",
-    "loginError": "Error al iniciar sesión"
+    "loginError": "Error al iniciar sesión",
+    "userNotAuthenticated": "Usuario no autenticado"
   },
   "success": {
     "profileUpdated": "Perfil actualizado exitosamente",
@@ -613,6 +681,52 @@
         "name": "Pionero",
         "description": "Primer usuario de la ciudad en SplitPay"
       }
+    }
+  },
+  "pixPayment": {
+    "title": "Pago Pix",
+    "generatingCode": "Generando código Pix...",
+    "paymentDetails": "Detalles del Pago",
+    "incompletePixData": {
+      "title": "Datos Pix Incompletos",
+      "message": "no tiene datos Pix configurados (clave Pix, nombre o ciudad). El Código QR se generará con datos de prueba.",
+      "thisFriend": "Este amigo"
+    },
+    "testDataWarning": "Usando datos de prueba - El Código QR no será funcional",
+    "amountToPay": "Monto a Pagar",
+    "qrCode": "Código QR Pix",
+    "qrInstruction": "Escanee el Código QR con su aplicación bancaria",
+    "generatingQRCode": "Generando Código QR...",
+    "copyPasteCode": "Código Pix - Copiar y Pegar",
+    "codeInstruction": "Toque el botón de abajo para copiar el código y pégalo en su aplicación bancaria",
+    "copied": "¡Copiado!",
+    "tapToCopy": "Toque para copiar",
+    "howToPay": "Cómo Pagar con Copiar y Pegar",
+    "instructions": {
+      "step1": "Toque \"Copiar Código\" arriba",
+      "step2": "Abra su aplicación bancaria",
+      "step3": "Vaya a \"Pagar\" → \"Pix\" → \"Pegar código\"",
+      "step4": "Pegue el código copiado",
+      "step5": "Confirme el pago"
+    },
+    "confirmPayment": "Confirmar Pago",
+    "confirmPaymentTitle": "Confirmar Pago",
+    "confirmPaymentMessage": {
+      "amount": "¿Confirma que pagó",
+      "for": "a"
+    },
+    "paymentConfirmed": {
+      "title": "¡Pago Confirmado!",
+      "message": "Deuda de",
+      "wasMarkedAsPaid": "fue marcada como pagada"
+    },
+    "confirmPaymentError": "No se pudo confirmar el pago",
+    "loadDataError": "No se pudieron cargar los datos",
+    "copyCodeError": "No se pudo copiar el código",
+    "codeCopied": {
+      "title": "¡Código Pix Copiado! 📋",
+      "message": "Ahora abra su aplicación bancaria y pegue el código en la opción \"Pagar con Pix\" → \"Pegar código\"",
+      "openBankApp": "Abrir Aplicación Bancaria"
     }
   }
 } 

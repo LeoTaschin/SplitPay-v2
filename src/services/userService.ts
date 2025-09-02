@@ -27,6 +27,14 @@ interface UserData {
   debtsAsDebtor: string[];
   totalToReceive: number;
   totalToPay: number;
+  // Campos para BR Code Pix
+  name?: string;
+  city?: string;
+  pixKey?: string;
+  pixKeyType?: 'cpf' | 'cnpj' | 'email' | 'phone' | 'random';
+  document?: string;
+  merchantName?: string;
+  merchantCity?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -103,6 +111,82 @@ export const initializeUser = async (user: FirebaseUser): Promise<ApiResponse<vo
   }
 };
 
+// Interface para chave Pix
+interface PixKeyData {
+  id: string;
+  pixKey: string;
+  pixKeyType: 'cpf' | 'cnpj' | 'email' | 'phone';
+  bankName?: string;
+  isDefault: boolean;
+}
+
+// Atualizar dados Pix do usuário (versão antiga - mantida para compatibilidade)
+export const updateUserPixData = async (
+  userId: string, 
+  pixData: {
+    name: string;
+    city: string;
+    pixKey: string;
+    pixKeyType: 'cpf' | 'cnpj' | 'email' | 'phone' | 'random';
+    document: string;
+    merchantName: string;
+    merchantCity: string;
+  }
+): Promise<ApiResponse<void>> => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    
+    await updateDoc(userRef, {
+      ...pixData,
+      updatedAt: serverTimestamp(),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating user Pix data:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' };
+  }
+};
+
+// Nova função para atualizar múltiplas chaves Pix
+export const updateUserPixKeys = async (
+  userId: string,
+  pixKeys: PixKeyData[],
+  userData: {
+    name: string;
+    city: string;
+    merchantName: string;
+    merchantCity: string;
+  }
+): Promise<ApiResponse<void>> => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    
+    // Encontrar a chave padrão
+    const defaultKey = pixKeys.find(key => key.isDefault);
+    
+    const updateData = {
+      name: userData.name,
+      city: userData.city,
+      merchantName: userData.merchantName,
+      merchantCity: userData.merchantCity,
+      // Manter compatibilidade com sistema antigo
+      pixKey: defaultKey?.pixKey || '',
+      pixKeyType: defaultKey?.pixKeyType || 'cpf',
+      // Novos campos para múltiplas chaves
+      pixKeys: pixKeys,
+      updatedAt: serverTimestamp(),
+    };
+    
+    await updateDoc(userRef, updateData);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating user Pix keys:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' };
+  }
+};
+
 // Buscar dados do usuário
 export const getUserData = async (userId: string): Promise<User> => {
   try {
@@ -114,13 +198,47 @@ export const getUserData = async (userId: string): Promise<User> => {
     }
 
     const data = userDoc.data();
-    return {
+    
+    // Carregar múltiplas chaves Pix se existirem
+    let pixKeys: PixKeyData[] = [];
+    if (data.pixKeys && Array.isArray(data.pixKeys)) {
+      pixKeys = data.pixKeys;
+    } else {
+      // Fallback para sistema antigo - criar uma chave a partir dos dados antigos
+      if (data.pixKey) {
+        pixKeys = [{
+          id: '1',
+          pixKey: data.pixKey,
+          pixKeyType: data.pixKeyType === 'random' ? 'cpf' : data.pixKeyType || 'cpf',
+          bankName: 'Banco Principal',
+          isDefault: true,
+        }];
+      }
+    }
+    
+    const userData = {
       uid: userDoc.id,
       email: data.email || '',
       displayName: data.username || data.displayName,
       photoURL: data.photoURL,
       createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+      // Campos para BR Code Pix
+      name: data.name || data.username || data.displayName,
+      city: data.city || '',
+      pixKey: data.pixKey || '',
+      pixKeyType: data.pixKeyType || 'random',
+      document: data.document || '',
+      merchantName: data.merchantName || data.name || data.username,
+      merchantCity: data.merchantCity || data.city || '',
+      // Novos campos para múltiplas chaves
+      pixKeys: pixKeys,
+      // Campos de badges
+      selectedBadges: data.selectedBadges || [],
+      totalPoints: data.totalPoints || 0,
+      rank: data.rank || 'bronze',
     };
+    
+    return userData;
   } catch (error) {
     console.error('Error fetching user data:', error);
     throw error;
@@ -130,10 +248,7 @@ export const getUserData = async (userId: string): Promise<User> => {
 // Buscar amigos do usuário
 export const getUserFriends = async (userId: string): Promise<Friend[]> => {
   try {
-    console.log('userService - getUserFriends - Iniciando busca para:', userId);
-    
     if (!userId) {
-      console.error('userService - getUserFriends - userId não fornecido');
       throw new Error('ID do usuário não fornecido');
     }
 
@@ -148,21 +263,15 @@ export const getUserFriends = async (userId: string): Promise<Friend[]> => {
     const userDoc = await getDoc(userRef);
 
     if (!userDoc.exists()) {
-      console.error('userService - getUserFriends - Usuário não encontrado:', userId);
       throw new Error('Usuário não encontrado');
     }
 
     const userData = userDoc.data();
     const friendsList = userData.friends || [];
 
-    console.log('userService - getUserFriends - Lista de IDs dos amigos:', friendsList);
-
     if (friendsList.length === 0) {
-      console.log('userService - getUserFriends - Usuário não tem amigos');
       return [];
     }
-
-    console.log('userService - getUserFriends - Buscando dados dos amigos...');
 
     // Buscar os dados de todos os amigos
     const usersRef = collection(db, 'users');
@@ -188,11 +297,9 @@ export const getUserFriends = async (userId: string): Promise<Friend[]> => {
       });
     }
 
-    console.log(`userService: ${friends.length} amigos carregados`);
-    console.log('userService - getUserFriends - Dados dos amigos:', friends.map(f => ({ id: f.id, username: f.username })));
     return friends;
   } catch (error) {
-    console.error('userService - getUserFriends - Erro:', error);
+    console.error('Error fetching user friends:', error);
     throw error;
   }
 };
@@ -200,8 +307,6 @@ export const getUserFriends = async (userId: string): Promise<Friend[]> => {
 // Remover amigo
 export const removeFriend = async (currentUserId: string, friendId: string): Promise<RemoveFriendResult> => {
   try {
-    console.log('userService - removeFriend - Iniciando remoção de amigo:', { currentUserId, friendId });
-    
     // Verificar se existem dívidas pendentes
     const debtsAsCreditorQuery = query(
       collection(db, 'debts'),
@@ -234,16 +339,9 @@ export const removeFriend = async (currentUserId: string, friendId: string): Pro
 
     // Calcular o saldo final (o quanto você deve menos o quanto você está para receber)
     const finalBalance = totalToReceive - totalToPay;
-    
-    console.log('userService - removeFriend - Saldo calculado:', { 
-      totalToReceive, 
-      totalToPay, 
-      finalBalance 
-    });
 
     // Se o saldo final não for zero, retorna erro
     if (finalBalance !== 0) {
-      console.log('userService - removeFriend - Saldo não é zero, não é possível remover');
       return {
         success: false,
         error: 'PENDING_DEBTS',
@@ -260,12 +358,10 @@ export const removeFriend = async (currentUserId: string, friendId: string): Pro
     ]);
 
     if (!userDoc.exists()) {
-      console.error('userService - removeFriend - Usuário não encontrado:', currentUserId);
       return { success: false, error: 'USER_NOT_FOUND' };
     }
 
     if (!friendDoc.exists()) {
-      console.error('userService - removeFriend - Amigo não encontrado:', friendId);
       return { success: false, error: 'FRIEND_NOT_FOUND' };
     }
 

@@ -19,9 +19,10 @@ import {
   SettingsLanguage,
   SettingsTheme,
   SettingsSecurity,
+  SettingsPayment,
 } from '../design-system';
 
-type TabType = 'notifications' | 'privacy' | 'language' | 'theme' | 'security';
+type TabType = 'notifications' | 'privacy' | 'language' | 'theme' | 'security' | 'payment';
 
 export const SettingsScreen: React.FC = () => {
   const { theme, isDark, toggleTheme } = useTheme();
@@ -37,6 +38,7 @@ export const SettingsScreen: React.FC = () => {
     { id: 'language' as TabType, icon: 'language-outline', label: t('settings.tabs.language') },
     { id: 'theme' as TabType, icon: 'color-palette-outline', label: t('settings.tabs.theme') },
     { id: 'security' as TabType, icon: 'lock-closed-outline', label: t('settings.tabs.security') },
+    { id: 'payment' as TabType, icon: 'card-outline', label: t('settings.tabs.payment') },
   ];
 
   const scrollToTab = (tabIndex: number) => {
@@ -85,6 +87,8 @@ export const SettingsScreen: React.FC = () => {
         return <SettingsTheme />;
       case 'security':
         return <SettingsSecurity />;
+      case 'payment':
+        return <SettingsPayment />;
       default:
         return <SettingsNotifications />;
     }
