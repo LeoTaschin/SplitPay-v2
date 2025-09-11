@@ -139,6 +139,13 @@ export interface UserBadgeProgress {
     Friends: undefined;
     Groups: undefined;
     NewDebt: undefined;
+    NewDebtValue: {
+      type: 'individual' | 'group';
+      friendId?: string;
+      friendName?: string;
+      groupId?: string;
+      groupName?: string;
+    };
     NewGroupDebt: { groupId: string };
     DebtDetails: { debtId: string };
     GroupDetail: { groupId: string };

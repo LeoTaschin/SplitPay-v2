@@ -239,6 +239,18 @@
     "noRequests": "No Requests",
     "noRequestsSubtitle": "You don't have pending friend requests",
     "wantsToBeFriend": "Wants to be your friend",
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "away": "Away",
+      "busy": "Busy",
+      "lastSeen": "Last seen",
+      "now": "Now",
+      "minutesAgo": "{{minutes}} min ago",
+      "hoursAgo": "{{hours}}h ago",
+      "daysAgo": "{{days}} days ago",
+      "weekAgo": "More than a week ago"
+    },
     "profile": "Profile",
     "friendProfile": "Friend Profile",
     "loadingProfile": "Loading profile...",
@@ -331,6 +343,33 @@
     "totalOwed": "Total Owed",
     "totalOwedToYou": "Total Owed to You",
     "settled": "Settled",
+    "newDebtScreen": {
+      "title": "New Debt",
+      "tabs": {
+        "individual": "Individual",
+        "group": "Group"
+      },
+      "individual": {
+        "title": "With Friend",
+        "subtitle": "Select a friend to create the debt",
+        "noFriends": "You don't have friends yet",
+        "noFriendsSubtitle": "Add friends to create individual debts"
+      },
+      "group": {
+        "title": "In Group",
+        "subtitle": "Select a group to create the debt",
+        "noGroups": "You don't have groups yet",
+        "noGroupsSubtitle": "Create groups to split expenses"
+      }
+    },
+    "newDebtValue": {
+      "header": {
+        "title": "You add",
+        "with": "with",
+        "in": "in"
+      },
+      "continue": "Continue"
+    },
     "details": {
       "title": "Debt Details",
       "subtitle": "Complete transaction information",

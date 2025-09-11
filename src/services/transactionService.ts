@@ -180,7 +180,8 @@ const generatePixPayload = (params: {
     },
     merchantCategoryCode: "0000",
     transactionCurrency: "986", // BRL
-    transactionAmount: amount.toFixed(2),
+    transactionAmount: amount.toFixed(2
+    ),
     countryCode: "BR",
     merchantName: toUser.name!,
     merchantCity: toUser.city!,

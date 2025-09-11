@@ -227,6 +227,18 @@
     "noRequests": "Sin Solicitudes",
     "noRequestsSubtitle": "No tienes solicitudes de amistad pendientes",
     "wantsToBeFriend": "Quiere ser tu amigo",
+    "status": {
+      "online": "En línea",
+      "offline": "Desconectado",
+      "away": "Ausente",
+      "busy": "Ocupado",
+      "lastSeen": "Visto por último",
+      "now": "Ahora mismo",
+      "minutesAgo": "Hace {{minutes}} min",
+      "hoursAgo": "Hace {{hours}}h",
+      "daysAgo": "Hace {{days}} días",
+      "weekAgo": "Hace más de una semana"
+    },
     "profile": "Perfil",
     "friendProfile": "Perfil del Amigo",
     "loadingProfile": "Cargando perfil...",
@@ -319,6 +331,33 @@
     "totalOwed": "Total Adedudado",
     "totalOwedToYou": "Total Adedudado a Ti",
     "settled": "Liquidado",
+    "newDebtScreen": {
+      "title": "Nueva Deuda",
+      "tabs": {
+        "individual": "Individual",
+        "group": "Grupo"
+      },
+      "individual": {
+        "title": "Con Amigo",
+        "subtitle": "Selecciona un amigo para crear la deuda",
+        "noFriends": "Aún no tienes amigos",
+        "noFriendsSubtitle": "Agrega amigos para crear deudas individuales"
+      },
+      "group": {
+        "title": "En Grupo",
+        "subtitle": "Selecciona un grupo para crear la deuda",
+        "noGroups": "Aún no tienes grupos",
+        "noGroupsSubtitle": "Crea grupos para dividir gastos"
+      }
+    },
+    "newDebtValue": {
+      "header": {
+        "title": "Tú agregas",
+        "with": "con",
+        "in": "en"
+      },
+      "continue": "Continuar"
+    },
     "details": {
       "title": "Detalles de la Deuda",
       "subtitle": "Información completa de la transacción",

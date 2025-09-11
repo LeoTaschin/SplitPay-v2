@@ -361,6 +361,33 @@
     "totalOwed": "Total Devido",
     "totalOwedToYou": "Total Devido a Você",
     "settled": "Acertado",
+    "newDebtScreen": {
+      "title": "Nova Dívida",
+      "tabs": {
+        "individual": "Individual",
+        "group": "Grupo"
+      },
+      "individual": {
+        "title": "Com Amigo",
+        "subtitle": "Selecione um amigo para criar a dívida",
+        "noFriends": "Você ainda não tem amigos",
+        "noFriendsSubtitle": "Adicione amigos para criar dívidas individuais"
+      },
+      "group": {
+        "title": "Em Grupo",
+        "subtitle": "Selecione um grupo para criar a dívida",
+        "noGroups": "Você ainda não tem grupos",
+        "noGroupsSubtitle": "Crie grupos para dividir despesas"
+      }
+    },
+    "newDebtValue": {
+      "header": {
+        "title": "Você adiciona",
+        "with": "com",
+        "in": "em"
+      },
+      "continue": "Continuar"
+    },
     "details": {
       "title": "Detalhes da Dívida",
       "subtitle": "Informações completas da transação",

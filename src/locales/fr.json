@@ -225,6 +225,18 @@
     "noRequests": "Aucune Demande",
     "noRequestsSubtitle": "Vous n'avez pas de demandes d'amis en attente",
     "wantsToBeFriend": "Veut être votre ami",
+    "status": {
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "away": "Absent",
+      "busy": "Occupé",
+      "lastSeen": "Vu pour la dernière fois",
+      "now": "Maintenant",
+      "minutesAgo": "Il y a {{minutes}} min",
+      "hoursAgo": "Il y a {{hours}}h",
+      "daysAgo": "Il y a {{days}} jours",
+      "weekAgo": "Il y a plus d'une semaine"
+    },
     "profile": "Profil",
     "friendProfile": "Profil de l'Ami",
     "loadingProfile": "Chargement du profil...",
@@ -317,6 +329,33 @@
     "totalOwed": "Total dû",
     "totalOwedToYou": "Total dû à vous",
     "settled": "Régler",
+    "newDebtScreen": {
+      "title": "Nouvelle Dette",
+      "tabs": {
+        "individual": "Individuel",
+        "group": "Groupe"
+      },
+      "individual": {
+        "title": "Avec Ami",
+        "subtitle": "Sélectionnez un ami pour créer la dette",
+        "noFriends": "Vous n'avez pas encore d'amis",
+        "noFriendsSubtitle": "Ajoutez des amis pour créer des dettes individuelles"
+      },
+      "group": {
+        "title": "En Groupe",
+        "subtitle": "Sélectionnez un groupe pour créer la dette",
+        "noGroups": "Vous n'avez pas encore de groupes",
+        "noGroupsSubtitle": "Créez des groupes pour partager les dépenses"
+      }
+    },
+    "newDebtValue": {
+      "header": {
+        "title": "Vous ajoutez",
+        "with": "avec",
+        "in": "dans"
+      },
+      "continue": "Continuer"
+    },
     "details": {
       "title": "Détails de la Dette",
       "subtitle": "Informations complètes de la transaction",

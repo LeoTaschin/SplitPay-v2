@@ -6,6 +6,7 @@ import { RootStackParamList } from '../types';
 // Importar telas
 import { HomeScreen } from '../screens/HomeScreen';
 import { NewDebtScreen } from '../screens/NewDebtScreen';
+import NewDebtValueScreen from '../screens/NewDebtValueScreen';
 import { DebtDetailsScreen } from '../screens/DebtDetailsScreen';
 import { GroupDetailScreen } from '../screens/GroupDetailScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
@@ -36,6 +37,11 @@ export const MainNavigator: React.FC = () => {
         name="NewDebt" 
         component={NewDebtScreen}
         key={`new-debt-${isDark}`}
+      />
+      <Stack.Screen 
+        name="NewDebtValue" 
+        component={NewDebtValueScreen}
+        key={`new-debt-value-${isDark}`}
       />
       <Stack.Screen 
         name="DebtDetails" 
