@@ -14,6 +14,8 @@ import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { FriendProfileScreen } from '../screens/FriendProfileScreen';
 import { FriendTransactionsScreen } from '../screens/FriendTransactionsScreen';
 import { PixPaymentScreen } from '../screens/PixPaymentScreen';
+import ConfirmDebtScreen from '../screens/ConfirmDebtScreen';
+import ConfirmDebtGroupScreen from '../screens/ConfirmDebtGroupScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -77,6 +79,16 @@ export const MainNavigator: React.FC = () => {
         name="PixPayment" 
         component={PixPaymentScreen}
         key={`pix-payment-${isDark}`}
+      />
+      <Stack.Screen 
+        name="ConfirmDebt" 
+        component={ConfirmDebtScreen}
+        key={`confirm-debt-${isDark}`}
+      />
+      <Stack.Screen 
+        name="ConfirmDebtGroup" 
+        component={ConfirmDebtGroupScreen}
+        key={`confirm-debt-group-${isDark}`}
       />
     </Stack.Navigator>
   );

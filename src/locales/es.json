@@ -358,6 +358,62 @@
       },
       "continue": "Continuar"
     },
+    "confirmDebt": {
+      "header": {
+        "title": "Confirmar Deuda",
+        "subtitle": "Revisa los detalles antes de crear"
+      },
+      "value": {
+        "label": "Monto de la Deuda"
+      },
+      "friend": {
+        "type": "Amigo"
+      },
+      "title": {
+        "label": "Título de la Deuda",
+        "placeholder": "Ej: Cena en restaurante"
+      },
+      "description": {
+        "label": "Descripción (Opcional)",
+        "placeholder": "Agrega una descripción para esta deuda..."
+      },
+      "summary": {
+        "title": "Resumen de la Transacción",
+        "amount": "Monto",
+        "friend": "Amigo",
+        "title": "Título"
+      },
+      "confirm": "Crear Deuda"
+    },
+    "confirmDebtGroup": {
+      "header": {
+        "title": "Confirmar Deuda en Grupo",
+        "subtitle": "Revisa los detalles y configura la división"
+      },
+      "value": {
+        "label": "Monto Total",
+        "split": "{{amount}} por persona ({{count}} personas)"
+      },
+      "members": {
+        "title": "Miembros del Grupo"
+      },
+      "split": {
+        "title": "Cómo Dividir",
+        "equal": "División Igual",
+        "equalDescription": "Dividir igualmente entre todos los miembros",
+        "selective": "División Selectiva",
+        "selectiveDescription": "Elegir quién participa en la deuda"
+      },
+      "title": {
+        "label": "Título de la Deuda",
+        "placeholder": "Ej: Cena en grupo"
+      },
+      "description": {
+        "label": "Descripción (Opcional)",
+        "placeholder": "Agrega una descripción para esta deuda..."
+      },
+      "confirm": "Crear Deuda en Grupo"
+    },
     "details": {
       "title": "Detalles de la Deuda",
       "subtitle": "Información completa de la transacción",

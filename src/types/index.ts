@@ -143,8 +143,29 @@ export interface UserBadgeProgress {
       type: 'individual' | 'group';
       friendId?: string;
       friendName?: string;
+      friendPhoto?: string;
       groupId?: string;
       groupName?: string;
+    };
+    ConfirmDebt: {
+      type: 'individual';
+      friendId: string;
+      friendName: string;
+      friendPhoto?: string;
+      value: number;
+      currency: string;
+    };
+    ConfirmDebtGroup: {
+      type: 'group';
+      groupId: string;
+      groupName: string;
+      value: number;
+      currency: string;
+      groupMembers?: Array<{
+        id: string;
+        name: string;
+        photo?: string;
+      }>;
     };
     NewGroupDebt: { groupId: string };
     DebtDetails: { debtId: string };

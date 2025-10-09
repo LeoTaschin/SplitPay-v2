@@ -9,6 +9,7 @@ import {
   Dimensions,
   Animated,
 } from 'react-native';
+// @ts-ignore
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
@@ -21,6 +22,7 @@ interface RouteParams {
   type: 'individual' | 'group';
   friendId?: string;
   friendName?: string;
+  friendPhoto?: string;
   groupId?: string;
   groupName?: string;
 }
@@ -86,11 +88,28 @@ const NewDebtValueScreen: React.FC = () => {
     setValue(formattedValue);
   };
 
-  const handleDecimalPress = () => {
+  const handleDoubleZeroPress = () => {
     setIsEditing(true);
-    // O ponto decimal já está sempre presente no formato "0.00"
-    // Esta função pode ser usada para outros propósitos no futuro
-    // Por enquanto, não faz nada pois o formato já inclui o ponto
+    
+    // Se o valor é "0.00", não faz nada
+    if (value === '0.00') {
+      return;
+    }
+    
+    // Remove o ponto decimal para trabalhar com números inteiros
+    const numericValue = value.replace('.', '');
+    
+    // Adiciona dois zeros (multiplica por 100)
+    const newNumericValue = numericValue + '00';
+    
+    // Limita a 8 dígitos (máximo R$ 9.999.999,99)
+    if (newNumericValue.length > 8) {
+      return;
+    }
+    
+    // Formata de volta com ponto decimal
+    const formattedValue = newNumericValue.slice(0, -2) + '.' + newNumericValue.slice(-2);
+    setValue(formattedValue);
   };
 
   const handleBackspace = () => {
@@ -170,12 +189,24 @@ const NewDebtValueScreen: React.FC = () => {
   const handleContinue = () => {
     const numericValue = parseFloat(value);
     if (numericValue > 0) {
-      // TODO: Navigate to next screen when implemented
-      console.log('Navigate to NewDebtDetails with:', {
-        ...params,
-        value: numericValue,
-        currency: 'BRL',
-      });
+      if (params.type === 'individual') {
+        (navigation as any).navigate('ConfirmDebt', {
+          type: 'individual',
+          friendId: params.friendId!,
+          friendName: params.friendName!,
+          friendPhoto: params.friendPhoto,
+          value: numericValue,
+          currency: 'BRL',
+        });
+      } else {
+        (navigation as any).navigate('ConfirmDebtGroup', {
+          type: 'group',
+          groupId: params.groupId!,
+          groupName: params.groupName!,
+          value: numericValue,
+          currency: 'BRL',
+        });
+      }
     }
   };
 
@@ -203,7 +234,11 @@ const NewDebtValueScreen: React.FC = () => {
 
   const renderKeypadButton = (content: string | React.ReactNode, onPress: () => void, style?: any) => (
     <TouchableOpacity
-      style={[styles.keypadButton, style]}
+      style={[
+        styles.keypadButton, 
+        { backgroundColor: ds.colors.surface },
+        style
+      ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -283,21 +318,42 @@ const NewDebtValueScreen: React.FC = () => {
       {/* Add Value Buttons */}
       <View style={styles.quickValuesContainer}>
         <TouchableOpacity
-          style={[styles.quickValueButton, { backgroundColor: ds.colors.surface }]}
+          style={[
+            styles.quickValueButton, 
+            { 
+              backgroundColor: ds.colors.surface,
+              borderColor: ds.colors.border?.primary || ds.colors.surface,
+              borderWidth: 1
+            }
+          ]}
           onPress={() => handleAddValue(10)}
           activeOpacity={0.7}
         >
           <Text style={[styles.quickValueText, { color: ds.colors.text.primary }]}>+ R$ 10</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.quickValueButton, { backgroundColor: ds.colors.surface }]}
+          style={[
+            styles.quickValueButton, 
+            { 
+              backgroundColor: ds.colors.surface,
+              borderColor: ds.colors.border?.primary || ds.colors.surface,
+              borderWidth: 1
+            }
+          ]}
           onPress={() => handleAddValue(50)}
           activeOpacity={0.7}
         >
           <Text style={[styles.quickValueText, { color: ds.colors.text.primary }]}>+ R$ 50</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.quickValueButton, { backgroundColor: ds.colors.surface }]}
+          style={[
+            styles.quickValueButton, 
+            { 
+              backgroundColor: ds.colors.surface,
+              borderColor: ds.colors.border?.primary || ds.colors.surface,
+              borderWidth: 1
+            }
+          ]}
           onPress={() => handleAddValue(100)}
           activeOpacity={0.7}
         >
@@ -319,7 +375,10 @@ const NewDebtValueScreen: React.FC = () => {
           disabled={parseFloat(value) <= 0}
           activeOpacity={0.8}
         >
-          <Text style={styles.continueButtonText}>
+          <Text style={[
+            styles.continueButtonText,
+            { color: parseFloat(value) > 0 ? ds.colors.surface : ds.colors.text.secondary }
+          ]}>
             {t('debts.newDebtValue.continue')}
           </Text>
         </TouchableOpacity>
@@ -346,7 +405,7 @@ const NewDebtValueScreen: React.FC = () => {
         </View>
         
         <View style={[styles.keypadRow, styles.lastKeypadRow]}>
-          {renderKeypadButton('.', () => handleDecimalPress())}
+          {renderKeypadButton('00', () => handleDoubleZeroPress())}
           {renderKeypadButton('0', () => handleNumberPress('0'))}
           {renderKeypadButton(
             <Ionicons 
@@ -460,7 +519,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
   },
   keypadButtonText: {
     fontSize: 24,
@@ -500,7 +558,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   continueButtonText: {
-    color: 'white',
     fontSize: 16,
     fontWeight: '600',
   },

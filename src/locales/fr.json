@@ -356,6 +356,62 @@
       },
       "continue": "Continuer"
     },
+    "confirmDebt": {
+      "header": {
+        "title": "Confirmer la Dette",
+        "subtitle": "Vérifiez les détails avant de créer"
+      },
+      "value": {
+        "label": "Montant de la Dette"
+      },
+      "friend": {
+        "type": "Ami"
+      },
+      "title": {
+        "label": "Titre de la Dette",
+        "placeholder": "Ex: Dîner au restaurant"
+      },
+      "description": {
+        "label": "Description (Optionnel)",
+        "placeholder": "Ajoutez une description pour cette dette..."
+      },
+      "summary": {
+        "title": "Résumé de la Transaction",
+        "amount": "Montant",
+        "friend": "Ami",
+        "title": "Titre"
+      },
+      "confirm": "Créer la Dette"
+    },
+    "confirmDebtGroup": {
+      "header": {
+        "title": "Confirmer la Dette de Groupe",
+        "subtitle": "Vérifiez les détails et configurez le partage"
+      },
+      "value": {
+        "label": "Montant Total",
+        "split": "{{amount}} par personne ({{count}} personnes)"
+      },
+      "members": {
+        "title": "Membres du Groupe"
+      },
+      "split": {
+        "title": "Comment Partager",
+        "equal": "Partage Égal",
+        "equalDescription": "Partager équitablement entre tous les membres",
+        "selective": "Partage Sélectif",
+        "selectiveDescription": "Choisir qui participe à la dette"
+      },
+      "title": {
+        "label": "Titre de la Dette",
+        "placeholder": "Ex: Dîner de groupe"
+      },
+      "description": {
+        "label": "Description (Optionnel)",
+        "placeholder": "Ajoutez une description pour cette dette..."
+      },
+      "confirm": "Créer la Dette de Groupe"
+    },
     "details": {
       "title": "Détails de la Dette",
       "subtitle": "Informations complètes de la transaction",

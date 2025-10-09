@@ -7,10 +7,128 @@ import {
   getDoc,
   updateDoc,
   doc,
-  serverTimestamp
+  serverTimestamp,
+  addDoc,
+  setDoc
 } from 'firebase/firestore';
 import { Debt, User } from '../types';
 import { generatePixPayload } from '../utils/pixUtils';
+
+// Criar nova dívida
+export const createDebt = async (
+  creditorId: string,
+  debtorId: string,
+  amount: number,
+  title?: string,
+  type: 'personal' | 'group' = 'personal',
+  groupId?: string,
+  groupName?: string
+): Promise<Debt> => {
+  try {
+    console.log('🔄 Criando nova dívida...');
+    console.log('💰 Credor:', creditorId);
+    console.log('💰 Devedor:', debtorId);
+    console.log('💰 Valor:', amount);
+    console.log('💰 Título:', title);
+
+    // Gerar ID único para a dívida
+    const debtId = `debt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Buscar dados do credor
+    const creditorRef = doc(db, 'users', creditorId);
+    const creditorDoc = await getDoc(creditorRef);
+    
+    if (!creditorDoc.exists()) {
+      throw new Error('Credor não encontrado');
+    }
+
+    const creditorData = creditorDoc.data() as User;
+
+    // Buscar dados do devedor
+    const debtorRef = doc(db, 'users', debtorId);
+    const debtorDoc = await getDoc(debtorRef);
+    
+    if (!debtorDoc.exists()) {
+      throw new Error('Devedor não encontrado');
+    }
+
+    const debtorData = debtorDoc.data() as User;
+
+    // Criar objeto da dívida
+    const debtData: Omit<Debt, 'id'> = {
+      title: title || 'Dívida',
+      amount,
+      description: '',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      paid: false,
+      isPaid: false,
+      createdBy: creditorId,
+      creditorId,
+      debtorId,
+      type,
+      creditor: {
+        id: creditorId,
+        username: creditorData.displayName || creditorData.email,
+        name: creditorData.name || creditorData.displayName || 'Usuário',
+        photoURL: creditorData.photoURL || undefined
+      },
+      debtor: {
+        id: debtorId,
+        username: debtorData.displayName || debtorData.email,
+        name: debtorData.name || debtorData.displayName || 'Usuário',
+        photoURL: debtorData.photoURL || undefined
+      },
+      createdByUser: {
+        id: creditorId,
+        username: creditorData.displayName || creditorData.email,
+        name: creditorData.name || creditorData.displayName || 'Usuário',
+        photoURL: creditorData.photoURL || undefined
+      }
+    };
+
+    // Adicionar campos específicos para dívidas em grupo
+    if (type === 'group' && groupId && groupName) {
+      debtData.groupId = groupId;
+      debtData.groupName = groupName;
+    }
+
+    // Função para remover campos undefined
+    const cleanData = (obj: any): any => {
+      const cleaned: any = {};
+      for (const [key, value] of Object.entries(obj)) {
+        if (value !== undefined) {
+          if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            cleaned[key] = cleanData(value);
+          } else {
+            cleaned[key] = value;
+          }
+        }
+      }
+      return cleaned;
+    };
+
+    // Limpar dados antes de salvar
+    const cleanedDebtData = cleanData(debtData);
+
+    // Salvar no Firestore
+    await setDoc(doc(db, 'debts', debtId), {
+      ...cleanedDebtData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+
+    console.log('✅ Dívida criada com sucesso:', debtId);
+
+    return {
+      id: debtId,
+      ...debtData
+    };
+  } catch (error) {
+    console.error('❌ Erro ao criar dívida:', error);
+    throw error;
+  }
+};
 
 // Calcular saldo entre dois usuários
 export const calculateBalance = async (

@@ -370,6 +370,62 @@
       },
       "continue": "Continue"
     },
+    "confirmDebt": {
+      "header": {
+        "title": "Confirm Debt",
+        "subtitle": "Review details before creating"
+      },
+      "value": {
+        "label": "Debt Amount"
+      },
+      "friend": {
+        "type": "Friend"
+      },
+      "title": {
+        "label": "Debt Title",
+        "placeholder": "Ex: Restaurant dinner"
+      },
+      "description": {
+        "label": "Description (Optional)",
+        "placeholder": "Add a description for this debt..."
+      },
+      "summary": {
+        "title": "Transaction Summary",
+        "amount": "Amount",
+        "friend": "Friend",
+        "title": "Title"
+      },
+      "confirm": "Create Debt"
+    },
+    "confirmDebtGroup": {
+      "header": {
+        "title": "Confirm Group Debt",
+        "subtitle": "Review details and configure split"
+      },
+      "value": {
+        "label": "Total Amount",
+        "split": "{{amount}} per person ({{count}} people)"
+      },
+      "members": {
+        "title": "Group Members"
+      },
+      "split": {
+        "title": "How to Split",
+        "equal": "Equal Split",
+        "equalDescription": "Split equally among all members",
+        "selective": "Selective Split",
+        "selectiveDescription": "Choose who participates in the debt"
+      },
+      "title": {
+        "label": "Debt Title",
+        "placeholder": "Ex: Group dinner"
+      },
+      "description": {
+        "label": "Description (Optional)",
+        "placeholder": "Add a description for this debt..."
+      },
+      "confirm": "Create Group Debt"
+    },
     "details": {
       "title": "Debt Details",
       "subtitle": "Complete transaction information",
