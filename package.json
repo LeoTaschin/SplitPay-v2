@@ -6,7 +6,14 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:ios": "npx eas-cli build --platform ios",
+    "build:ios:preview": "npx eas-cli build --platform ios --profile preview",
+    "build:ios:production": "npx eas-cli build --platform ios --profile production",
+    "submit:ios": "npx eas-cli submit --platform ios",
+    "eas:login": "npx eas-cli login",
+    "eas:init": "npx eas-cli init",
+    "eas:configure": "npx eas-cli build:configure"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -47,6 +54,7 @@
     "@typescript-eslint/eslint-plugin": "^8.39.0",
     "@typescript-eslint/parser": "^8.39.0",
     "babel-preset-expo": "^54.0.3",
+    "eas-cli": "^16.26.0",
     "eslint": "^9.32.0",
     "eslint-config-expo": "~10.0.0",
     "prettier": "^3.6.2",
