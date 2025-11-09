@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "SplitPay-v2",
-    "slug": "SplitPay-v2",
+    "name": "SplitPay",
+    "slug": "splitpay-v2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,9 +13,18 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.leonardotaschin.splitpay",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Precisamos acessar suas fotos para atualizar seu perfil.",
+        "NSCameraUsageDescription": "Precisamos acessar sua câmera para tirar fotos do perfil.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.leonardotaschin.splitpay",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -24,6 +33,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "50886a26-e90c-4ee8-b162-af82c89ca215"
+      }
+    },
+    "owner": "leotaschin"
   }
 }
